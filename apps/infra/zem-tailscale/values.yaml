@@ -1,3 +1,8 @@
 oauth:
   clientId: tailscale-CHANGEME-client-id
   clientSecretKey: tailscale-CHANGEME-client-secret
+
+subnetRouter: {}
+  # hostname: subnet-router
+  # routes:
+  #   - "10.44.0.0/16"

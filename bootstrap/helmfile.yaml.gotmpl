@@ -88,6 +88,11 @@ releases:
       - oauth:
           clientIdKey: tailscale-{{ .Values.cluster.name }}-client-id
           clientSecretKey: tailscale-{{ .Values.cluster.name }}-client-secret
+        {{- if .Values.subnetRouter }}
+        subnetRouter:
+          hostname: {{ .Values.cluster.name }}-subnet-router
+          routes: {{ .Values.subnetRouter.routes | toJson }}
+        {{- end }}
     hooks:
       - events: ["postsync"]
         showlogs: true

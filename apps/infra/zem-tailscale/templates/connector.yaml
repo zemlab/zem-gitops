@@ -1,0 +1,15 @@
+{{- if .Values.subnetRouter }}
+{{- if .Values.subnetRouter.routes }}
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: {{ .Values.subnetRouter.hostname | default "subnet-router" }}
+spec:
+  hostname: {{ .Values.subnetRouter.hostname | default "subnet-router" }}
+  subnetRouter:
+    advertiseRoutes:
+      {{- range .Values.subnetRouter.routes }}
+      - {{ . | quote }}
+      {{- end }}
+{{- end }}
+{{- end }}

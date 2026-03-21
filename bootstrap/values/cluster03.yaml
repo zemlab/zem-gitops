@@ -1,6 +1,10 @@
 cluster:
   name: cluster03
 
+subnetRouter:
+  routes:
+    - "10.44.0.0/16"
+
 ociVault:
   enabled: true
   vault: ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka
