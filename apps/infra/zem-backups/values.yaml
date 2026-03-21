@@ -13,7 +13,7 @@ b2:
   vaultSecretName: ""  # OCI Vault secret containing JSON: {"ACCESS_KEY_ID":"...","SECRET_ACCESS_KEY":"...","RESTIC_PASSWORD":"..."}
 
 backup:
-  schedule: "@daily-random"
+  schedule: "@every 8h"
 check:
   schedule: "@weekly-random"
 prune:
