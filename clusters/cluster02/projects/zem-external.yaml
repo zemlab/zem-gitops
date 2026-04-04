@@ -24,9 +24,9 @@ spec:
           vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
           compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
           region: "uk-london-1"
-          tenancyOcid: ""
+          tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
         backups:
-          ociUserOcid: ""
+          ociUserOcid: "ocid1.user.oc1..aaaaaaaagqof2zkldrwdgimwqqefvu3ta5ts7swnh2kcdt5jexh6sbbnt5ka"
           ociCredentialSecret: "zem-external-prod-oci-creds"
   destination:
     server: "https://kubernetes.default.svc"
