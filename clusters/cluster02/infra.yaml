@@ -51,6 +51,8 @@ spec:
                 - name: zem-external-prod
                   vaultSecretName: infra-zem-external-prod-oci-credentials
                   targetNamespace: zem-external-prod
+          cnpg:
+            enabled: true
 
   destination:
     server: "https://kubernetes.default.svc"

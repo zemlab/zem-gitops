@@ -57,6 +57,13 @@ features:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
       path: apps/infra/zem-mariadb-operator
+  cnpg:
+    enabled: false
+    namespace: cnpg-system
+    source:
+      repoURL: https://github.com/danfoster/zem-gitops
+      targetRevision: main
+      path: apps/infra/zem-cnpg
   metallb-configs:
     enabled: false
     namespace: metallb
