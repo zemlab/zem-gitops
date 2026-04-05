@@ -10,24 +10,31 @@ spec:
   source:
     repoURL: https://github.com/danfoster/zem-gitops
     targetRevision: main
-    path: deployments/zem-external
+    path: deployments/project
     helm:
+      valueFiles:
+        - projects/zem-external.yaml
       valuesObject:
         env: prod
         cluster: cluster02
-        echo:
-          ingress:
-            annotations:
-              external-dns.alpha.kubernetes.io/target: "137.220.113.26"
-            hostname: "echo-c1.zem.org.uk"
-        ociVault:
-          vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
-          compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
-          region: "uk-london-1"
-          tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
-        backups:
-          ociUserOcid: "ocid1.user.oc1..aaaaaaaagw6nvaaef4gn5tqvaadwqmmtimwbv3zrbrzdin35c3vxq7v7pnpa"
-          ociCredentialSecret: "zem-external-prod-oci-creds"
+        common:
+          values:
+            ociVault:
+              vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
+              compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
+              region: "uk-london-1"
+              tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
+              userOcid: "ocid1.user.oc1..aaaaaaaagw6nvaaef4gn5tqvaadwqmmtimwbv3zrbrzdin35c3vxq7v7pnpa"
+              credentialSecretName: "zem-external-prod-oci-creds"
+        services:
+          backups:
+            enabled: true
+          echo:
+            values:
+              ingress:
+                annotations:
+                  external-dns.alpha.kubernetes.io/target: "137.220.113.26"
+                hostname: "echo-c1.zem.org.uk"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: argocd

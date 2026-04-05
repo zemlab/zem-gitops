@@ -1,19 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: pce-{{ .Values.env }}
+  name: {{ .Values.name }}-{{ .Values.env }}
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
-  description: PCE ({{ .Values.env }}) Project
+  description: {{ .Values.description | default (printf "%s (%s) project" .Values.name .Values.env) }}
   destinations:
-    - namespace: "pce-{{ .Values.env }}"
+    - namespace: "{{ .Values.name }}-{{ .Values.env }}"
       server: "https://kubernetes.default.svc"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
   sourceRepos:
     - "https://github.com/danfoster/zem-gitops"
-    - "https://github.com/zemlab/golinks"
-    - "ghcr.io/zemlab/golinks-helm"
+    {{- range .Values.extraSourceRepos }}
+    - {{ . | quote }}
+    {{- end }}

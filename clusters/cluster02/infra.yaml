@@ -74,9 +74,11 @@ spec:
                 - name: zem-external-prod
                   vaultSecretName: infra-zem-external-prod-oci-credentials
                   targetNamespace: zem-external-prod
+                - name: zenith-prod
+                  vaultSecretName: infra-zenith-prod-oci-credentials
+                  targetNamespace: zenith-prod
           cnpg:
             enabled: true
-
   destination:
     server: "https://kubernetes.default.svc"
     namespace: argocd
@@ -87,4 +89,4 @@ spec:
     - group: argoproj.io
       kind: Application
       jsonPointers:
-      - /spec/syncPolicy
+        - /spec/syncPolicy

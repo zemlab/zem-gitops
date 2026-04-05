@@ -1,6 +1,0 @@
-dependencies:
-- name: zem-backups
-  repository: file://../../apps/infra/zem-backups
-  version: 0.1.0
-digest: sha256:04050de60b17feda65d8271fc7ca4d6c11642f72cb06dd778e54dc8ac6d145ad
-generated: "2025-12-23T17:18:54.355658Z"

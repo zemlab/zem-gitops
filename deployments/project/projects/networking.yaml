@@ -1,0 +1,10 @@
+name: networking
+
+services:
+  omada:
+    enabled: true
+    releaseName: "omada"
+    source:
+      repoURL: https://github.com/danfoster/zem-gitops
+      targetRevision: main
+      path: apps/networking/omada

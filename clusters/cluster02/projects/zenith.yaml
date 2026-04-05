@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: pce-prod
+  name: zenith-prod
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -13,10 +13,10 @@ spec:
     path: deployments/project
     helm:
       valueFiles:
-        - projects/pce.yaml
+        - projects/zenith.yaml
       valuesObject:
         env: prod
-        cluster: cluster03
+        cluster: cluster02
         common:
           values:
             ociVault:
@@ -24,8 +24,8 @@ spec:
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
               region: "uk-london-1"
               tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
-              userOcid: "ocid1.user.oc1..aaaaaaaacrnwg5ty5iepw3vmewodcsixhazh6exxuakwrr74tryisnjnbgoq"
-              credentialSecretName: "pce-prod-oci-creds"
+              userOcid: "ocid1.user.oc1..aaaaaaaajpxug7ehv4xazz5lrvyisd2mhrrzfs2a7pqm4qm7qc4gj5jyitaq"
+              credentialSecretName: "zenith-prod-oci-creds"
         services:
           backups:
             enabled: true

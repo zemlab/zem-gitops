@@ -10,16 +10,22 @@ set -euo pipefail
 # 4. Random restic password
 # 5. Stores B2 creds + restic password in OCI Vault (for the namespace's SecretStore)
 # 6. Stores OCI API key in OCI Vault (for the infra ClusterSecretStore to distribute)
+# 7. Updates clusters/<cluster>/infra.yaml with backup-credentials namespace entry
+# 8. Creates or updates clusters/<cluster>/projects/<project>.yaml with full ArgoCD Application config
+# 9. Creates deployments/project/projects/<project>.yaml if it doesn't exist
 #
-# After running, add the following to git:
-#   1. Add namespace to backup-credentials in clusters/<cluster>/infra.yaml
-#   2. Add ociVault + backups config to clusters/<cluster>/projects/<project>.yaml
-# See the script output for exact YAML snippets.
+# The script automatically:
+#   - Adds the namespace to backup-credentials in clusters/<cluster>/infra.yaml
+#   - Creates a new project file (if missing) at clusters/<cluster>/projects/<project>.yaml
+#   - Derives the project name by stripping -prod/-dev/-staging suffixes from namespace
+#   - Creates deployments/project/projects/<project>.yaml with backups service (if missing)
 #
-# Dependencies: oci, b2, jq, openssl
+# Dependencies: oci, b2, jq, openssl, yq
 #
 # Usage: ./scripts/create-project.sh <cluster-name> <namespace>
-# Example: ./scripts/create-project.sh cluster03 pce-prod
+# Example: ./scripts/create-project.sh cluster02 zenith-prod
+#   Creates: clusters/cluster02/projects/zenith.yaml
+#            deployments/project/projects/zenith.yaml
 
 if [ $# -ne 2 ]; then
     echo "Usage: $0 <cluster-name> <namespace>"
@@ -304,41 +310,133 @@ else
     echo "  WARNING: ${INFRA_FILE} not found, skipping"
 fi
 
-# Find project file
-PROJECT_FILE=$(find "${GIT_ROOT}/clusters/${CLUSTER}/projects" -name "*.yaml" -type f 2>/dev/null | while read -r file; do
-    if yq eval '.spec.destination.namespace' "$file" 2>/dev/null | grep -q "${NAMESPACE}"; then
-        echo "$file"
-        break
-    fi
-done)
+# Derive project name from namespace (strip -prod, -dev, -staging suffixes)
+PROJECT_NAME=$(echo "${NAMESPACE}" | sed -E 's/-(prod|dev|staging)$//')
+APP_NAME="${NAMESPACE}"
+PROJECT_FILE="${GIT_ROOT}/clusters/${CLUSTER}/projects/${PROJECT_NAME}.yaml"
+SERVICES_FILE="${GIT_ROOT}/deployments/project/projects/${PROJECT_NAME}.yaml"
 
-if [ -n "${PROJECT_FILE}" ]; then
+PROJECT_CREATED=false
+if [ -f "${PROJECT_FILE}" ]; then
     echo "  Found project file: ${PROJECT_FILE}"
 
-    # Update ociVault configuration
-    yq eval -i ".spec.source.helm.valuesObject.ociVault.vaultOcid = \"${OCI_VAULT_OCID}\"" "${PROJECT_FILE}"
-    yq eval -i ".spec.source.helm.valuesObject.ociVault.compartmentOcid = \"${OCI_COMPARTMENT_OCID}\"" "${PROJECT_FILE}"
-    yq eval -i ".spec.source.helm.valuesObject.ociVault.region = \"uk-london-1\"" "${PROJECT_FILE}"
-    yq eval -i ".spec.source.helm.valuesObject.ociVault.tenancyOcid = \"${OCI_TENANCY_OCID}\"" "${PROJECT_FILE}"
-
-    # Update backups configuration
-    yq eval -i ".spec.source.helm.valuesObject.backups.ociUserOcid = \"${OCI_USER_OCID}\"" "${PROJECT_FILE}"
-    yq eval -i ".spec.source.helm.valuesObject.backups.ociCredentialSecret = \"${NAMESPACE}-oci-creds\"" "${PROJECT_FILE}"
+    # Update ociVault configuration in common.values
+    yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.vaultOcid = \"${OCI_VAULT_OCID}\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.compartmentOcid = \"${OCI_COMPARTMENT_OCID}\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.region = \"uk-london-1\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.tenancyOcid = \"${OCI_TENANCY_OCID}\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.userOcid = \"${OCI_USER_OCID}\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.credentialSecretName = \"${NAMESPACE}-oci-creds\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.services.backups.enabled = true" "${PROJECT_FILE}"
+    # Remove old-format keys if present
+    yq eval -i "del(.spec.source.helm.valuesObject.ociVault)" "${PROJECT_FILE}"
+    yq eval -i "del(.spec.source.helm.valuesObject.backups)" "${PROJECT_FILE}"
 
     echo "  Updated ${PROJECT_FILE}"
 else
-    echo "  WARNING: No project file found for namespace ${NAMESPACE}"
-    echo "  Add the following to your project config in clusters/${CLUSTER}/projects/<project>.yaml:"
-    echo ""
-    echo "        ociVault:"
-    echo "          vaultOcid: \"${OCI_VAULT_OCID}\""
-    echo "          compartmentOcid: \"${OCI_COMPARTMENT_OCID}\""
-    echo "          region: \"uk-london-1\""
-    echo "          tenancyOcid: \"${OCI_TENANCY_OCID}\""
-    echo "        backups:"
-    echo "          ociUserOcid: \"${OCI_USER_OCID}\""
-    echo "          ociCredentialSecret: \"${NAMESPACE}-oci-creds\""
+    echo "  No project file found for namespace ${NAMESPACE}, creating new one"
+
+    # Create projects directory if it doesn't exist
+    mkdir -p "${GIT_ROOT}/clusters/${CLUSTER}/projects"
+
+    # Create the cluster project file pointing to the shared chart
+    cat > "${PROJECT_FILE}" <<EOF
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ${APP_NAME}
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: gitops
+  source:
+    repoURL: https://github.com/danfoster/zem-gitops
+    targetRevision: main
+    path: deployments/project
+    helm:
+      valueFiles:
+        - projects/${PROJECT_NAME}.yaml
+      valuesObject:
+        env: prod
+        cluster: ${CLUSTER}
+        common:
+          values:
+            ociVault:
+              vaultOcid: "${OCI_VAULT_OCID}"
+              compartmentOcid: "${OCI_COMPARTMENT_OCID}"
+              region: "uk-london-1"
+              tenancyOcid: "${OCI_TENANCY_OCID}"
+              userOcid: "${OCI_USER_OCID}"
+              credentialSecretName: "${NAMESPACE}-oci-creds"
+        services:
+          backups:
+            enabled: true
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+EOF
+
+    PROJECT_CREATED=true
+    echo "  Created ${PROJECT_FILE}"
+fi
+
+# Create the services file if it doesn't exist
+SERVICES_CREATED=false
+if [ ! -f "${SERVICES_FILE}" ]; then
+    echo "  No services file found, creating ${SERVICES_FILE}"
+    cat > "${SERVICES_FILE}" <<EOF
+name: ${PROJECT_NAME}
+
+common:
+  values:
+    ociVault:
+      vaultOcid: ""
+      compartmentOcid: ""
+      region: "uk-london-1"
+      tenancyOcid: ""
+      userOcid: ""
+      credentialSecretName: ""
+
+services:
+  backups:
+    enabled: false
+    nameOverride: "backups-${PROJECT_NAME}"
+    releaseName: "backups-${PROJECT_NAME}-prod"
+    source:
+      repoURL: https://github.com/danfoster/zem-gitops
+      targetRevision: main
+      path: apps/infra/zem-backups
+EOF
+    SERVICES_CREATED=true
+    echo "  Created ${SERVICES_FILE}"
+else
+    echo "  Services file already exists: ${SERVICES_FILE}"
 fi
 
 echo ""
-echo "Configuration files updated. Review the changes and commit to git."
+echo "=== Configuration Summary ==="
+echo ""
+echo "Git files modified/created:"
+echo "  1. ${INFRA_FILE} (added backup-credentials namespace entry)"
+if [ "${PROJECT_CREATED}" = true ]; then
+    echo "  2. ${PROJECT_FILE} (created new ArgoCD Application)"
+else
+    echo "  2. ${PROJECT_FILE} (updated existing)"
+fi
+if [ "${SERVICES_CREATED}" = true ]; then
+    echo "  3. ${SERVICES_FILE} (created new services file)"
+fi
+echo ""
+echo "Next steps:"
+if [ "${SERVICES_CREATED}" = true ]; then
+    echo "  1. Add your application services to ${SERVICES_FILE}"
+    echo "  2. Review the generated configuration"
+    echo "  3. Commit changes to git"
+else
+    echo "  1. Review the configuration changes"
+    echo "  2. Commit changes to git"
+fi
