@@ -218,7 +218,7 @@ fi
 # Create new B2 key if existing creds were invalid or missing
 if [ "${B2_CREDS_VALID}" = false ]; then
     # Clean up any orphaned B2 keys with the same name
-    ORPHANED_KEYS=$(b2 key list 2>/dev/null | grep "${B2_KEY_NAME}" | awk '{print $1}')
+    ORPHANED_KEYS=$(b2 key list 2>/dev/null | grep "${B2_KEY_NAME}" | awk '{print $1}' || true)
     for key_id in $ORPHANED_KEYS; do
         echo "  Deleting orphaned B2 key: ${key_id}"
         b2 key delete "${key_id}"
@@ -266,23 +266,79 @@ echo "  Vault Secrets:"
 echo "    ${BACKUP_SECRET_NAME} (B2 creds + restic password)"
 echo "    ${INFRA_SECRET_NAME} (OCI API key for K8s distribution)"
 echo ""
-echo "Add to backup-credentials values in cluster infra.yaml:"
+
+# --- Step 8: Update git configuration files ---
+echo "--- Step 8: Updating git configuration ---"
+
+# Get the git root directory
+GIT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+INFRA_FILE="${GIT_ROOT}/clusters/${CLUSTER}/infra.yaml"
+
+# Check for yq
+if ! command -v yq &>/dev/null; then
+    echo "WARNING: yq is not installed. Manual configuration required."
+    echo ""
+    echo "Add to backup-credentials values in ${INFRA_FILE}:"
+    echo ""
+    echo "          backup-credentials:"
+    echo "            enabled: true"
+    echo "            values:"
+    echo "              namespaces:"
+    echo "                - name: ${NAMESPACE}"
+    echo "                  vaultSecretName: ${INFRA_SECRET_NAME}"
+    echo "                  targetNamespace: ${NAMESPACE}"
+    exit 0
+fi
+
+# Update infra.yaml with backup-credentials namespace
+if [ -f "${INFRA_FILE}" ]; then
+    # Check if namespace already exists
+    if yq eval ".spec.source.helm.valuesObject.features.\"backup-credentials\".values.namespaces[] | select(.name == \"${NAMESPACE}\")" "${INFRA_FILE}" | grep -q "name:"; then
+        echo "  Namespace ${NAMESPACE} already exists in backup-credentials config, skipping"
+    else
+        # Add namespace to backup-credentials
+        yq eval -i ".spec.source.helm.valuesObject.features.\"backup-credentials\".values.namespaces += [{\"name\": \"${NAMESPACE}\", \"vaultSecretName\": \"${INFRA_SECRET_NAME}\", \"targetNamespace\": \"${NAMESPACE}\"}]" "${INFRA_FILE}"
+        echo "  Updated ${INFRA_FILE}"
+    fi
+else
+    echo "  WARNING: ${INFRA_FILE} not found, skipping"
+fi
+
+# Find project file
+PROJECT_FILE=$(find "${GIT_ROOT}/clusters/${CLUSTER}/projects" -name "*.yaml" -type f 2>/dev/null | while read -r file; do
+    if yq eval '.spec.destination.namespace' "$file" 2>/dev/null | grep -q "${NAMESPACE}"; then
+        echo "$file"
+        break
+    fi
+done)
+
+if [ -n "${PROJECT_FILE}" ]; then
+    echo "  Found project file: ${PROJECT_FILE}"
+
+    # Update ociVault configuration
+    yq eval -i ".spec.source.helm.valuesObject.ociVault.vaultOcid = \"${OCI_VAULT_OCID}\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.ociVault.compartmentOcid = \"${OCI_COMPARTMENT_OCID}\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.ociVault.region = \"uk-london-1\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.ociVault.tenancyOcid = \"${OCI_TENANCY_OCID}\"" "${PROJECT_FILE}"
+
+    # Update backups configuration
+    yq eval -i ".spec.source.helm.valuesObject.backups.ociUserOcid = \"${OCI_USER_OCID}\"" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.backups.ociCredentialSecret = \"${NAMESPACE}-oci-creds\"" "${PROJECT_FILE}"
+
+    echo "  Updated ${PROJECT_FILE}"
+else
+    echo "  WARNING: No project file found for namespace ${NAMESPACE}"
+    echo "  Add the following to your project config in clusters/${CLUSTER}/projects/<project>.yaml:"
+    echo ""
+    echo "        ociVault:"
+    echo "          vaultOcid: \"${OCI_VAULT_OCID}\""
+    echo "          compartmentOcid: \"${OCI_COMPARTMENT_OCID}\""
+    echo "          region: \"uk-london-1\""
+    echo "          tenancyOcid: \"${OCI_TENANCY_OCID}\""
+    echo "        backups:"
+    echo "          ociUserOcid: \"${OCI_USER_OCID}\""
+    echo "          ociCredentialSecret: \"${NAMESPACE}-oci-creds\""
+fi
+
 echo ""
-echo "          backup-credentials:"
-echo "            enabled: true"
-echo "            values:"
-echo "              namespaces:"
-echo "                - name: ${NAMESPACE}"
-echo "                  vaultSecretName: ${INFRA_SECRET_NAME}"
-echo "                  targetNamespace: ${NAMESPACE}"
-echo ""
-echo "Add to cluster project config (clusters/<cluster>/projects/<project>.yaml):"
-echo ""
-echo "        ociVault:"
-echo "          vaultOcid: \"${OCI_VAULT_OCID}\""
-echo "          compartmentOcid: \"${OCI_COMPARTMENT_OCID}\""
-echo "          region: \"uk-london-1\""
-echo "          tenancyOcid: \"${OCI_TENANCY_OCID}\""
-echo "        backups:"
-echo "          ociUserOcid: \"${OCI_USER_OCID}\""
-echo "          ociCredentialSecret: \"${NAMESPACE}-oci-creds\""
+echo "Configuration files updated. Review the changes and commit to git."

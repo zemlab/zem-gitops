@@ -140,13 +140,59 @@ echo "  OCI User:              ${OCI_USER_NAME} (${OCI_USER_OCID})"
 echo "  OCI Policy:            ${POLICY_NAME} (reads infra-* secrets)"
 echo "  K8s Secret:            ${K8S_SECRET_NAME} in ${K8S_NAMESPACE}"
 echo ""
-echo "The oci-vault ClusterSecretStore is managed by the zem-external-secrets Helm chart."
-echo "Add the following to bootstrap/values/${CLUSTER}.yaml and run 'helmfile -e ${CLUSTER} apply':"
-echo ""
-echo "ociVault:"
-echo "  enabled: true"
-echo "  vault: ${OCI_VAULT_OCID}"
-echo "  compartment: ${OCI_COMPARTMENT_OCID}"
-echo "  region: uk-london-1"
-echo "  user: ${OCI_USER_OCID}"
-echo "  tenancy: ${OCI_TENANCY_OCID}"
+
+# --- Step 5: Update bootstrap values ---
+echo "--- Step 5: Updating bootstrap configuration ---"
+
+# Get the git root directory (script is in scripts/, go up one level)
+GIT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+BOOTSTRAP_VALUES="${GIT_ROOT}/bootstrap/values/${CLUSTER}.yaml"
+
+# Check for yq
+if ! command -v yq &>/dev/null; then
+    echo "WARNING: yq is not installed. Manual configuration required."
+    echo ""
+    echo "The oci-vault ClusterSecretStore is managed by the zem-external-secrets Helm chart."
+    echo "Add the following to bootstrap/values/${CLUSTER}.yaml and run 'helmfile -e ${CLUSTER} apply':"
+    echo ""
+    echo "ociVault:"
+    echo "  enabled: true"
+    echo "  vault: ${OCI_VAULT_OCID}"
+    echo "  compartment: ${OCI_COMPARTMENT_OCID}"
+    echo "  region: uk-london-1"
+    echo "  user: ${OCI_USER_OCID}"
+    echo "  tenancy: ${OCI_TENANCY_OCID}"
+    exit 0
+fi
+
+# Update bootstrap values file
+if [ -f "${BOOTSTRAP_VALUES}" ]; then
+    # Check if ociVault already exists
+    if yq eval '.ociVault.enabled' "${BOOTSTRAP_VALUES}" 2>/dev/null | grep -q "true"; then
+        echo "  OCI Vault already enabled in ${BOOTSTRAP_VALUES}, updating values"
+    else
+        echo "  Enabling OCI Vault in ${BOOTSTRAP_VALUES}"
+    fi
+
+    yq eval -i ".ociVault.enabled = true" "${BOOTSTRAP_VALUES}"
+    yq eval -i ".ociVault.vault = \"${OCI_VAULT_OCID}\"" "${BOOTSTRAP_VALUES}"
+    yq eval -i ".ociVault.compartment = \"${OCI_COMPARTMENT_OCID}\"" "${BOOTSTRAP_VALUES}"
+    yq eval -i ".ociVault.region = \"uk-london-1\"" "${BOOTSTRAP_VALUES}"
+    yq eval -i ".ociVault.user = \"${OCI_USER_OCID}\"" "${BOOTSTRAP_VALUES}"
+    yq eval -i ".ociVault.tenancy = \"${OCI_TENANCY_OCID}\"" "${BOOTSTRAP_VALUES}"
+
+    echo "  Updated ${BOOTSTRAP_VALUES}"
+    echo ""
+    echo "Configuration file updated. Run 'helmfile -e ${CLUSTER} apply' to deploy the ClusterSecretStore."
+else
+    echo "  WARNING: ${BOOTSTRAP_VALUES} not found"
+    echo "  Add the following to bootstrap/values/${CLUSTER}.yaml:"
+    echo ""
+    echo "ociVault:"
+    echo "  enabled: true"
+    echo "  vault: ${OCI_VAULT_OCID}"
+    echo "  compartment: ${OCI_COMPARTMENT_OCID}"
+    echo "  region: uk-london-1"
+    echo "  user: ${OCI_USER_OCID}"
+    echo "  tenancy: ${OCI_TENANCY_OCID}"
+fi
