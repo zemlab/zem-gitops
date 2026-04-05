@@ -26,7 +26,7 @@ spec:
           region: "uk-london-1"
           tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
         backups:
-          ociUserOcid: "ocid1.user.oc1..aaaaaaaagqof2zkldrwdgimwqqefvu3ta5ts7swnh2kcdt5jexh6sbbnt5ka"
+          ociUserOcid: "ocid1.user.oc1..aaaaaaaagw6nvaaef4gn5tqvaadwqmmtimwbv3zrbrzdin35c3vxq7v7pnpa"
           ociCredentialSecret: "zem-external-prod-oci-creds"
   destination:
     server: "https://kubernetes.default.svc"
