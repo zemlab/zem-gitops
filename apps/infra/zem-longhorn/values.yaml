@@ -12,5 +12,29 @@ longhorn:
     snapshotterReplicaCount: 1
   longhornUI:
     replicas: 1
+  # Memory optimization settings
+  defaultSettings:
+    guaranteedInstanceManagerCPU: 5  # Reduced from 12% to 5%
+    concurrentReplicaRebuildPerNodeLimit: 3  # Reduced from 5 to 3
+    concurrentBackingImageReplenishPerNodeLimit: 3  # Reduced from 5 to 3
+  # Set resource limits to prevent unbounded memory growth
+  longhornManager:
+    resources:
+      requests:
+        memory: "256Mi"
+      limits:
+        memory: "512Mi"
+  longhornDriver:
+    resources:
+      requests:
+        memory: "64Mi"
+      limits:
+        memory: "128Mi"
+  longhornUI:
+    resources:
+      requests:
+        memory: "64Mi"
+      limits:
+        memory: "128Mi"
 ingress:
   hostname: ""
