@@ -163,6 +163,7 @@ features:
   registry-auth:
     enabled: false
     namespace: registry-auth
+    extraDestinationNamespaces: []
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main

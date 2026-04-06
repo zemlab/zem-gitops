@@ -79,6 +79,8 @@ spec:
                   targetNamespace: zenith-prod
           registry-auth:
             enabled: true
+            extraDestinationNamespaces:
+              - zenith-prod
             values:
               namespaces:
                 - zenith-prod

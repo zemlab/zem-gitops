@@ -9,7 +9,8 @@ spec:
   description: Infra
   destinations:
     {{- $namespaces := include "infra.namespaces" . | fromJsonArray -}}
-    {{- range $namespaces }}
+    {{- $extraNamespaces := include "infra.extraDestinationNamespaces" . | fromJsonArray -}}
+    {{- range (concat $namespaces $extraNamespaces | uniq | sortAlpha) }}
     - namespace: {{ . | quote }}
       server: "https://kubernetes.default.svc"
     {{- end }}

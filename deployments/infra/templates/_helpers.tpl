@@ -29,3 +29,18 @@ Extract unique namespaces from ENABLED features
   {{- end -}}
   {{- keys $nsDict | sortAlpha | toJson -}}
 {{- end -}}
+
+{{/*
+Extract extra destination namespaces from ENABLED features (for AppProject destinations)
+*/}}
+{{- define "infra.extraDestinationNamespaces" -}}
+  {{- $nsDict := dict -}}
+  {{- range $key, $val := .Values.features -}}
+    {{- if $val.enabled -}}
+      {{- range $ns := ($val.extraDestinationNamespaces | default list) -}}
+        {{- $_ := set $nsDict $ns "true" -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- keys $nsDict | sortAlpha | toJson -}}
+{{- end -}}
