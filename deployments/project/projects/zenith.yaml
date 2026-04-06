@@ -1,8 +1,7 @@
 name: zenith
 
 extraSourceRepos:
-  - "registry.gitlab.com/zemlab/zenith/charts/backend"
-  - "registry.gitlab.com/zemlab/zenith/charts/frontend"
+  - "registry.gitlab.com/zemlab/zenith/charts"
 
 common:
   values:
@@ -26,14 +25,16 @@ services:
 
   backend:
     enabled: true
+    nameOverride: zenith-backend
     source:
-      repoURL: registry.gitlab.com/zemlab/zenith/charts/backend
+      repoURL: registry.gitlab.com/zemlab/zenith/charts
       chart: backend
       targetRevision: 0.1.0
 
   frontend:
     enabled: true
+    nameOverride: zenith-frontend
     source:
-      repoURL: registry.gitlab.com/zemlab/zenith/charts/frontend
+      repoURL: registry.gitlab.com/zemlab/zenith/charts
       chart: frontend
       targetRevision: 0.1.0
