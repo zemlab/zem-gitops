@@ -52,8 +52,6 @@ See also: `scripts/setup-oci-vault-clustersecretstore.sh <cluster>` — one-time
 ### Backup Infrastructure
 
 - **K8up** (current): Restic-based, backs up to Backblaze B2 (`zem-backups-eu` bucket)
-- **Velero** (being added): For OCI clusters, CSI snapshots + file backups to B2
-- B2 credentials via ExternalSecrets from OCI Vault (two-tier model: `oci-vault` ClusterSecretStore distributes OCI API keys, per-namespace SecretStores pull backup secrets)
 
 ### Bootstrap (Pre-ArgoCD)
 
