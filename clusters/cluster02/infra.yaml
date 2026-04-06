@@ -77,6 +77,11 @@ spec:
                 - name: zenith-prod
                   vaultSecretName: infra-zenith-prod-oci-credentials
                   targetNamespace: zenith-prod
+          registry-auth:
+            enabled: true
+            values:
+              namespaces:
+                - zenith-prod
           cnpg:
             enabled: true
   destination:

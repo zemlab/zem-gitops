@@ -160,3 +160,10 @@ features:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
       path: apps/infra/zem-backup-credentials
+  registry-auth:
+    enabled: false
+    namespace: registry-auth
+    source:
+      repoURL: https://github.com/danfoster/zem-gitops
+      targetRevision: main
+      path: apps/infra/zem-registry-auth

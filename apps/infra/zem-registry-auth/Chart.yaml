@@ -1,0 +1,5 @@
+apiVersion: v2
+name: zem-registry-auth
+description: Distributes GitLab registry credentials to application namespaces for image pulls
+type: application
+version: 0.1.0

@@ -1,5 +1,9 @@
 name: zenith
 
+extraSourceRepos:
+  - "registry.gitlab.com/zemlab/zenith/charts/backend"
+  - "registry.gitlab.com/zemlab/zenith/charts/frontend"
+
 common:
   values:
     ociVault:
@@ -19,3 +23,17 @@ services:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
       path: apps/infra/zem-backups
+
+  backend:
+    enabled: true
+    source:
+      repoURL: registry.gitlab.com/zemlab/zenith/charts/backend
+      chart: backend
+      targetRevision: 0.1.0
+
+  frontend:
+    enabled: true
+    source:
+      repoURL: registry.gitlab.com/zemlab/zenith/charts/frontend
+      chart: frontend
+      targetRevision: 0.1.0
