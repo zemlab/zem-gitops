@@ -18,6 +18,8 @@ spec:
             cluster:
               name: cluster02
         features:
+          argocd-extras:
+            enabled: true
           metallb:
             enabled: true
           metallb-configs:

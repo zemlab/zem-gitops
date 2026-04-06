@@ -1,0 +1,5 @@
+apiVersion: v2
+name: zem-argocd-extras
+description: Extra ArgoCD configuration managed by ArgoCD (repo credentials, etc.)
+type: application
+version: 0.1.0
