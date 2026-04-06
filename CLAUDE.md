@@ -69,6 +69,18 @@ The `bootstrap/` directory contains a Helmfile that installs the 6 Helm releases
 
 **Requirements**: `helmfile`, `helm`, `kubectl`, `helm-diff` plugin
 
+### ExternalSecret remoteRef defaults
+
+Always explicitly include these fields on every `remoteRef` entry to avoid a perpetual ArgoCD diff (ESO sets them as defaults on the live resource):
+
+```yaml
+remoteRef:
+  key: "some-key"
+  conversionStrategy: Default
+  decodingStrategy: None
+  metadataPolicy: None
+```
+
 ### Git Remote
 
 - Repo URL used in sources: `https://github.com/danfoster/zem-gitops`
