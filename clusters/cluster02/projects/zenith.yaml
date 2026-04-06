@@ -29,10 +29,6 @@ spec:
         services:
           backups:
             enabled: true
-          backend:
-            enabled: true
-          frontend:
-            enabled: true
   destination:
     server: "https://kubernetes.default.svc"
     namespace: argocd
