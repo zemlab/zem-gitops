@@ -175,7 +175,7 @@ spec:
         command:
         - /bin/cp
         - -n
-        - /usr/local/bin/argocd
+        - /usr/local/bin/argocd-dex
         - /shared/argocd-dex
         volumeMounts:
         - mountPath: /shared
