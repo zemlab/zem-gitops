@@ -33,7 +33,7 @@ spec:
             values:
               cnpg:
                 backup:
-                  destinationPath: "s3://zem-backups-eu/cluster02/zenith-prod/cnpg"
+                  destinationPath: "s3://zenith-prod-private/backend-pg-wal"
                   endpointURL: "https://s3.eu-central-003.backblazeb2.com"
                   externalSecret:
                     enabled: true
