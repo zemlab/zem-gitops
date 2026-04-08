@@ -197,7 +197,7 @@ echo "API Key Fingerprint: ${OCI_FINGERPRINT}"
 # --- Step 3: Create OCI IAM policy ---
 echo "--- Step 3: Creating OCI IAM policy ---"
 POLICY_NAME="backup-${PREFIX}-secrets"
-POLICY_STATEMENTS="[\"Allow any-user to read secret-family in compartment id ${OCI_COMPARTMENT_OCID} where ALL {request.user.id = '${OCI_USER_OCID}', target.secret.name = /^${PREFIX}-/}\", \"Allow any-user to read vaults in compartment id ${OCI_COMPARTMENT_OCID} where request.user.id = '${OCI_USER_OCID}'\"]"
+POLICY_STATEMENTS="[\"Allow any-user to read secret-family in compartment id ${OCI_COMPARTMENT_OCID} where ALL {request.user.id = '${OCI_USER_OCID}', target.secret.name = /${PREFIX}-*/}\", \"Allow any-user to read vaults in compartment id ${OCI_COMPARTMENT_OCID} where request.user.id = '${OCI_USER_OCID}'\"]"
 
 EXISTING_POLICY_OCID=$(oci iam policy list \
     --compartment-id "${OCI_COMPARTMENT_OCID}" \

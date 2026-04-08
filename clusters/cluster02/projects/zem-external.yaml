@@ -45,4 +45,4 @@ spec:
     - group: argoproj.io
       kind: Application
       jsonPointers:
-      - /spec/syncPolicy
+        - /spec/syncPolicy

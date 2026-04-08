@@ -23,8 +23,8 @@ spec:
               vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
               region: "uk-london-1"
-              tenancyOcid: ""
-              userOcid: ""
+              tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
+              userOcid: "ocid1.user.oc1..aaaaaaaa5kbwgqunmmichfnysmb2pxa4bpvre7ceup6ecnveleuicu5e7lyq"
               credentialSecretName: "media-prod-oci-creds"
         services:
           project-common:
@@ -39,4 +39,4 @@ spec:
     - group: argoproj.io
       kind: Application
       jsonPointers:
-      - /spec/syncPolicy
+        - /spec/syncPolicy
