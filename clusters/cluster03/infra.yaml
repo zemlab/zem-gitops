@@ -70,7 +70,7 @@ spec:
               applications:
                 - name: "pce-prod"
                   namespace: "pce-prod"
-          backup-credentials:
+          project-credentials:
             enabled: true
             values:
               namespaces:

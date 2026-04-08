@@ -14,14 +14,14 @@ common:
       credentialSecretName: ""
 
 services:
-  backups:
+  project-common:
     enabled: false
-    nameOverride: "backups-media"
-    releaseName: "backups-media-prod"
+    nameOverride: "project-common-media"
+    releaseName: "project-common-media-prod"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
-      path: apps/infra/zem-backups
+      path: apps/infra/zem-project-common
   plex:
     enabled: true
     releaseName: "plex"

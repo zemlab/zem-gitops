@@ -160,13 +160,13 @@ features:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
       path: apps/infra/zem-k8up
-  backup-credentials:
+  project-credentials:
     enabled: false
-    namespace: backup-credentials
+    namespace: project-credentials
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
-      path: apps/infra/zem-backup-credentials
+      path: apps/infra/zem-project-credentials
   registry-auth:
     enabled: false
     namespace: registry-auth

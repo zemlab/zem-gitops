@@ -5,31 +5,52 @@ set -euo pipefail
 #
 # Creates:
 # 1. OCI user + API key (scoped to this namespace's vault secrets)
-# 2. OCI IAM policy restricting user to specific secrets
+# 2. OCI IAM policy allowing user to read secrets matching <cluster>-<namespace>-*
 # 3. B2 application key scoped to <cluster>/<namespace>/ prefix
 # 4. Random restic password
-# 5. Stores B2 creds + restic password in OCI Vault (for the namespace's SecretStore)
+# 5. Stores B2 creds + restic password in OCI Vault as <cluster>-<namespace>-backups
 # 6. Stores OCI API key in OCI Vault (for the infra ClusterSecretStore to distribute)
-# 7. Updates clusters/<cluster>/infra.yaml with backup-credentials namespace entry
+# 7. Updates clusters/<cluster>/infra.yaml with project-credentials namespace entry
 # 8. Creates or updates clusters/<cluster>/projects/<project>.yaml with full ArgoCD Application config
 # 9. Creates deployments/project/projects/<project>.yaml if it doesn't exist
 #
 # The script automatically:
-#   - Adds the namespace to backup-credentials in clusters/<cluster>/infra.yaml
+#   - Adds the namespace to project-credentials in clusters/<cluster>/infra.yaml
 #   - Creates a new project file (if missing) at clusters/<cluster>/projects/<project>.yaml
 #   - Derives the project name by stripping -prod/-dev/-staging suffixes from namespace
-#   - Creates deployments/project/projects/<project>.yaml with backups service (if missing)
+#   - Creates deployments/project/projects/<project>.yaml with project-common service (if missing)
 #
 # Dependencies: oci, b2, jq, openssl, yq
 #
-# Usage: ./scripts/create-project.sh <cluster-name> <namespace>
+# Usage: ./scripts/create-project.sh [--replace] <cluster-name> <namespace>
 # Example: ./scripts/create-project.sh cluster02 zenith-prod
 #   Creates: clusters/cluster02/projects/zenith.yaml
 #            deployments/project/projects/zenith.yaml
+#
+#   --replace  Rotate OCI API keys (default: reuse existing keys if present)
+
+REPLACE_KEYS=false
+POSITIONAL=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --replace)
+            REPLACE_KEYS=true
+            shift
+            ;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+set -- "${POSITIONAL[@]}"
 
 if [ $# -ne 2 ]; then
-    echo "Usage: $0 <cluster-name> <namespace>"
+    echo "Usage: $0 [--replace] <cluster-name> <namespace>"
     echo "Example: $0 cluster03 pce-prod"
+    echo ""
+    echo "  --replace  Rotate OCI API keys even if they already exist."
+    echo "             By default, existing keys are reused (non-destructive)."
     exit 1
 fi
 
@@ -119,32 +140,64 @@ fi
 echo "OCI User OCID: ${OCI_USER_OCID}"
 
 # --- Step 2: Generate and upload OCI API key ---
-echo "--- Step 2: Generating OCI API key ---"
+echo "--- Step 2: OCI API key ---"
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
-# Remove any existing API keys (previous interrupted runs leave orphaned keys)
-EXISTING_KEYS=$(oci iam user api-key list --user-id "${OCI_USER_OCID}" --output json | jq -r '.data[].fingerprint')
-for fp in $EXISTING_KEYS; do
-    echo "  Removing existing API key: ${fp}"
-    oci iam user api-key delete --user-id "${OCI_USER_OCID}" --fingerprint "${fp}" --force
-done
+EXISTING_KEY_COUNT=$(oci iam user api-key list --user-id "${OCI_USER_OCID}" --output json | jq -r '.data | length // 0')
 
-openssl genrsa -out "${TMPDIR}/api_key.pem" 2048 2>/dev/null
-openssl rsa -pubout -in "${TMPDIR}/api_key.pem" -out "${TMPDIR}/api_key_public.pem" 2>/dev/null
+if [ "${REPLACE_KEYS}" = false ] && [ "${EXISTING_KEY_COUNT:-0}" -gt 0 ]; then
+    echo "  Existing API keys found and --replace not specified. Reusing existing keys."
+    # Retrieve credentials from the existing vault secret
+    INFRA_SECRET_NAME="infra-${NAMESPACE}-oci-credentials"
+    EXISTING_INFRA_OCID=$(oci vault secret list \
+        --compartment-id "${OCI_COMPARTMENT_OCID}" \
+        --vault-id "${OCI_VAULT_OCID}" \
+        --name "${INFRA_SECRET_NAME}" \
+        --output json 2>/dev/null | jq -r '.data[0].id // empty')
+    if [ -z "${EXISTING_INFRA_OCID}" ]; then
+        echo "  ERROR: No existing OCI credentials vault secret '${INFRA_SECRET_NAME}' found."
+        echo "         Re-run with --replace to generate new keys."
+        exit 1
+    fi
+    EXISTING_INFRA_JSON=$(oci secrets secret-bundle get \
+        --secret-id "${EXISTING_INFRA_OCID}" \
+        --output json 2>/dev/null | jq -r '.data."secret-bundle-content".content' | base64 -d)
+    OCI_FINGERPRINT=$(echo "$EXISTING_INFRA_JSON" | jq -r '.fingerprint')
+    OCI_TENANCY_OCID=$(oci iam user get --user-id "${OCI_USER_OCID}" --output json | jq -r '.data."compartment-id"')
+    # Write existing private key to temp file for use in step 7 (will be re-stored as-is)
+    echo "$EXISTING_INFRA_JSON" | jq -r '.privateKey' > "${TMPDIR}/api_key.pem"
+    echo "  Reusing fingerprint: ${OCI_FINGERPRINT}"
+else
+    if [ "${REPLACE_KEYS}" = true ]; then
+        echo "  --replace specified. Rotating API keys."
+    else
+        echo "  No existing API keys found. Generating new keys."
+    fi
 
-API_KEY_RESULT=$(oci iam user api-key upload \
-    --user-id "${OCI_USER_OCID}" \
-    --key-file "${TMPDIR}/api_key_public.pem" \
-    --output json)
-OCI_FINGERPRINT=$(echo "$API_KEY_RESULT" | jq -r '.data.fingerprint')
-OCI_TENANCY_OCID=$(oci iam user get --user-id "${OCI_USER_OCID}" --output json | jq -r '.data."compartment-id"')
+    # Remove any existing API keys
+    EXISTING_KEYS=$(oci iam user api-key list --user-id "${OCI_USER_OCID}" --output json | jq -r '.data[].fingerprint')
+    for fp in $EXISTING_KEYS; do
+        echo "  Removing existing API key: ${fp}"
+        oci iam user api-key delete --user-id "${OCI_USER_OCID}" --fingerprint "${fp}" --force
+    done
+
+    openssl genrsa -out "${TMPDIR}/api_key.pem" 2048 2>/dev/null
+    openssl rsa -pubout -in "${TMPDIR}/api_key.pem" -out "${TMPDIR}/api_key_public.pem" 2>/dev/null
+
+    API_KEY_RESULT=$(oci iam user api-key upload \
+        --user-id "${OCI_USER_OCID}" \
+        --key-file "${TMPDIR}/api_key_public.pem" \
+        --output json)
+    OCI_FINGERPRINT=$(echo "$API_KEY_RESULT" | jq -r '.data.fingerprint')
+    OCI_TENANCY_OCID=$(oci iam user get --user-id "${OCI_USER_OCID}" --output json | jq -r '.data."compartment-id"')
+fi
 echo "API Key Fingerprint: ${OCI_FINGERPRINT}"
 
 # --- Step 3: Create OCI IAM policy ---
 echo "--- Step 3: Creating OCI IAM policy ---"
 POLICY_NAME="backup-${PREFIX}-secrets"
-POLICY_STATEMENTS="[\"Allow any-user to read secret-family in compartment id ${OCI_COMPARTMENT_OCID} where ALL {request.user.id = '${OCI_USER_OCID}', target.secret.name = '${PREFIX}'}\", \"Allow any-user to read vaults in compartment id ${OCI_COMPARTMENT_OCID} where request.user.id = '${OCI_USER_OCID}'\"]"
+POLICY_STATEMENTS="[\"Allow any-user to read secret-family in compartment id ${OCI_COMPARTMENT_OCID} where ALL {request.user.id = '${OCI_USER_OCID}', target.secret.name = /^${PREFIX}-/}\", \"Allow any-user to read vaults in compartment id ${OCI_COMPARTMENT_OCID} where request.user.id = '${OCI_USER_OCID}'\"]"
 
 EXISTING_POLICY_OCID=$(oci iam policy list \
     --compartment-id "${OCI_COMPARTMENT_OCID}" \
@@ -170,7 +223,7 @@ fi
 
 # --- Step 4: B2 credentials + restic password (idempotent) ---
 echo "--- Step 4: Provisioning B2 credentials and restic password ---"
-BACKUP_SECRET_NAME="${PREFIX}"
+BACKUP_SECRET_NAME="${PREFIX}-backups"
 B2_KEY_ID=""
 B2_KEY_SECRET=""
 RESTIC_PASSWORD=""
@@ -284,9 +337,9 @@ INFRA_FILE="${GIT_ROOT}/clusters/${CLUSTER}/infra.yaml"
 if ! command -v yq &>/dev/null; then
     echo "WARNING: yq is not installed. Manual configuration required."
     echo ""
-    echo "Add to backup-credentials values in ${INFRA_FILE}:"
+    echo "Add to project-credentials values in ${INFRA_FILE}:"
     echo ""
-    echo "          backup-credentials:"
+    echo "          project-credentials:"
     echo "            enabled: true"
     echo "            values:"
     echo "              namespaces:"
@@ -299,11 +352,11 @@ fi
 # Update infra.yaml with backup-credentials namespace
 if [ -f "${INFRA_FILE}" ]; then
     # Check if namespace already exists
-    if yq eval ".spec.source.helm.valuesObject.features.\"backup-credentials\".values.namespaces[] | select(.name == \"${NAMESPACE}\")" "${INFRA_FILE}" | grep -q "name:"; then
-        echo "  Namespace ${NAMESPACE} already exists in backup-credentials config, skipping"
+    if yq eval ".spec.source.helm.valuesObject.features.\"project-credentials\".values.namespaces[] | select(.name == \"${NAMESPACE}\")" "${INFRA_FILE}" | grep -q "name:"; then
+        echo "  Namespace ${NAMESPACE} already exists in project-credentials config, skipping"
     else
-        # Add namespace to backup-credentials
-        yq eval -i ".spec.source.helm.valuesObject.features.\"backup-credentials\".values.namespaces += [{\"name\": \"${NAMESPACE}\", \"vaultSecretName\": \"${INFRA_SECRET_NAME}\", \"targetNamespace\": \"${NAMESPACE}\"}]" "${INFRA_FILE}"
+        # Add namespace to project-credentials
+        yq eval -i ".spec.source.helm.valuesObject.features.\"project-credentials\".values.namespaces += [{\"name\": \"${NAMESPACE}\", \"vaultSecretName\": \"${INFRA_SECRET_NAME}\", \"targetNamespace\": \"${NAMESPACE}\"}]" "${INFRA_FILE}"
         echo "  Updated ${INFRA_FILE}"
     fi
 else
@@ -327,7 +380,7 @@ if [ -f "${PROJECT_FILE}" ]; then
     yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.tenancyOcid = \"${OCI_TENANCY_OCID}\"" "${PROJECT_FILE}"
     yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.userOcid = \"${OCI_USER_OCID}\"" "${PROJECT_FILE}"
     yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.credentialSecretName = \"${NAMESPACE}-oci-creds\"" "${PROJECT_FILE}"
-    yq eval -i ".spec.source.helm.valuesObject.services.backups.enabled = true" "${PROJECT_FILE}"
+    yq eval -i ".spec.source.helm.valuesObject.services.\"project-common\".enabled = true" "${PROJECT_FILE}"
     # Remove old-format keys if present
     yq eval -i "del(.spec.source.helm.valuesObject.ociVault)" "${PROJECT_FILE}"
     yq eval -i "del(.spec.source.helm.valuesObject.backups)" "${PROJECT_FILE}"
@@ -370,7 +423,7 @@ spec:
               userOcid: "${OCI_USER_OCID}"
               credentialSecretName: "${NAMESPACE}-oci-creds"
         services:
-          backups:
+          project-common:
             enabled: true
   destination:
     server: "https://kubernetes.default.svc"
@@ -402,14 +455,14 @@ common:
       credentialSecretName: ""
 
 services:
-  backups:
+  project-common:
     enabled: false
-    nameOverride: "backups-${PROJECT_NAME}"
-    releaseName: "backups-${PROJECT_NAME}-prod"
+    nameOverride: "project-common-${PROJECT_NAME}"
+    releaseName: "project-common-${PROJECT_NAME}-prod"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
-      path: apps/infra/zem-backups
+      path: apps/infra/zem-project-common
 EOF
     SERVICES_CREATED=true
     echo "  Created ${SERVICES_FILE}"

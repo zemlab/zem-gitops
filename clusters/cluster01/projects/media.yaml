@@ -27,7 +27,7 @@ spec:
               userOcid: ""
               credentialSecretName: "media-prod-oci-creds"
         services:
-          backups:
+          project-common:
             enabled: true
   destination:
     server: "https://kubernetes.default.svc"

@@ -14,14 +14,14 @@ common:
       credentialSecretName: ""
 
 services:
-  backups:
+  project-common:
     enabled: false
-    nameOverride: "backups-zenith"
-    releaseName: "backups-zenith-prod"
+    nameOverride: "project-common-zenith"
+    releaseName: "project-common-zenith-prod"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
-      path: apps/infra/zem-backups
+      path: apps/infra/zem-project-common
 
   backend:
     enabled: true

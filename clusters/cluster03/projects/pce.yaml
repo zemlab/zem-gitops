@@ -27,7 +27,7 @@ spec:
               userOcid: "ocid1.user.oc1..aaaaaaaacrnwg5ty5iepw3vmewodcsixhazh6exxuakwrr74tryisnjnbgoq"
               credentialSecretName: "pce-prod-oci-creds"
         services:
-          backups:
+          project-common:
             enabled: true
   destination:
     server: "https://kubernetes.default.svc"

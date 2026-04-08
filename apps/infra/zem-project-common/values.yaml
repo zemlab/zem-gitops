@@ -1,0 +1,29 @@
+backups:
+  enabled: true
+
+ociVault:
+  vaultOcid: ""
+  compartmentOcid: ""
+  region: "uk-london-1"
+  tenancyOcid: ""
+  userOcid: ""
+  credentialSecretName: ""
+
+b2:
+  endpoint: "https://s3.eu-central-003.backblazeb2.com"
+  bucket: "zem-backups-eu"
+  prefix: ""
+  vaultSecretName: ""  # OCI Vault secret containing JSON: {"ACCESS_KEY_ID":"...","SECRET_ACCESS_KEY":"...","RESTIC_PASSWORD":"..."}
+
+backup:
+  schedule: "@every 8h"
+check:
+  schedule: "@weekly-random"
+prune:
+  schedule: "@weekly-random"
+  retention:
+    keepLast: 5
+    keepDaily: 14
+    keepWeekly: 8
+    keepMonthly: 12
+    keepYearly: 5

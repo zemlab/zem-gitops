@@ -27,7 +27,7 @@ spec:
               userOcid: "ocid1.user.oc1..aaaaaaaagw6nvaaef4gn5tqvaadwqmmtimwbv3zrbrzdin35c3vxq7v7pnpa"
               credentialSecretName: "zem-external-prod-oci-creds"
         services:
-          backups:
+          project-common:
             enabled: true
           echo:
             values:

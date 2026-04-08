@@ -69,7 +69,7 @@ spec:
             enabled: true
           k8up:
             enabled: true
-          backup-credentials:
+          project-credentials:
             enabled: true
             values:
               namespaces:

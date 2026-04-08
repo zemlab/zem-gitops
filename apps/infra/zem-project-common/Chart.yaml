@@ -1,0 +1,6 @@
+apiVersion: v2
+name: zem-project-common
+description: Per-namespace project common resources (OCI Vault SecretStore + optional K8up backup schedule)
+type: application
+version: 0.1.0
+appVersion: "1.90.8"

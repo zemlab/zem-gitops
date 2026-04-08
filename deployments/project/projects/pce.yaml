@@ -15,14 +15,14 @@ common:
       credentialSecretName: ""
 
 services:
-  backups:
+  project-common:
     enabled: false
-    nameOverride: "backups-pce"
-    releaseName: "backups-pce-prod"
+    nameOverride: "project-common-pce"
+    releaseName: "project-common-pce-prod"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
-      path: apps/infra/zem-backups
+      path: apps/infra/zem-project-common
   wordpress:
     enabled: true
     nameOverride: "pce-wordpress"

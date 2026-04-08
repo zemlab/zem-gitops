@@ -11,14 +11,14 @@ common:
       credentialSecretName: ""
 
 services:
-  backups:
+  project-common:
     enabled: false
-    nameOverride: "backups-zem-external"
-    releaseName: "backups-zem-external-prod"
+    nameOverride: "project-common-zem-external"
+    releaseName: "project-common-zem-external-prod"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
-      path: apps/infra/zem-backups
+      path: apps/infra/zem-project-common
   echo:
     enabled: true
     releaseName: "echo-prod"

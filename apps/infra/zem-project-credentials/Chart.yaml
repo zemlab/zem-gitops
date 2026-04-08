@@ -1,0 +1,5 @@
+apiVersion: v2
+name: zem-project-credentials
+description: Distributes OCI API keys from OCI Vault to project namespaces via kubernetes-replicator
+type: application
+version: 0.1.0

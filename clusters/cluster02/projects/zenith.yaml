@@ -27,8 +27,17 @@ spec:
               userOcid: "ocid1.user.oc1..aaaaaaaajpxug7ehv4xazz5lrvyisd2mhrrzfs2a7pqm4qm7qc4gj5jyitaq"
               credentialSecretName: "zenith-prod-oci-creds"
         services:
-          backups:
+          project-common:
             enabled: true
+          backend:
+            values:
+              cnpg:
+                backup:
+                  destinationPath: "s3://zem-backups-eu/cluster02/zenith-prod/cnpg"
+                  endpointURL: "https://s3.eu-central-003.backblazeb2.com"
+                  externalSecret:
+                    enabled: true
+                    vaultSecretName: "cluster02-zenith-prod-cnpg"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: argocd

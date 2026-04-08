@@ -1,0 +1,30 @@
+{{- if .Values.backups.enabled -}}
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: zem-backups
+spec:
+  backend:
+    s3:
+      endpoint: {{ .Values.b2.endpoint }}
+      bucket: {{ .Values.b2.bucket }}{{ with .Values.b2.prefix }}/{{ . }}{{ end }}
+      accessKeyIDSecretRef:
+        name: backup-credentials
+        key: ACCESS_KEY_ID
+      secretAccessKeySecretRef:
+        name: backup-credentials
+        key: SECRET_ACCESS_KEY
+    repoPasswordSecretRef:
+      name: backup-credentials
+      key: RESTIC_PASSWORD
+  backup:
+    schedule: "{{.Values.backup.schedule}}"
+    failedJobsHistoryLimit: 5
+    successfulJobsHistoryLimit: 2
+  check:
+    schedule: "{{.Values.check.schedule}}"
+  prune:
+    schedule: "{{ .Values.prune.schedule }}"
+    retention:
+{{ toYaml .Values.prune.retention | indent 6 }}
+{{- end }}
