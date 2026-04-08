@@ -29,7 +29,7 @@ services:
     source:
       repoURL: registry.gitlab.com/zemlab/zenith/charts
       chart: backend
-      targetRevision: 0.1.0
+      targetRevision: 0.1.0-rc0
 
   frontend:
     enabled: true
@@ -37,4 +37,4 @@ services:
     source:
       repoURL: registry.gitlab.com/zemlab/zenith/charts
       chart: frontend
-      targetRevision: 0.1.0
+      targetRevision: 0.1.0-rc0
