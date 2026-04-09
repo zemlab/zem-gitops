@@ -79,6 +79,8 @@ spec:
                 - name: zenith-prod
                   vaultSecretName: infra-zenith-prod-oci-credentials
                   targetNamespace: zenith-prod
+          kyverno:
+            enabled: true
           registry-auth:
             enabled: true
             extraDestinationNamespaces:

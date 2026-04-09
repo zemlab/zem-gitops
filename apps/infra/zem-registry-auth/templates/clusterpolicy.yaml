@@ -1,0 +1,23 @@
+{{- if .Values.namespaces }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: inject-gitlab-registry-pull-secret
+spec:
+  rules:
+    - name: inject-imagepullsecret
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                {{- range .Values.namespaces }}
+                - {{ . }}
+                {{- end }}
+      mutate:
+        patchStrategicMerge:
+          spec:
+            imagePullSecrets:
+              - name: gitlab-registry
+{{- end }}
