@@ -1,1 +1,53 @@
-kyverno: {}
+kyverno:
+  webhooksCleanup:
+    image:
+      registry: registry.bitnami.com
+
+  policyReportsCleanup:
+    image:
+      registry: registry.bitnami.com
+
+  admissionController:
+    initContainer:
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 10m
+          memory: 32Mi
+    container:
+      resources:
+        limits:
+          cpu: 300m
+          memory: 256Mi
+        requests:
+          cpu: 50m
+          memory: 128Mi
+
+  backgroundController:
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+
+  cleanupController:
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+
+  reportsController:
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
