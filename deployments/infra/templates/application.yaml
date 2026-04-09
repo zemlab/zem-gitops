@@ -39,5 +39,8 @@ spec:
     - kind: Service
       jsonPointers:
         - /spec/externalName
+    {{- if $config.ignoreDifferences }}
+    {{- toYaml $config.ignoreDifferences | nindent 4 }}
+    {{- end }}
 {{- end }}
 {{ end }}
