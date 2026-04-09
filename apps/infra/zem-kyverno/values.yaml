@@ -1,12 +1,4 @@
 kyverno:
-  webhooksCleanup:
-    image:
-      registry: registry.bitnami.com
-
-  policyReportsCleanup:
-    image:
-      registry: registry.bitnami.com
-
   admissionController:
     initContainer:
       resources:
