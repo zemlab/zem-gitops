@@ -2,6 +2,11 @@ gitlab-runner:
   gitlabUrl: https://gitlab.com/
   rbac:
     create: true
+  extraEnvFrom:
+    CI_SERVER_TOKEN:
+      secretKeyRef:
+        name: gitlab-runner-token
+        key: runner-token
   runners:
     config: |
       [[runners]]
@@ -14,4 +19,3 @@ gitlab-runner:
           memory_limit = "1Gi"
           service_cpu_request = "100m"
           service_memory_request = "128Mi"
-  secret: gitlab-runner-token
