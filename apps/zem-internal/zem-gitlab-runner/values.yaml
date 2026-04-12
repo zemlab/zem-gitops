@@ -1,0 +1,17 @@
+gitlab-runner:
+  gitlabUrl: https://gitlab.com/
+  rbac:
+    create: true
+  runners:
+    config: |
+      [[runners]]
+        [runners.kubernetes]
+          namespace = "{{.Release.Namespace}}"
+          image = "alpine:latest"
+          cpu_request = "100m"
+          memory_request = "128Mi"
+          cpu_limit = "1"
+          memory_limit = "1Gi"
+          service_cpu_request = "100m"
+          service_memory_request = "128Mi"
+  secret: gitlab-runner-token

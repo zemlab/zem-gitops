@@ -1,0 +1,10 @@
+apiVersion: v2
+name: zem-gitlab-runner
+type: application
+version: 0.1.0
+appVersion: "17.8.0"
+
+dependencies:
+  - name: gitlab-runner
+    version: 0.74.0
+    repository: https://charts.gitlab.io

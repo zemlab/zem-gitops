@@ -3,8 +3,16 @@ name: zem-internal
 extraSourceRepos:
   - "https://victoriametrics.github.io/helm-charts/"
   - "https://grafana.github.io/helm-charts"
+  - "https://charts.gitlab.io"
 
 services:
+  gitlab-runner:
+    enabled: true
+    releaseName: "gitlab-runner"
+    source:
+      repoURL: https://github.com/danfoster/zem-gitops
+      targetRevision: main
+      path: apps/zem-internal/zem-gitlab-runner
   homepage:
     enabled: true
     releaseName: "homepage"
