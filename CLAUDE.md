@@ -81,6 +81,36 @@ remoteRef:
   metadataPolicy: None
 ```
 
+### Testing Helm Charts Before Committing
+
+Always run `helm lint` and `helm template` before committing any changes to Helm charts or values files. Broken charts cause ArgoCD app-of-apps to fail to render, taking down all child applications.
+
+**For `deployments/project/` (project app-of-apps):**
+```bash
+helm template test deployments/project -f deployments/project/projects/<project>.yaml --set env=prod
+```
+
+Use `deployments/project/linter_values.yaml` for a generic test:
+```bash
+helm lint deployments/project -f deployments/project/linter_values.yaml
+```
+
+**For `apps/infra/zem-<name>/` or `apps/zem-<name>/` (wrapper charts):**
+```bash
+helm dependency update apps/infra/zem-<name>/
+helm lint apps/infra/zem-<name>/
+helm template test apps/infra/zem-<name>/
+```
+
+**For `deployments/infra/` (infra app-of-apps):**
+```bash
+helm template test deployments/infra -f clusters/<cluster>/infra.yaml
+```
+
+**Project values file requirements** — when adding a new project or service to `deployments/project/projects/<project>.yaml`:
+- Always include a `common.values.ociVault` block (with empty strings) so `$.Values.common` is never nil in the template
+- Always define `project-common` service with its source, even if `enabled: false`
+
 ### Git Remote
 
 - Repo URL used in sources: `https://github.com/danfoster/zem-gitops`
