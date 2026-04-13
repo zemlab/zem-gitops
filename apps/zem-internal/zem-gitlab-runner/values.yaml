@@ -2,6 +2,8 @@ gitlab-runner:
   gitlabUrl: https://gitlab.com/
   rbac:
     create: true
+  metrics:
+    enabled: true
   extraEnvFrom:
     CI_SERVER_TOKEN:
       secretKeyRef:
@@ -10,6 +12,8 @@ gitlab-runner:
   runners:
     config: |
       [[runners]]
+        [runners.custom_build_dir]
+          enabled = false
         [runners.kubernetes]
           namespace = "{{.Release.Namespace}}"
           image = "alpine:latest"
