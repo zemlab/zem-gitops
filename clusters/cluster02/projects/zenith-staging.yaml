@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: zenith-staging
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: gitops
+  source:
+    repoURL: https://github.com/danfoster/zem-gitops
+    targetRevision: main
+    path: deployments/project
+    helm:
+      valueFiles:
+        - projects/zenith.yaml
+      valuesObject:
+        env: staging
+        cluster: cluster02
+        common:
+          values:
+            ociVault:
+              vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
+              compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
+              region: "uk-london-1"
+              tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
+              userOcid: "ocid1.user.oc1..aaaaaaaajpxug7ehv4xazz5lrvyisd2mhrrzfs2a7pqm4qm7qc4gj5jyitaq"
+              credentialSecretName: "zenith-staging-oci-creds"
+        services:
+          project-common:
+            enabled: true
+          backend:
+            values:
+              cnpg:
+                backup:
+                  destinationPath: "s3://zenith-staging-private/backend-pg-wal"
+                  endpointURL: "https://s3.eu-central-003.backblazeb2.com"
+                  externalSecret:
+                    enabled: true
+                    vaultSecretName: "cluster02-zenith-staging-cnpg"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
