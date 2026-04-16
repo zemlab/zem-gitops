@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    hooks:
+      - id: check-yaml        args: ["--strict"]
+        types: [file]
+        files: \.yaml$
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    hooks:
+      - id: check-json
+        types: [file]
+        files: \.json$
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
