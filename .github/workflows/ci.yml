@@ -1,0 +1,16 @@
+name: CI Pipeline for zem-gitops
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Debug echo
+        run: echo "CI pipeline triggered on $(github.event_name)"
