@@ -1,0 +1,5 @@
+cluster:
+  name: cluster04
+
+ociVault:
+  enabled: false

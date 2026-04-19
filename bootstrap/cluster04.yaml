@@ -1,0 +1,17 @@
+kind: Application
+apiVersion: argoproj.io/v1alpha1
+metadata:
+  name: cluster04
+  namespace: argocd
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: clusters/cluster04
+    repoURL: https://github.com/danfoster/zem-gitops.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true

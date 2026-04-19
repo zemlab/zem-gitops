@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: gitops
+  source:
+    repoURL: https://github.com/danfoster/zem-gitops
+    targetRevision: main
+    path: deployments/infra
+    helm:
+      valuesObject:
+        common:
+          values:
+            cluster:
+              name: cluster04
+        features: {}
+        # TODO: enable features for cluster04
+        # Common examples:
+        #   externaldns:
+        #     enabled: true
+        #     values:
+        #       external-dns:
+        #         txtOwnerId: "zem-c4"
+        #   metallb:
+        #     enabled: true
+        #   metallb-configs:
+        #     enabled: true
+        #     values:
+        #       addresses:
+        #         - "x.x.x.x-x.x.x.x"
+        #   longhorn:
+        #     enabled: true
+        #     values:
+        #       ingress:
+        #         hostname: longhorn-cluster04
+        #   k8up:
+        #     enabled: true
+        #   kubernetes-replicator:
+        #     enabled: true
+        #   cloudflared:
+        #     enabled: true
+        #     values:
+        #       externalSecret:
+        #         remoteRefKey: cloudflared-token-cluster04
+        #   project-credentials:
+        #     enabled: true
+        #     values:
+        #       namespaces: []
+
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+  ignoreDifferences:
+    - group: argoproj.io
+      kind: Application
+      jsonPointers:
+      - /spec/syncPolicy
