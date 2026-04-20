@@ -2,9 +2,6 @@ oauth:
   clientId: tailscale-CHANGEME-client-id
   clientSecretKey: tailscale-CHANGEME-client-secret
 
-dnsConfig:
-  enabled: false
-
 subnetRouter: {}
   # hostname: subnet-router
   # routes:

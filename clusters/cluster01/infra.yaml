@@ -21,9 +21,6 @@ spec:
           tailscale:
             enabled: true
             namespace: awx-prod
-            values:
-              dnsConfig:
-                enabled: true
           openebs:
             enabled: true
           metallb:
