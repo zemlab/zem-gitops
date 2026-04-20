@@ -45,8 +45,6 @@ spec:
         #     values:
         #       ingress:
         #         hostname: longhorn-cluster04
-        #   k8up:
-        #     enabled: true
         #   kubernetes-replicator:
         #     enabled: true
         #   cloudflared:

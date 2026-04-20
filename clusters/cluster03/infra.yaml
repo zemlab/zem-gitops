@@ -44,8 +44,6 @@ spec:
             enabled: true
           kubernetes-replicator:
             enabled: true
-          k8up:
-            enabled: true
           oci-mysql:
             enabled: true
             namespace: oci-mysql

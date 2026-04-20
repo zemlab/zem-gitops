@@ -67,8 +67,6 @@ spec:
                 remoteRefKey: cloudflared-token-cluster02
           kubernetes-replicator:
             enabled: true
-          k8up:
-            enabled: true
           project-credentials:
             enabled: true
             values:

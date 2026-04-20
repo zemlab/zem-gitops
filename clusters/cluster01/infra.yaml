@@ -41,8 +41,6 @@ spec:
                 hostname: longhorn-cluster01
           kubernetes-replicator:
             enabled: true
-          k8up:
-            enabled: true
           project-credentials:
             enabled: true
             values:
