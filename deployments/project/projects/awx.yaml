@@ -1,0 +1,28 @@
+name: awx
+
+common:
+  values:
+    ociVault:
+      vaultOcid: ""
+      compartmentOcid: ""
+      region: "uk-london-1"
+      tenancyOcid: ""
+      userOcid: ""
+      credentialSecretName: ""
+
+services:
+  project-common:
+    enabled: false
+    nameOverride: "project-common-awx"
+    releaseName: "project-common-awx-prod"
+    source:
+      repoURL: https://github.com/danfoster/zem-gitops
+      targetRevision: main
+      path: apps/infra/zem-project-common
+  awx:
+    enabled: true
+    releaseName: "awx"
+    source:
+      repoURL: https://github.com/danfoster/zem-gitops
+      targetRevision: main
+      path: apps/awx/zem-awx

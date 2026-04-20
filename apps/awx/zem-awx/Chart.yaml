@@ -1,0 +1,10 @@
+apiVersion: v2
+name: zem-awx
+description: AWX (open-source Ansible Tower) via awx-operator
+type: application
+version: 0.1.0
+appVersion: "2.19.1"
+dependencies:
+  - name: awx-operator
+    version: 3.2.1
+    repository: https://ansible-community.github.io/awx-operator-helm/

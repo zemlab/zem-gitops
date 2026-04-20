@@ -1,0 +1,4 @@
+awx:
+  hostname: awx
+  storageClass: longhorn
+  adminPasswordSecretName: awx-admin-password
