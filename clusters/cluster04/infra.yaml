@@ -21,6 +21,7 @@ spec:
           ingress-nginx:
             enabled: false
           project-credentials:
+            enabled: true
             values:
               namespaces:
                 - name: gitlab-prod
@@ -45,8 +46,6 @@ spec:
         #     values:
         #       ingress:
         #         hostname: longhorn-cluster04
-        #   kubernetes-replicator:
-        #     enabled: true
         #   cloudflared:
         #     enabled: true
         #     values:

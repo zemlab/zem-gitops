@@ -39,8 +39,6 @@ spec:
             values:
               ingress:
                 hostname: longhorn-cluster01
-          kubernetes-replicator:
-            enabled: true
           project-credentials:
             enabled: true
             values:
