@@ -17,6 +17,8 @@ This is a GitOps repository managed by ArgoCD for deploying infrastructure acros
 - **cluster02** - Hosts zem-external and zem-internal projects
 - **cluster03** - OCI (Oracle Cloud), uses OCI Block Storage, OCI NLB, Longhorn (disabled currently)
 
+kubectl contexts follow the pattern `<cluster>.shark-puffin.ts.net` (e.g. `cluster03.shark-puffin.ts.net`).
+
 ### How Infra Features Work
 
 1. **Define feature** in `deployments/infra/values.yaml` under `features:` with `enabled: false` (default disabled)
@@ -45,7 +47,7 @@ This is a GitOps repository managed by ArgoCD for deploying infrastructure acros
 
 ### Onboarding a New Project
 
-Run `scripts/create-project.sh <cluster> <namespace>` to provision backup credentials for a new project namespace. This creates OCI users, IAM policies, B2 keys, and stores credentials in OCI Vault. The script outputs YAML snippets to add to git (cluster infra.yaml and project config).
+**Always use `scripts/create-project.sh <cluster> <namespace>` to create new projects.** Do not manually create project files. The script handles all required steps: OCI users, IAM policies, B2 keys, restic passwords, OCI Vault secrets, and generates the git files (`clusters/<cluster>/infra.yaml`, `clusters/<cluster>/projects/<project>.yaml`, `deployments/project/projects/<project>.yaml`).
 
 See also: `scripts/setup-oci-vault-clustersecretstore.sh <cluster>` — one-time per-cluster setup for the `oci-vault` ClusterSecretStore.
 

@@ -17,7 +17,15 @@ spec:
           values:
             cluster:
               name: cluster04
-        features: {}
+        features:
+          ingress-nginx:
+            enabled: false
+          project-credentials:
+            values:
+              namespaces:
+                - name: gitlab-prod
+                  vaultSecretName: infra-gitlab-prod-oci-credentials
+                  targetNamespace: gitlab-prod
         # TODO: enable features for cluster04
         # Common examples:
         #   externaldns:
@@ -50,7 +58,6 @@ spec:
         #     enabled: true
         #     values:
         #       namespaces: []
-
   destination:
     server: "https://kubernetes.default.svc"
     namespace: argocd
@@ -61,4 +68,4 @@ spec:
     - group: argoproj.io
       kind: Application
       jsonPointers:
-      - /spec/syncPolicy
+        - /spec/syncPolicy

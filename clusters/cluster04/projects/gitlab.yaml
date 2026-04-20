@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: gitops
+  source:
+    repoURL: https://github.com/danfoster/zem-gitops
+    targetRevision: main
+    path: deployments/project
+    helm:
+      valueFiles:
+        - projects/gitlab.yaml
+      valuesObject:
+        env: prod
+        cluster: cluster04
+        common:
+          values:
+            ociVault:
+              vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
+              compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
+              region: "uk-london-1"
+              tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
+              userOcid: "ocid1.user.oc1..aaaaaaaanhntxaxikwlajpmndprvr2hupnrpvyybhzhlnh4h5v2sdvludh5q"
+              credentialSecretName: "gitlab-prod-oci-creds"
+        services:
+          project-common:
+            enabled: true
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true

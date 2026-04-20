@@ -49,6 +49,16 @@ releases:
     values:
       - bitwarden-sdk-server:
           enabled: true
+    hooks:
+      - events: ["postsync"]
+        showlogs: true
+        command: "kubectl"
+        args:
+          - "rollout"
+          - "status"
+          - "deployment/external-secrets-webhook"
+          - "--namespace=external-secrets"
+          - "--timeout=120s"
 
   # 3. zem-external-secrets (Bitwarden SecretStore config)
   - name: zem-external-secrets

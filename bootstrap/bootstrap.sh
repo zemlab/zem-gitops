@@ -24,4 +24,12 @@ fi
 
 cd "$(dirname "$0")"
 
-helmfile -e "$CLUSTER" apply
+CURRENT_CONTEXT="$(kubectl config current-context)"
+echo "kubectl context: ${CURRENT_CONTEXT}"
+read -rp "Bootstrap ${CLUSTER} against this context? [y/N] " confirm
+if [[ "${confirm}" != "y" && "${confirm}" != "Y" ]]; then
+  echo "Aborted."
+  exit 1
+fi
+
+helmfile -e "$CLUSTER" apply --skip-diff-on-install

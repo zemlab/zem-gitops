@@ -1,4 +1,4 @@
-name: zem-internal
+name: gitlab
 
 common:
   values:
@@ -11,26 +11,21 @@ common:
       credentialSecretName: ""
 
 extraSourceRepos:
-  - "https://victoriametrics.github.io/helm-charts/"
-  - "https://grafana.github.io/helm-charts"
+  - "https://charts.gitlab.io"
 
 services:
   project-common:
     enabled: false
-    nameOverride: "project-common-zem-internal"
-    releaseName: "project-common-zem-internal-prod"
+    nameOverride: "project-common-gitlab"
+    releaseName: "project-common-gitlab-prod"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
       path: apps/infra/zem-project-common
-  homepage:
+  gitlab-runner:
     enabled: true
-    releaseName: "homepage"
+    releaseName: "gitlab-runner"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
-      path: apps/zem-internal/zem-homepage
-    ignoreDifferences:
-      - kind: Service
-        jsonPointers:
-          - /spec/externalName
+      path: apps/zem-gitlab/zem-gitlab-runner
