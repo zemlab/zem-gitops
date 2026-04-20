@@ -182,7 +182,8 @@ else
         oci iam user api-key delete --user-id "${OCI_USER_OCID}" --fingerprint "${fp}" --force
     done
 
-    openssl genrsa -out "${TMPDIR}/api_key.pem" 2048 2>/dev/null
+    openssl genrsa -out "${TMPDIR}/api_key_pkcs8.pem" 2048 2>/dev/null
+    openssl rsa -traditional -in "${TMPDIR}/api_key_pkcs8.pem" -out "${TMPDIR}/api_key.pem" 2>/dev/null
     openssl rsa -pubout -in "${TMPDIR}/api_key.pem" -out "${TMPDIR}/api_key_public.pem" 2>/dev/null
 
     API_KEY_RESULT=$(oci iam user api-key upload \
