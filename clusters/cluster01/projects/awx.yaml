@@ -31,7 +31,7 @@ spec:
             values:
               awx:
                 hostname: awx
-                storageClass: longhorn
+                storageClass: openebs-hostpath
           project-common:
             enabled: true
   destination:

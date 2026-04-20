@@ -1,4 +1,4 @@
 awx:
   hostname: awx
-  storageClass: longhorn
+  storageClass: openebs-hostpath
   adminPasswordSecretName: awx-admin-password
