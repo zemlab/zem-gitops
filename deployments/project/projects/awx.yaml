@@ -21,6 +21,7 @@ services:
       path: apps/infra/zem-project-common
   awx:
     enabled: true
+    nameOverride: "awx-instance"
     releaseName: "awx"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
