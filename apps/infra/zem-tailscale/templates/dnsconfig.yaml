@@ -1,9 +1,12 @@
+{{- if .Values.dnsConfig.enabled }}
 apiVersion: tailscale.com/v1alpha1
 kind: DNSConfig
 metadata:
   name: ts-dns
+  namespace: {{ .Release.Namespace }}
 spec:
   nameserver:
     image:
       repo: docker.io/tailscale/k8s-nameserver
       tag: unstable
+{{- end }}

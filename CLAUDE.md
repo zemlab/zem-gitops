@@ -47,7 +47,7 @@ kubectl contexts follow the pattern `<cluster>.shark-puffin.ts.net` (e.g. `clust
 
 ### Onboarding a New Project
 
-**Always use `scripts/create-project.sh <cluster> <namespace>` to create new projects.** Do not manually create project files. The script handles all required steps: OCI users, IAM policies, B2 keys, restic passwords, OCI Vault secrets, and generates the git files (`clusters/<cluster>/infra.yaml`, `clusters/<cluster>/projects/<project>.yaml`, `deployments/project/projects/<project>.yaml`).
+**Always use `scripts/create-project.sh <cluster> <namespace>` to create new projects.** Do not manually create project files. The script handles all required steps: OCI users, IAM policies, B2 keys, restic passwords, OCI Vault secrets, and generates the git files (`clusters/<cluster>/infra.yaml`, `clusters/<cluster>/projects/<project>.yaml`, `deployments/project/projects/<project>.yaml`). This script must also be used when migrating an existing project to a new cluster.
 
 See also: `scripts/setup-oci-vault-clustersecretstore.sh <cluster>` — one-time per-cluster setup for the `oci-vault` ClusterSecretStore.
 

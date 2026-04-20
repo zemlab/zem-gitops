@@ -16,15 +16,16 @@ spec:
         - projects/zem-internal.yaml
       valuesObject:
         env: prod
+        cluster: cluster04
         common:
           values:
             ociVault:
-              vaultOcid: ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka
-              compartmentOcid: ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha
-              region: uk-london-1
-              tenancyOcid: ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca
-              userOcid: ocid1.user.oc1..aaaaaaaaknofjb6cnr7skjvjexfknxhh7ormwpgiilodevy7hdtfkxs6l4ya
-              credentialSecretName: zem-internal-prod-oci-creds
+              vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
+              compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
+              region: "uk-london-1"
+              tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
+              userOcid: "ocid1.user.oc1..aaaaaaaabrq3hzcixkipj32zsybsyiun57uqkm4cqkfx4kexncbutgving2q"
+              credentialSecretName: "zem-internal-prod-oci-creds"
         services:
           project-common:
             enabled: true
@@ -34,8 +35,3 @@ spec:
   syncPolicy:
     automated:
       prune: true
-  ignoreDifferences:
-    - group: argoproj.io
-      kind: Application
-      jsonPointers:
-        - /spec/syncPolicy
