@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: infra
-  namespace: argocd
+  namespace: gitops
 spec:
   project: gitops
   source:
@@ -52,7 +52,7 @@ spec:
                   targetNamespace: awx-prod
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: argocd
+    namespace: gitops
   syncPolicy:
     automated:
       prune: true

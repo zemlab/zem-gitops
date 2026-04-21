@@ -2,7 +2,7 @@ common:
   values:
     cluster:
       name: changeme
-  argocd_namespace: argocd
+  argocd_namespace: gitops
 features:
   argocd-extras:
     enabled: false

@@ -132,10 +132,10 @@ kind: Application
 apiVersion: argoproj.io/v1alpha1
 metadata:
   name: ${CLUSTER}
-  namespace: argocd
+  namespace: gitops
 spec:
   destination:
-    namespace: argocd
+    namespace: gitops
     server: https://kubernetes.default.svc
   project: default
   source:
@@ -161,7 +161,7 @@ metadata:
 spec:
   description: GitOps Project
   destinations:
-    - namespace: "argocd"
+    - namespace: "gitops"
       server: "https://kubernetes.default.svc"
   clusterResourceWhitelist:
     - group: "*"
@@ -177,9 +177,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: infra
-  namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  namespace: gitops
 spec:
   project: gitops
   source:
@@ -228,7 +226,7 @@ spec:
 
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: argocd
+    namespace: gitops
   syncPolicy:
     automated:
       prune: true

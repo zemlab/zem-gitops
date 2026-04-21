@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: zenith-staging
-  namespace: argocd
+  namespace: gitops
 spec:
   project: gitops
   source:
@@ -38,7 +38,7 @@ spec:
                     vaultSecretName: "cluster02-zenith-staging-cnpg"
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: argocd
+    namespace: gitops
   syncPolicy:
     automated:
       prune: true
