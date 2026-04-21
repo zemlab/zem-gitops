@@ -162,4 +162,11 @@ releases:
         args:
           - "apply"
           - "-f"
+          - "../clusters/{{ .Values.cluster.name }}/gitops.project.yaml"
+      - events: ["postsync"]
+        showlogs: true
+        command: "kubectl"
+        args:
+          - "apply"
+          - "-f"
           - "{{ .Values.cluster.name }}.yaml"
