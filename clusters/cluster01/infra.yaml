@@ -18,9 +18,6 @@ spec:
             cluster:
               name: cluster01
         features:
-          tailscale:
-            enabled: true
-            namespace: awx-prod
           openebs:
             enabled: true
           metallb:
