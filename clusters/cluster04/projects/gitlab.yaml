@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: gitlab-prod
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: gitops
   source:

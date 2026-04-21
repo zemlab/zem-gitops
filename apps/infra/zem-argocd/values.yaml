@@ -4,6 +4,7 @@ argo-cd:
       create: false
     params:
       server.insecure: true
+      application.namespaces: "gitops"
       controller.status.processors: 10
       controller.operation.processors: 5
     rbac:

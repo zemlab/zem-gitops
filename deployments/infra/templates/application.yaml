@@ -10,8 +10,6 @@ kind: Application
 metadata:
   name: {{ $name }}
   namespace: {{ $.Values.common.argocd_namespace }}
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: infra
   syncPolicy:
