@@ -6,6 +6,7 @@ argo-cd:
       server.insecure: true
       controller.status.processors: 10
       controller.operation.processors: 5
+      application.namespaces: "gitops"
     rbac:
       policy.default: role:readonly
       policy.csv: |

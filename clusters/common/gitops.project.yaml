@@ -6,7 +6,7 @@ metadata:
 spec:
   description: GitOps Project
   destinations:
-    - namespace: "argocd"
+    - namespace: "gitops"
       server: "https://kubernetes.default.svc"
   clusterResourceWhitelist:
     - group: "*"

@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: awx-prod
-  namespace: argocd
+  namespace: gitops
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -36,7 +36,7 @@ spec:
             enabled: true
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: argocd
+    namespace: gitops
   syncPolicy:
     automated:
       prune: true
