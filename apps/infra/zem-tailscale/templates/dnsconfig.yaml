@@ -1,4 +1,4 @@
-{{- if .Values.dnsConfig.enabled }}
+{{- if .Values.dnsConfig | default dict | pluck "enabled" | first }}
 apiVersion: tailscale.com/v1alpha1
 kind: DNSConfig
 metadata:
