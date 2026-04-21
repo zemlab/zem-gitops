@@ -152,6 +152,12 @@ releases:
           - "--type=merge"
       - events: ["postsync"]
         showlogs: true
+        command: "sh"
+        args:
+          - "-c"
+          - "kubectl create namespace gitops --dry-run=client -o yaml | kubectl apply -f -"
+      - events: ["postsync"]
+        showlogs: true
         command: "kubectl"
         args:
           - "apply"

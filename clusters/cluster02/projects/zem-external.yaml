@@ -3,8 +3,6 @@ kind: Application
 metadata:
   name: zem-external-prod
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
 spec:
   project: gitops
   source:
