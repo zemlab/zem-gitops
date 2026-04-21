@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: projects
-  namespace: argocd
+  namespace: gitops
 spec:
   project: gitops
   source:
@@ -11,7 +11,7 @@ spec:
     path: clusters/cluster02/projects
   destination:
     server: "https://kubernetes.default.svc"
-    namespace: argocd
+    namespace: gitops
   syncPolicy:
     automated:
       prune: true

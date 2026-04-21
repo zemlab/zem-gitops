@@ -17,7 +17,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: {{ $appName }}
-  namespace: argocd
+  namespace: gitops
 spec:
   project: {{ $chart }}-{{ $env }}
   syncPolicy:
