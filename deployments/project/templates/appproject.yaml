@@ -10,6 +10,8 @@ spec:
   destinations:
     - namespace: "{{ .Values.name }}-{{ .Values.env }}"
       server: "https://kubernetes.default.svc"
+  sourceNamespaces:
+    - gitops
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
