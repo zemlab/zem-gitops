@@ -14,6 +14,8 @@ spec:
     - namespace: {{ . | quote }}
       server: "https://kubernetes.default.svc"
     {{- end }}
+  sourceNamespaces:
+    - gitops
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
