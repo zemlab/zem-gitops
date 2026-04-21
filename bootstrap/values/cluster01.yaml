@@ -1,2 +1,9 @@
 cluster:
   name: cluster01
+ociVault:
+  enabled: true
+  vault: ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka
+  compartment: ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha
+  region: uk-london-1
+  user: ocid1.user.oc1..aaaaaaaalpf74v44se5bovb2wjqhtg3dvlbbsnbtwodo3mqd3feksyudmzna
+  tenancy: ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca
