@@ -33,7 +33,7 @@ spec:
           smartctl-exporter:
             enabled: true
           longhorn:
-            enabled: true
+            enabled: false
             values:
               ingress:
                 hostname: longhorn-cluster01
