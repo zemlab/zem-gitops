@@ -7,7 +7,7 @@ spec:
   destination:
     namespace: gitops
     server: https://kubernetes.default.svc
-  project: default
+  project: gitops
   source:
     path: clusters/cluster02
     repoURL: https://github.com/danfoster/zem-gitops.git
