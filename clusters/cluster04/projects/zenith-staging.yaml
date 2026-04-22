@@ -30,6 +30,7 @@ spec:
           project-common:
             enabled: true
           backend:
+            targetRevision: 0.2.0-rc0
             values:
               cnpg:
                 backup:
@@ -38,6 +39,12 @@ spec:
                   externalSecret:
                     enabled: true
                     vaultSecretName: "cluster04-zenith-staging-cnpg"
+          frontend:
+            targetRevision: 0.2.0-rc0
+            values:
+              ingress:
+                hostname: staging.peakstream.app
+                ingressClassName: cloudflare-tunnel
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
