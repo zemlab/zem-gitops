@@ -40,13 +40,16 @@ spec:
                   externalSecret:
                     enabled: true
                     vaultSecretName: "cluster04-zenith-staging-cnpg"
+              ingress:
+                hostname: staging.peakstream.app
+                className: cloudflare-tunnel
           frontend:
             source:
               targetRevision: 0.2.0-rc1
             values:
               ingress:
                 hostname: staging.peakstream.app
-                ingressClassName: cloudflare-tunnel
+                className: cloudflare-tunnel
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
