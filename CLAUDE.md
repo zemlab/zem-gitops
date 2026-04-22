@@ -13,9 +13,10 @@ This is a GitOps repository managed by ArgoCD for deploying infrastructure acros
 
 ### Clusters
 
-- **cluster01** - On-prem, uses OpenEBS/ZFS, MetalLB, Longhorn
-- **cluster02** - Hosts zem-external and zem-internal projects
-- **cluster03** - OCI (Oracle Cloud), uses OCI Block Storage, OCI NLB, Longhorn (disabled currently)
+- **cluster01** - On-prem, uses OpenEBS, MetalLB, Longhorn
+- **cluster02** - On-prem, hosts zem-external and zem-internal projects
+- **cluster03** - OCI (Oracle Cloud), uses OCI Block Storage, OCI NLB
+- **cluster04** - OCI (Oracle Cloud), hosts gitlab and zem-internal projects
 
 kubectl contexts follow the pattern `<cluster>.shark-puffin.ts.net` (e.g. `cluster03.shark-puffin.ts.net`).
 
@@ -41,9 +42,12 @@ kubectl contexts follow the pattern `<cluster>.shark-puffin.ts.net` (e.g. `clust
 
 ### Secrets Management
 
-- External Secrets Operator pulls from Bitwarden vault
-- Secret store configured in `apps/infra/zem-external-secrets/`
-- ExternalSecret CRDs reference `remoteRefKey` for vault items
+Two ClusterSecretStores exist on each cluster:
+
+- **`zem-infra`** (Bitwarden) — cluster-scoped infra secrets. Configured via bootstrap helmfile (`zem-external-secrets` release). Used for secrets that are global to the cluster.
+- **`oci-vault`** (OCI Vault) — project/namespace-scoped credentials. Set up once per cluster via `scripts/setup-oci-vault-clustersecretstore.sh <cluster>`. Used by `project-credentials` and per-namespace SecretStores. Requires `ociVault.enabled: true` in `bootstrap/values/<cluster>.yaml`.
+
+ExternalSecrets in `project-credentials` namespace use `ClusterSecretStore/oci-vault` and replicate the resulting Secret to target namespaces via `kubernetes-replicator` (annotation: `replicator.v1.mittwald.de/replicate-to`). The per-namespace `oci-vault` SecretStore then uses those replicated credentials.
 
 ### Onboarding a New Project
 
@@ -54,6 +58,51 @@ See also: `scripts/setup-oci-vault-clustersecretstore.sh <cluster>` — one-time
 ### Backup Infrastructure
 
 - **K8up** (current): Restic-based, backs up to Backblaze B2 (`zem-backups-eu` bucket)
+
+### ArgoCD Application Namespace
+
+All ArgoCD Application CRs live in the **`gitops`** namespace, not `argocd`. The `argocd` namespace is reserved for ArgoCD system components only.
+
+ArgoCD is configured with `application.namespaces: "gitops"` (in `apps/infra/zem-argocd/values.yaml`) to watch the `gitops` namespace. All Application manifests — including bootstrap Applications in `bootstrap/<cluster>.yaml`, cluster-level `clusters/*/infra.yaml` and `clusters/*/projects.yaml`, and project Applications in `clusters/*/projects/*.yaml` — must have `namespace: gitops`.
+
+All Application CRs carry `resources-finalizer.argocd.argoproj.io` in `metadata.finalizers`. Deleting an Application cascades to delete all managed resources. This is intentional.
+
+### AppProject Structure
+
+Each cluster has `clusters/<cluster>/gitops.project.yaml` defining the `gitops` AppProject. This project:
+- Must list **both** `gitops` and `argocd` as destinations — `argocd` is required because AppProject resources (created by the infra app-of-apps) live in the `argocd` namespace
+- Must have `sourceNamespaces: [gitops]` — required for ArgoCD to accept Applications in the `gitops` namespace using this project
+- Bootstrap Applications use `project: gitops`
+
+The infra app-of-apps creates an `infra` AppProject (managed resource, lives in `argocd` ns). Project app-of-apps creates per-project AppProjects. Both need `sourceNamespaces: [gitops]` — defined in their templates.
+
+### ArgoCD ConfigMap (`argocd-cm`)
+
+`argocd-cm` is **not managed by Helm** (`configs.cm.create: false` in `apps/infra/zem-argocd/values.yaml`). It contains cluster-specific config: dex OIDC connector, server URL, resource exclusions. Patch it directly with `kubectl patch configmap argocd-cm -n argocd`.
+
+Custom health checks for CRDs that ArgoCD doesn't know natively are added as:
+```
+resource.customizations.health.<apiGroup>_<Kind>: |
+  <lua script returning hs.status and hs.message>
+```
+
+Without a health check, applications containing only CRD resources will show as **Progressing** indefinitely (ArgoCD can't confirm Healthy).
+
+### SharedResourceWarnings
+
+When an Application is deleted but its managed resources still carry the old `argocd.argoproj.io/tracking-id` annotation, ArgoCD reports "Resource X is part of applications A and B". Fix: remove the annotation from affected resources, then hard-refresh the owning Application:
+
+```bash
+kubectl annotate <resource> argocd.argoproj.io/tracking-id- [--context ...]
+kubectl annotate application <app> -n gitops argocd.argoproj.io/refresh=hard --overwrite
+```
+
+### Application Source Directories
+
+- `apps/infra/zem-<name>/` — infra tool wrappers (Helm charts)
+- `apps/zem-<project>/` — project-level app wrappers (e.g. `apps/zem-gitlab/`)
+- `deployments/infra/` — infra app-of-apps
+- `deployments/project/` — project app-of-apps
 
 ### Bootstrap (Pre-ArgoCD)
 
@@ -70,6 +119,8 @@ The `bootstrap/` directory contains a Helmfile that installs the 6 Helm releases
 - `helmfile -e <cluster> template` - Render templates locally
 
 **Requirements**: `helmfile`, `helm`, `kubectl`, `helm-diff` plugin
+
+For a brand-new cluster use `bootstrap/new-cluster.sh <cluster> <bw-token>` — this runs all phases including OCI Vault setup. Use `bootstrap/bootstrap.sh` only to re-run an existing cluster.
 
 ### ExternalSecret remoteRef defaults
 
@@ -113,8 +164,13 @@ helm template test deployments/infra -f clusters/<cluster>/infra.yaml
 - Always include a `common.values.ociVault` block (with empty strings) so `$.Values.common` is never nil in the template
 - Always define `project-common` service with its source, even if `enabled: false`
 
+### infra.yaml Is Not a Pure Values File
+
+`clusters/<cluster>/infra.yaml` is an ArgoCD Application manifest, not a Helm values file. The `helm template test deployments/infra -f clusters/<cluster>/infra.yaml` command does NOT accurately reflect what ArgoCD renders — it parses the whole Application YAML as values (nesting under `apiVersion`, `spec`, etc.). Only use it to catch syntax errors; don't rely on the output to match live ArgoCD rendering.
+
 ### Git Remote
 
 - Repo URL used in sources: `https://github.com/danfoster/zem-gitops`
 - Default branch: `main`
-- ArgoCD namespace: `argocd`
+- ArgoCD namespace (system components): `argocd`
+- ArgoCD Application namespace: `gitops`
