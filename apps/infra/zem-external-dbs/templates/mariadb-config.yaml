@@ -9,3 +9,4 @@ spec:
   passwordSecretKeyRef:
     name: mysql-root-creds
     key: password
+  image: "{{ .Values.mysql.backupImage }}"
