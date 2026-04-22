@@ -1,0 +1,10 @@
+externalSecret:
+  remoteRefKey: "CHANGEME_CLOUDFLARE_INGRESS_SECRET"
+
+cloudflare-tunnel-ingress-controller:
+  cloudflare:
+    secretRef:
+      name: cloudflare-ingress-credentials
+      accountIDKey: account-id
+      tunnelNameKey: tunnel-name
+      apiTokenKey: api-token

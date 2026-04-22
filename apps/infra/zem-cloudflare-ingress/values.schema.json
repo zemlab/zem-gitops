@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "zem-cloudflare-ingress values",
+  "type": "object",
+  "properties": {
+    "externalSecret": {
+      "type": "object",
+      "properties": {
+        "remoteRefKey": {
+          "type": "string",
+          "title": "External Secret Remote Ref Key",
+          "description": "OCI Vault secret name containing apiToken, accountId, and tunnelName as JSON fields",
+          "not": {
+            "enum": [
+              "CHANGEME_CLOUDFLARE_INGRESS_SECRET"
+            ]
+          }
+        }
+      },
+      "required": [
+        "remoteRefKey"
+      ]
+    }
+  },
+  "required": [
+    "externalSecret"
+  ]
+}

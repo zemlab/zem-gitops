@@ -1,0 +1,10 @@
+apiVersion: v2
+name: zem-cloudflare-ingress
+description: Helm chart wrapper for cloudflare-tunnel-ingress-controller
+type: application
+version: 0.1.0
+appVersion: "0.0.23"
+dependencies:
+  - name: cloudflare-tunnel-ingress-controller
+    repository: https://helm.strrl.dev
+    version: 0.0.23

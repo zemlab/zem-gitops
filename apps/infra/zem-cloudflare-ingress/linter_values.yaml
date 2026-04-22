@@ -1,0 +1,3 @@
+# Valid test values for helm lint/template.
+externalSecret:
+  remoteRefKey: "infra-cloudflare-ingress-cluster04"
