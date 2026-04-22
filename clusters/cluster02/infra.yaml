@@ -75,20 +75,15 @@ spec:
                 - name: zenith-prod
                   vaultSecretName: infra-zenith-prod-oci-credentials
                   targetNamespace: zenith-prod
-                - name: zenith-staging
-                  vaultSecretName: infra-zenith-staging-oci-credentials
-                  targetNamespace: zenith-staging
           kyverno:
             enabled: true
           registry-auth:
             enabled: true
             extraDestinationNamespaces:
               - zenith-prod
-              - zenith-staging
             values:
               namespaces:
                 - zenith-prod
-                - zenith-staging
           cnpg:
             enabled: true
   destination:
