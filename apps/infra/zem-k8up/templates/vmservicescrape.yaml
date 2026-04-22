@@ -2,6 +2,7 @@ apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMServiceScrape
 metadata:
   name: k8up-metrics
+  namespace: {{ .Release.Namespace }}
 spec:
   endpoints:
     - port: http
