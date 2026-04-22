@@ -133,11 +133,13 @@ apiVersion: argoproj.io/v1alpha1
 metadata:
   name: ${CLUSTER}
   namespace: gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: gitops
     server: https://kubernetes.default.svc
-  project: default
+  project: gitops
   source:
     path: clusters/${CLUSTER}
     repoURL: https://github.com/danfoster/zem-gitops.git
@@ -163,6 +165,10 @@ spec:
   destinations:
     - namespace: "gitops"
       server: "https://kubernetes.default.svc"
+    - namespace: "argocd"
+      server: "https://kubernetes.default.svc"
+  sourceNamespaces:
+    - gitops
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
@@ -178,6 +184,8 @@ kind: Application
 metadata:
   name: infra
   namespace: gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: gitops
   source:
@@ -337,6 +345,6 @@ echo "3. For each project namespace, run:"
 echo "     ${REPO_ROOT}/scripts/create-project.sh ${CLUSTER} <namespace>"
 echo ""
 echo "4. Verify cluster health:"
-echo "     kubectl get applications -n argocd"
+echo "     kubectl get applications -n gitops"
 echo "     kubectl get clustersecretstore oci-vault -o jsonpath='{.status.conditions}'"
 echo "     kubectl get secret oci-vault-auth -n external-secrets"

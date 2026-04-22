@@ -18,6 +18,8 @@ kind: Application
 metadata:
   name: {{ $appName }}
   namespace: gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ $chart }}-{{ $env }}
   syncPolicy:
