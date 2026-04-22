@@ -4,6 +4,8 @@ gitlab-runner:
     create: true
   metrics:
     enabled: true
+  livenessProbe:
+    timeoutSeconds: 10
   extraEnvFrom:
     CI_SERVER_TOKEN:
       secretKeyRef:
