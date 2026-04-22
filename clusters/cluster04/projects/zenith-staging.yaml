@@ -30,7 +30,7 @@ spec:
           project-common:
             enabled: true
           backend:
-            targetRevision: 0.2.0-rc0
+            targetRevision: 0.2.0-rc1
             values:
               cnpg:
                 backup:
@@ -40,7 +40,7 @@ spec:
                     enabled: true
                     vaultSecretName: "cluster04-zenith-staging-cnpg"
           frontend:
-            targetRevision: 0.2.0-rc0
+            targetRevision: 0.2.0-rc1
             values:
               ingress:
                 hostname: staging.peakstream.app
