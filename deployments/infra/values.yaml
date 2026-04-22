@@ -5,7 +5,7 @@ common:
   argocd_namespace: gitops
 features:
   argocd-extras:
-    enabled: false
+    enabled: true
     namespace: argocd
     source:
       repoURL: https://github.com/danfoster/zem-gitops
