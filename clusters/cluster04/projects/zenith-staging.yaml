@@ -33,13 +33,7 @@ spec:
             source:
               targetRevision: 0.2.0-rc1
             values:
-              cnpg:
-                backup:
-                  destinationPath: "s3://zenith-staging-private/backend-pg-wal"
-                  endpointURL: "https://s3.eu-central-003.backblazeb2.com"
-                  externalSecret:
-                    enabled: true
-                    vaultSecretName: "cluster04-zenith-staging-cnpg"
+
               ingress:
                 hostname: staging.peakstream.app
                 className: cloudflare-tunnel
@@ -50,6 +44,17 @@ spec:
               ingress:
                 hostname: staging.peakstream.app
                 className: cloudflare-tunnel
+          db:
+            source:
+              targetRevision: 0.2.0-rc1
+            values:
+              cnpg:
+                backup:
+                  destinationPath: "s3://zenith-staging-private/backend-pg-wal"
+                  endpointURL: "https://s3.eu-central-003.backblazeb2.com"
+                  externalSecret:
+                    enabled: true
+                    vaultSecretName: "cluster04-zenith-staging-cnpg"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
