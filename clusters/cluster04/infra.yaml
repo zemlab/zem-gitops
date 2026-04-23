@@ -32,40 +32,20 @@ spec:
                 - name: gitlab-prod
                   vaultSecretName: infra-gitlab-prod-oci-credentials
                   targetNamespace: gitlab-prod
-                  # TODO: enable features for cluster04
-                  # Common examples:
-                  #   externaldns:
-                  #     enabled: true
-                  #     values:
-                  #       external-dns:
-                  #         txtOwnerId: "zem-c4"
-                  #   metallb:
-                  #     enabled: true
-                  #   metallb-configs:
-                  #     enabled: true
-                  #     values:
-                  #       addresses:
-                  #         - "x.x.x.x-x.x.x.x"
-                  #   longhorn:
-                  #     enabled: true
-                  #     values:
-                  #       ingress:
-                  #         hostname: longhorn-cluster04
-                  #   cloudflared:
-                  #     enabled: true
-                  #     values:
-                  #       externalSecret:
-                  #         remoteRefKey: cloudflared-token-cluster04
-                  #   project-credentials:
-                  #     enabled: true
-                  #     values:
-                  #       namespaces: []
                 - name: zem-internal-prod
                   vaultSecretName: infra-zem-internal-prod-oci-credentials
                   targetNamespace: zem-internal-prod
                 - name: zenith-staging
                   vaultSecretName: infra-zenith-staging-oci-credentials
                   targetNamespace: zenith-staging
+          cnpg:
+            enabled: true
+          longhorn:
+            enabled: true
+            values:
+              ingress:
+                hostname: longhorn-cluster04
+
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
