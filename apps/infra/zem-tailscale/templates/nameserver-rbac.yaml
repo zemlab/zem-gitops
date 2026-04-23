@@ -1,0 +1,34 @@
+{{- if .Values.dnsConfig | default dict | pluck "enabled" | first }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nameserver
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: nameserver
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: nameserver
+  namespace: {{ .Release.Namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: nameserver
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: nameserver
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

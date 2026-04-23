@@ -110,6 +110,10 @@ releases:
           routes: {{ .Values.subnetRouter.routes | toJson }}
         {{- end }}
         {{- end }}
+        {{- if .Values.dnsConfig | default dict | pluck "enabled" | first }}
+        dnsConfig:
+          enabled: true
+        {{- end }}
     hooks:
       - events: ["postsync"]
         showlogs: true
@@ -121,6 +125,37 @@ releases:
           - "-p"
           - '{"metadata":{"labels":{"infra":"true"}}}'
           - "--type=merge"
+      {{- if .Values.dnsConfig | default dict | pluck "enabled" | first }}
+      - events: ["postsync"]
+        showlogs: true
+        command: "/bin/sh"
+        args:
+          - "-c"
+          - |
+            echo "Waiting for Tailscale nameserver service..."
+            for i in $(seq 1 30); do
+              NS_IP=$(kubectl get svc nameserver -n tailscale -o jsonpath='{.spec.clusterIP}' 2>/dev/null)
+              if [ -n "$NS_IP" ]; then break; fi
+              sleep 5
+            done
+            if [ -z "$NS_IP" ]; then echo "ERROR: nameserver service not found"; exit 1; fi
+            echo "Patching CoreDNS with ts.net stub zone -> $NS_IP"
+            COREFILE=$(kubectl get configmap coredns -n kube-system -o jsonpath='{.data.Corefile}')
+            if echo "$COREFILE" | grep -q "ts.net"; then
+              echo "CoreDNS ts.net stub already present, skipping"
+            else
+              NEW_COREFILE="${COREFILE}
+            ts.net:53 {
+                errors
+                cache 30
+                forward . ${NS_IP}
+            }"
+              kubectl patch configmap coredns -n kube-system --type merge \
+                -p "{\"data\":{\"Corefile\":$(echo "$NEW_COREFILE" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read()))")}}"
+              kubectl rollout restart deployment/coredns -n kube-system
+              echo "CoreDNS patched and restarted"
+            fi
+      {{- end }}
 
   # 6. ArgoCD
   - name: argocd

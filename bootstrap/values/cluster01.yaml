@@ -1,5 +1,7 @@
 cluster:
   name: cluster01
+dnsConfig:
+  enabled: true
 ociVault:
   enabled: true
   vault: ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka
