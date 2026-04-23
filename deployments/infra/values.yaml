@@ -175,7 +175,7 @@ features:
       targetRevision: main
       path: apps/infra/zem-project-credentials
   kyverno:
-    enabled: false
+    enabled: true
     namespace: kyverno
     source:
       repoURL: https://github.com/danfoster/zem-gitops
