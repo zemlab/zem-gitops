@@ -188,7 +188,7 @@ features:
           - /metadata/annotations
           - /metadata/labels
   registry-auth:
-    enabled: false
+    enabled: true
     namespace: registry-auth
     extraDestinationNamespaces: []
     source:
