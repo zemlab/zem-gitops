@@ -5,6 +5,43 @@ gitlab-runner:
   metrics:
     enabled: true
   probeTimeoutSeconds: 10
+  # Override check-live to fix broken --url= flag in runner v17.9+ (upstream chart bug)
+  volumes:
+    - name: check-live-fix
+      configMap:
+        name: gitlab-runner-check-live-fix
+  volumeMounts:
+    - name: check-live-fix
+      mountPath: /configmaps/check-live
+      subPath: check-live
+  extraObjects:
+    - apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: gitlab-runner-check-live-fix
+        namespace: "{{ .Release.Namespace }}"
+      data:
+        check-live: |
+          #!/bin/bash
+          set -eou pipefail
+
+          VERIFY_TIMEOUT=${1:-${VERIFY_TIMEOUT:-3}}
+
+          if ! /usr/bin/pgrep -f ".*register-the-runner"  > /dev/null && ! /usr/bin/pgrep -f "gitlab.*runner"  > /dev/null ; then
+            exit 1
+          fi
+
+          status=0
+          verify_output=$(timeout "${VERIFY_TIMEOUT}" gitlab-runner verify 2>&1) || status=$?
+
+          if (( status == 143 )) || (( status == 124 )) ; then
+            echo "'gitlab-runner verify' terminated by timeout, not a conclusive failure" >&2
+            exit 0
+          elif (( status > 0 )) ; then
+            exit ${status}
+          fi
+
+          grep -qE "is (alive|valid)" <<<"${verify_output}"
   extraEnvFrom:
     CI_SERVER_TOKEN:
       secretKeyRef:
