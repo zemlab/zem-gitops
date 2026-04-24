@@ -12,3 +12,9 @@ spec:
   projects_storage_class: {{ .Values.awx.storageClass }}
   projects_storage_size: 8Gi
   projects_storage_access_mode: ReadWriteOnce
+  ee_pull_credentials_secret: {{ .Values.awx.eePullSecret }}
+  {{- if .Values.awx.eeImage }}
+  ee_images:
+    - name: zem-ee
+      image: {{ .Values.awx.eeImage }}
+  {{- end }}

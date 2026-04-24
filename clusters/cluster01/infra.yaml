@@ -39,6 +39,15 @@ spec:
             values:
               ingress:
                 hostname: longhorn-cluster01
+          kyverno:
+            enabled: true
+          registry-auth:
+            enabled: true
+            extraDestinationNamespaces:
+              - awx-prod
+            values:
+              namespaces:
+                - awx-prod
           project-credentials:
             enabled: true
             values:

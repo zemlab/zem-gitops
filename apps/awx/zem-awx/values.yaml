@@ -2,3 +2,6 @@ awx:
   hostname: awx
   storageClass: openebs-hostpath
   adminPasswordSecretName: awx-admin-password
+  # Set eeImage to registry.gitlab.com/zemlab/zem-infra/awx-ee:<SHA> after first CI build
+  eeImage: ""
+  eePullSecret: gitlab-registry
