@@ -5,43 +5,31 @@ gitlab-runner:
   metrics:
     enabled: true
   probeTimeoutSeconds: 10
-  # Override check-live to fix broken --url= flag in runner v17.9+ (upstream chart bug)
+  # Shadow /usr/bin/gitlab-runner with a wrapper at /usr/local/bin/ (higher PATH priority)
+  # to fix broken --url= flag in `gitlab-runner verify` (runner 17.9+ regression, upstream chart bug)
   volumes:
-    - name: check-live-fix
+    - name: gitlab-runner-wrapper
       configMap:
-        name: gitlab-runner-check-live-fix
+        name: gitlab-runner-wrapper
+        defaultMode: 0755
   volumeMounts:
-    - name: check-live-fix
-      mountPath: /configmaps/check-live
-      subPath: check-live
+    - name: gitlab-runner-wrapper
+      mountPath: /usr/local/bin/gitlab-runner
+      subPath: gitlab-runner
   extraObjects:
     - apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: gitlab-runner-check-live-fix
+        name: gitlab-runner-wrapper
         namespace: "{{ .Release.Namespace }}"
       data:
-        check-live: |
-          #!/bin/bash
-          set -eou pipefail
-
-          VERIFY_TIMEOUT=${1:-${VERIFY_TIMEOUT:-3}}
-
-          if ! /usr/bin/pgrep -f ".*register-the-runner"  > /dev/null && ! /usr/bin/pgrep -f "gitlab.*runner"  > /dev/null ; then
-            exit 1
-          fi
-
-          status=0
-          verify_output=$(timeout "${VERIFY_TIMEOUT}" gitlab-runner verify 2>&1) || status=$?
-
-          if (( status == 143 )) || (( status == 124 )) ; then
-            echo "'gitlab-runner verify' terminated by timeout, not a conclusive failure" >&2
-            exit 0
-          elif (( status > 0 )) ; then
-            exit ${status}
-          fi
-
-          grep -qE "is (alive|valid)" <<<"${verify_output}"
+        gitlab-runner: |
+          #!/bin/sh
+          # Wrapper: strip --url= from verify calls (broken in runner 17.9+, upstream chart bug)
+          case "$1" in
+            verify) exec /usr/bin/gitlab-runner verify ;;
+            *)      exec /usr/bin/gitlab-runner "$@" ;;
+          esac
   extraEnvFrom:
     CI_SERVER_TOKEN:
       secretKeyRef:
