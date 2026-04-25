@@ -33,7 +33,8 @@ spec:
             source:
               targetRevision: 0.2.0-rc1
             values:
-
+              database:
+                secretName: db-cluster-app
               ingress:
                 hostname: staging.peakstream.app
                 className: cloudflare-tunnel
