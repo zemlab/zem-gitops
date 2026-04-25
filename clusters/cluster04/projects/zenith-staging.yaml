@@ -35,6 +35,12 @@ spec:
             values:
               database:
                 secretName: db-cluster-app
+              smtp:
+                secretName: backend-smtp
+                externalSecret:
+                  enabled: true
+                  secretStoreName: oci-vault
+                  vaultSecretName: cluster04-zenith-staging-email
               ingress:
                 hostname: staging.peakstream.app
                 className: cloudflare-tunnel
