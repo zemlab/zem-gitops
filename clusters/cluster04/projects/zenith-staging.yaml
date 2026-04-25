@@ -31,7 +31,7 @@ spec:
             enabled: true
           backend:
             source:
-              targetRevision: 0.2.0-rc1
+              targetRevision: 0.2.0-rc2
             values:
               database:
                 secretName: db-cluster-app
@@ -40,14 +40,14 @@ spec:
                 className: cloudflare-tunnel
           frontend:
             source:
-              targetRevision: 0.2.0-rc1
+              targetRevision: 0.2.0-rc2
             values:
               ingress:
                 hostname: staging.peakstream.app
                 className: cloudflare-tunnel
           db:
             source:
-              targetRevision: 0.2.0-rc1
+              targetRevision: 0.2.0-rc2
             values:
               cnpg:
                 backup:
