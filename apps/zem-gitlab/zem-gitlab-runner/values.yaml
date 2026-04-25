@@ -1,3 +1,9 @@
+tailscaleEgress:
+  - name: awx-egress
+    fqdn: awx.shark-puffin.ts.net
+    ports:
+      - port: 443
+
 gitlab-runner:
   gitlabUrl: https://gitlab.com/
   rbac:

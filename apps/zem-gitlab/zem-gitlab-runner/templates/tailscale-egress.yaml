@@ -1,0 +1,20 @@
+---
+# Egress services allow runner pods to reach internal Tailscale hosts
+{{- range .Values.tailscaleEgress }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Release.Namespace }}
+  annotations:
+    tailscale.com/tailnet-fqdn: {{ .fqdn }}
+spec:
+  type: ExternalName
+  externalName: {{ .fqdn }}
+  ports:
+    {{- range .ports }}
+    - port: {{ .port }}
+      protocol: {{ .protocol | default "TCP" }}
+    {{- end }}
+---
+{{- end }}
