@@ -38,6 +38,19 @@ spec:
                 - name: zenith-staging
                   vaultSecretName: infra-zenith-staging-oci-credentials
                   targetNamespace: zenith-staging
+          registry-auth:
+            enabled: true
+            extraDestinationNamespaces:
+              - zenith-staging
+              - zenith-prod
+              - gitlab-prod
+              - zem-internal-prod
+            values:
+              namespaces:
+                - zenith-staging
+                - zenith-prod
+                - gitlab-prod
+                - zem-internal-prod
           cnpg:
             enabled: true
           longhorn:

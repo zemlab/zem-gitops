@@ -1,5 +1,8 @@
 cluster:
   name: ""
 
+dnsConfig:
+  enabled: true
+
 ociVault:
   enabled: false
