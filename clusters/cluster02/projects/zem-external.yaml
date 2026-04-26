@@ -26,7 +26,7 @@ spec:
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
               region: "uk-london-1"
               tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
-              userOcid: "ocid1.user.oc1..aaaaaaaagw6nvaaef4gn5tqvaadwqmmtimwbv3zrbrzdin35c3vxq7v7pnpa"
+              userOcid: "ocid1.user.oc1..aaaaaaaa2y22lsgsjgb6hakl5yjflzzah5nwrwep43dxirgobxhv6u57uzjq"
               credentialSecretName: "zem-external-prod-oci-creds"
         services:
           project-common:

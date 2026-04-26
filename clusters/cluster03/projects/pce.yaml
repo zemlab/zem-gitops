@@ -26,7 +26,7 @@ spec:
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
               region: "uk-london-1"
               tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
-              userOcid: "ocid1.user.oc1..aaaaaaaacrnwg5ty5iepw3vmewodcsixhazh6exxuakwrr74tryisnjnbgoq"
+              userOcid: "ocid1.user.oc1..aaaaaaaazasbuuqxtklglhn5bvlrrtww4cjwkdxxjgwft74xk63nuagnehfa"
               credentialSecretName: "pce-prod-oci-creds"
         services:
           project-common:

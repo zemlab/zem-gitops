@@ -26,7 +26,7 @@ spec:
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
               region: "uk-london-1"
               tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
-              userOcid: "ocid1.user.oc1..aaaaaaaamuizga6i5rbj4oqq23lzphogqc3klld3umok33mh4r67mljiueua"
+              userOcid: "ocid1.user.oc1..aaaaaaaadk5zqkxw4iawptiphs55rqah4734s2zt3xkh2pwsfbnlkw2fdsdq"
               credentialSecretName: "zenith-staging-oci-creds"
         services:
           project-common:

@@ -26,7 +26,7 @@ spec:
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
               region: "uk-london-1"
               tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
-              userOcid: "ocid1.user.oc1..aaaaaaaanhntxaxikwlajpmndprvr2hupnrpvyybhzhlnh4h5v2sdvludh5q"
+              userOcid: "ocid1.user.oc1..aaaaaaaaleope6mb4zrkm7hkvdn5drudblateae6d4izpkkquh44xrfqnhsa"
               credentialSecretName: "gitlab-prod-oci-creds"
         services:
           project-common:
