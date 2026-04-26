@@ -55,7 +55,7 @@ spec:
                 className: cloudflare-tunnel
           db:
             source:
-              targetRevision: 0.2.0-rc6
+              targetRevision: 0.2.0-rc7
             values:
               cnpg:
                 backup:
