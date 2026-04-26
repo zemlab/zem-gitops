@@ -1,0 +1,78 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: zenith-prod
+  namespace: gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: gitops
+  source:
+    repoURL: https://github.com/danfoster/zem-gitops
+    targetRevision: main
+    path: deployments/project
+    helm:
+      valueFiles:
+        - projects/zenith.yaml
+      valuesObject:
+        env: prod
+        cluster: cluster04
+        common:
+          values:
+            b2:
+              prefix: "cluster04/zenith-prod"
+            ociVault:
+              vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
+              compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
+              region: "uk-london-1"
+              tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
+              userOcid: "ocid1.user.oc1..aaaaaaaavdfbnxyothamz2i4jcaaaagwvsrrfsrgrdcdkzj2ujl4wfpz4ytq"
+              credentialSecretName: "zenith-prod-oci-creds"
+        services:
+          project-common:
+            enabled: true
+          backend:
+            source:
+              targetRevision: 0.2.0-rc4
+            values:
+              database:
+                secretName: db-cluster-app
+              smtp:
+                secretName: backend-smtp
+                externalSecret:
+                  enabled: true
+                  secretStoreName: oci-vault
+                  vaultSecretName: zenith-prod-email
+              ingress:
+                hostname: my.peakstream.app
+                className: cloudflare-tunnel
+          frontend:
+            source:
+              targetRevision: 0.2.0-rc4
+            values:
+              ingress:
+                hostname: my.peakstream.app
+                className: cloudflare-tunnel
+          db:
+            source:
+              targetRevision: 0.2.0-rc5
+            values:
+              cnpg:
+                backup:
+                  destinationPath: "s3://zenith-prod-private/backend-pg-wal"
+                  endpointURL: "https://s3.eu-central-003.backblazeb2.com"
+                  externalSecret:
+                    enabled: true
+                    vaultSecretName: "zenith-prod-cnpg"
+                recovery:
+                  enabled: true
+                  source: cluster02-zenith-prod
+                  sourceBarman:
+                    destinationPath: "s3://zenith-prod-private/backend-pg-wal"
+                    endpointURL: "https://s3.eu-central-003.backblazeb2.com"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: gitops
+  syncPolicy:
+    automated:
+      prune: true

@@ -38,6 +38,9 @@ spec:
                 - name: zenith-staging
                   vaultSecretName: infra-zenith-staging-oci-credentials
                   targetNamespace: zenith-staging
+                - name: zenith-prod
+                  vaultSecretName: infra-zenith-prod-oci-credentials
+                  targetNamespace: zenith-prod
           registry-auth:
             enabled: true
             extraDestinationNamespaces:
