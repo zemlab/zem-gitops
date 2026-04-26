@@ -19,6 +19,8 @@ spec:
         cluster: cluster04
         common:
           values:
+            b2:
+              prefix: "cluster04/zenith-staging"
             ociVault:
               vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
@@ -40,7 +42,7 @@ spec:
                 externalSecret:
                   enabled: true
                   secretStoreName: oci-vault
-                  vaultSecretName: cluster04-zenith-staging-email
+                  vaultSecretName: zenith-staging-email
               ingress:
                 hostname: staging.peakstream.app
                 className: cloudflare-tunnel
@@ -61,7 +63,7 @@ spec:
                   endpointURL: "https://s3.eu-central-003.backblazeb2.com"
                   externalSecret:
                     enabled: true
-                    vaultSecretName: "cluster04-zenith-staging-cnpg"
+                    vaultSecretName: "zenith-staging-cnpg"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops

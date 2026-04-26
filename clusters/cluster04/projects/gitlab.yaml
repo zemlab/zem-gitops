@@ -19,6 +19,8 @@ spec:
         cluster: cluster04
         common:
           values:
+            b2:
+              prefix: "cluster04/gitlab-prod"
             ociVault:
               vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"

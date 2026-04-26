@@ -10,7 +10,7 @@
 {{- $releaseName := $config.releaseName | default $name -}}
 {{- $b2 := dict -}}
 {{- if $cluster -}}
-{{- $b2 = dict "b2" (dict "prefix" (printf "%s/%s-%s" $cluster $chart $env) "vaultSecretName" (printf "%s-%s-%s-backups" $cluster $chart $env)) -}}
+{{- $b2 = dict "b2" (dict "prefix" (printf "%s-%s" $chart $env) "vaultSecretName" (printf "%s-%s-backups" $chart $env)) -}}
 {{- end -}}
 ---
 apiVersion: argoproj.io/v1alpha1

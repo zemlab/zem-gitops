@@ -4,11 +4,11 @@ set -euo pipefail
 # Onboard a new project namespace with backup credentials
 #
 # Creates:
-# 1. OCI user + API key (scoped to this namespace's vault secrets)
-# 2. OCI IAM policy allowing user to read secrets matching <cluster>-<namespace>-*
-# 3. B2 application key scoped to <cluster>/<namespace>/ prefix
+# 1. OCI user + API key (named after namespace, scoped to this namespace's vault secrets)
+# 2. OCI IAM policy allowing user to read secrets matching <namespace>-*
+# 3. B2 application key scoped to <namespace>/ prefix
 # 4. Random restic password
-# 5. Stores B2 creds + restic password in OCI Vault as <cluster>-<namespace>-backups
+# 5. Stores B2 creds + restic password in OCI Vault as <namespace>-backups
 # 6. Stores OCI API key in OCI Vault (for the infra ClusterSecretStore to distribute)
 # 7. Updates clusters/<cluster>/infra.yaml with project-credentials namespace entry
 # 8. Creates or updates clusters/<cluster>/projects/<project>.yaml with full ArgoCD Application config
@@ -56,7 +56,6 @@ fi
 
 CLUSTER="$1"
 NAMESPACE="$2"
-PREFIX="${CLUSTER}-${NAMESPACE}"
 
 # OCI configuration
 OCI_COMPARTMENT_OCID="${OCI_COMPARTMENT_OCID:-ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha}"
@@ -65,9 +64,9 @@ OCI_VAULT_KEY_OCID="${OCI_VAULT_KEY_OCID:-ocid1.key.oc1.uk-london-1.eruxsrmlaafj
 
 # B2 configuration
 B2_BUCKET="zem-backups-eu"
-B2_KEY_NAME="backup-${PREFIX}"
+B2_KEY_NAME="backup-${NAMESPACE}"
 
-echo "=== Provisioning backup credentials for ${PREFIX} ==="
+echo "=== Provisioning backup credentials for ${NAMESPACE} ==="
 echo ""
 
 # Check dependencies
@@ -97,7 +96,7 @@ store_vault_secret() {
         --compartment-id "${OCI_COMPARTMENT_OCID}" \
         --vault-id "${OCI_VAULT_OCID}" \
         --name "${secret_name}" \
-        --output json 2>/dev/null | jq -r '.data[0].id // empty')
+        --all --output json 2>/dev/null | jq -r '.data[0].id // empty')
 
     if [ -n "${existing_ocid}" ]; then
         oci vault secret update-base64 \
@@ -119,12 +118,12 @@ store_vault_secret() {
 
 # --- Step 1: Create OCI user ---
 echo "--- Step 1: Creating OCI user ---"
-OCI_USER_NAME="backup-${PREFIX}"
+OCI_USER_NAME="${NAMESPACE}"
 OCI_USER_EMAIL="${OCI_USER_EMAIL:-${OCI_USER_NAME}@zem.org.uk}"
 if OCI_USER=$(oci iam user create \
     --name "${OCI_USER_NAME}" \
     --email "${OCI_USER_EMAIL}" \
-    --description "Backup credentials access for ${NAMESPACE} on ${CLUSTER}" \
+    --description "Vault credentials access for ${NAMESPACE}" \
     --output json 2>&1); then
     OCI_USER_OCID=$(echo "$OCI_USER" | jq -r '.data.id')
     echo "Created user: ${OCI_USER_NAME}"
@@ -154,7 +153,7 @@ if [ "${REPLACE_KEYS}" = false ] && [ "${EXISTING_KEY_COUNT:-0}" -gt 0 ]; then
         --compartment-id "${OCI_COMPARTMENT_OCID}" \
         --vault-id "${OCI_VAULT_OCID}" \
         --name "${INFRA_SECRET_NAME}" \
-        --output json 2>/dev/null | jq -r '.data[0].id // empty')
+        --all --output json 2>/dev/null | jq -r '.data[0].id // empty')
     if [ -z "${EXISTING_INFRA_OCID}" ]; then
         echo "  ERROR: No existing OCI credentials vault secret '${INFRA_SECRET_NAME}' found."
         echo "         Re-run with --replace to generate new keys."
@@ -197,8 +196,8 @@ echo "API Key Fingerprint: ${OCI_FINGERPRINT}"
 
 # --- Step 3: Create OCI IAM policy ---
 echo "--- Step 3: Creating OCI IAM policy ---"
-POLICY_NAME="backup-${PREFIX}-secrets"
-POLICY_STATEMENTS="[\"Allow any-user to read secret-family in compartment id ${OCI_COMPARTMENT_OCID} where ALL {request.user.id = '${OCI_USER_OCID}', target.secret.name = /${PREFIX}-*/}\", \"Allow any-user to read vaults in compartment id ${OCI_COMPARTMENT_OCID} where request.user.id = '${OCI_USER_OCID}'\"]"
+POLICY_NAME="${NAMESPACE}-secrets"
+POLICY_STATEMENTS="[\"Allow any-user to read secret-family in compartment id ${OCI_COMPARTMENT_OCID} where ALL {request.user.id = '${OCI_USER_OCID}', target.secret.name = /${NAMESPACE}-*/}\", \"Allow any-user to read vaults in compartment id ${OCI_COMPARTMENT_OCID} where request.user.id = '${OCI_USER_OCID}'\"]"
 
 EXISTING_POLICY_OCID=$(oci iam policy list \
     --compartment-id "${OCI_COMPARTMENT_OCID}" \
@@ -216,7 +215,7 @@ else
     oci iam policy create \
         --compartment-id "${OCI_COMPARTMENT_OCID}" \
         --name "${POLICY_NAME}" \
-        --description "Allow ${OCI_USER_NAME} to read backup secrets for ${PREFIX} and inspect vaults" \
+        --description "Allow ${OCI_USER_NAME} to read vault secrets for ${NAMESPACE} and inspect vaults" \
         --statements "${POLICY_STATEMENTS}" \
         --output json >/dev/null
     echo "Policy created: ${POLICY_NAME}"
@@ -224,7 +223,7 @@ fi
 
 # --- Step 4: B2 credentials + restic password (idempotent) ---
 echo "--- Step 4: Provisioning B2 credentials and restic password ---"
-BACKUP_SECRET_NAME="${PREFIX}-backups"
+BACKUP_SECRET_NAME="${NAMESPACE}-backups"
 B2_KEY_ID=""
 B2_KEY_SECRET=""
 RESTIC_PASSWORD=""
@@ -235,7 +234,7 @@ EXISTING_BACKUP_OCID=$(oci vault secret list \
     --compartment-id "${OCI_COMPARTMENT_OCID}" \
     --vault-id "${OCI_VAULT_OCID}" \
     --name "${BACKUP_SECRET_NAME}" \
-    --output json 2>/dev/null | jq -r '.data[0].id // empty')
+    --all --output json 2>/dev/null | jq -r '.data[0].id // empty')
 
 if [ -n "${EXISTING_BACKUP_OCID}" ]; then
     echo "  Found existing vault secret: ${BACKUP_SECRET_NAME}"
@@ -251,7 +250,7 @@ if [ -n "${EXISTING_BACKUP_OCID}" ]; then
     if [ -n "${EXISTING_B2_KEY_ID}" ] && [ -n "${EXISTING_B2_KEY_SECRET}" ]; then
         echo "  Testing existing B2 credentials (key: ${EXISTING_B2_KEY_ID})..."
         if B2_APPLICATION_KEY_ID="${EXISTING_B2_KEY_ID}" B2_APPLICATION_KEY="${EXISTING_B2_KEY_SECRET}" \
-            b2 ls --recursive --limit 1 "${B2_BUCKET}" "${CLUSTER}/${NAMESPACE}/" >/dev/null 2>&1; then
+            b2 ls --recursive --limit 1 "${B2_BUCKET}" "${NAMESPACE}/" >/dev/null 2>&1; then
             echo "  B2 credentials are valid, reusing"
             B2_KEY_ID="${EXISTING_B2_KEY_ID}"
             B2_KEY_SECRET="${EXISTING_B2_KEY_SECRET}"
@@ -286,7 +285,7 @@ if [ "${B2_CREDS_VALID}" = false ]; then
 
     B2_KEY_RESULT=$(b2 key create \
         --bucket "${B2_BUCKET}" \
-        --name-prefix "${CLUSTER}/${NAMESPACE}/" \
+        --name-prefix "${NAMESPACE}/" \
         "${B2_KEY_NAME}" \
         "listBuckets,listFiles,readFiles,writeFiles,deleteFiles" 2>&1)
     B2_KEY_ID=$(echo "$B2_KEY_RESULT" | awk '{print $1}')
@@ -321,7 +320,7 @@ echo ""
 echo "Resources created:"
 echo "  OCI User:       ${OCI_USER_NAME} (${OCI_USER_OCID})"
 echo "  OCI Policy:     ${POLICY_NAME}"
-echo "  B2 Key:         ${B2_KEY_NAME} (prefix: ${CLUSTER}/${NAMESPACE}/, reused: ${B2_CREDS_VALID})"
+echo "  B2 Key:         ${B2_KEY_NAME} (prefix: ${NAMESPACE}/, reused: ${B2_CREDS_VALID})"
 echo "  Vault Secrets:"
 echo "    ${BACKUP_SECRET_NAME} (B2 creds + restic password)"
 echo "    ${INFRA_SECRET_NAME} (OCI API key for K8s distribution)"
