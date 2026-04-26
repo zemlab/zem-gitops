@@ -70,18 +70,12 @@ spec:
                 - name: zem-external-prod
                   vaultSecretName: infra-zem-external-prod-oci-credentials
                   targetNamespace: zem-external-prod
-                - name: zenith-prod
-                  vaultSecretName: infra-zenith-prod-oci-credentials
-                  targetNamespace: zenith-prod
           kyverno:
             enabled: true
           registry-auth:
             enabled: true
-            extraDestinationNamespaces:
-              - zenith-prod
             values:
-              namespaces:
-                - zenith-prod
+              namespaces: []
           cnpg:
             enabled: true
   destination:
