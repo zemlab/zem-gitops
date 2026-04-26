@@ -41,6 +41,9 @@ spec:
                 - name: zenith-prod
                   vaultSecretName: infra-zenith-prod-oci-credentials
                   targetNamespace: zenith-prod
+                - name: zem-external-prod
+                  vaultSecretName: infra-zem-external-prod-oci-credentials
+                  targetNamespace: zem-external-prod
           registry-auth:
             enabled: true
             extraDestinationNamespaces:
@@ -61,7 +64,6 @@ spec:
             values:
               ingress:
                 hostname: longhorn-cluster04
-
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops

@@ -16,11 +16,11 @@ spec:
         - projects/zem-external.yaml
       valuesObject:
         env: prod
-        cluster: cluster02
+        cluster: cluster04
         common:
           values:
             b2:
-              prefix: "cluster02/zem-external-prod"
+              prefix: "cluster04/zem-external-prod"
             ociVault:
               vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
               compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
@@ -31,12 +31,14 @@ spec:
         services:
           project-common:
             enabled: true
-          echo:
+          wiki:
             values:
+              hostname: wiki.zem.org.uk
               ingress:
-                annotations:
-                  external-dns.alpha.kubernetes.io/target: "137.220.113.26"
-                hostname: "echo-c1.zem.org.uk"
+                annotations: {}
+                className: cloudflare-tunnel
+                tls:
+                  enabled: false
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops

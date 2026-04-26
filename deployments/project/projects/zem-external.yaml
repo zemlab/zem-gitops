@@ -20,7 +20,7 @@ services:
       targetRevision: main
       path: apps/infra/zem-project-common
   echo:
-    enabled: true
+    enabled: false
     releaseName: "echo-prod"
     source:
       repoURL: https://github.com/danfoster/zem-gitops
