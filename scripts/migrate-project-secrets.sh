@@ -298,6 +298,22 @@ else
     store_vault_secret "infra-${NAMESPACE}-oci-credentials" "$(echo -n "$INFRA_SECRET_JSON" | base64)"
     echo ""
 
+    # --- Step 4b: Update userOcid in cluster project file ---
+    GIT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+    PROJECT_NAME=$(echo "${NAMESPACE}" | sed -E 's/-(prod|dev|staging)$//')
+    PROJECT_FILE="${GIT_ROOT}/clusters/${CLUSTER}/projects/${PROJECT_NAME}.yaml"
+    # zenith-staging is a special case — project name strips -staging but file is zenith-staging.yaml
+    if [ ! -f "${PROJECT_FILE}" ]; then
+        PROJECT_FILE="${GIT_ROOT}/clusters/${CLUSTER}/projects/${NAMESPACE}.yaml"
+    fi
+    if [ -f "${PROJECT_FILE}" ] && command -v yq &>/dev/null; then
+        yq eval -i ".spec.source.helm.valuesObject.common.values.ociVault.userOcid = \"${NEW_USER_OCID}\"" "${PROJECT_FILE}"
+        echo "  Updated userOcid in ${PROJECT_FILE}"
+    else
+        echo "  WARNING: Could not update ${PROJECT_FILE} — update userOcid manually to ${NEW_USER_OCID}"
+    fi
+    echo ""
+
     # --- Step 5: Delete old user and policy ---
     echo "--- Step 5: Deleting old user '${OLD_USER_NAME}' and policy '${OLD_POLICY_NAME}' ---"
 
