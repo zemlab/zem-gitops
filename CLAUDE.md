@@ -53,6 +53,10 @@ ExternalSecrets in `project-credentials` namespace use `ClusterSecretStore/oci-v
 
 **Always use `scripts/create-project.sh <cluster> <namespace>` to create new projects.** Do not manually create project files. The script handles all required steps: OCI users, IAM policies, B2 keys, restic passwords, OCI Vault secrets, and generates the git files (`clusters/<cluster>/infra.yaml`, `clusters/<cluster>/projects/<project>.yaml`, `deployments/project/projects/<project>.yaml`). This script must also be used when migrating an existing project to a new cluster.
 
+**To migrate an existing project's OCI secrets to a new cluster (or rename OCI resources), use `scripts/migrate-project-secrets.sh <cluster> <namespace>`.** Run in two stages:
+1. Stage 1 (default): expands the IAM policy to allow both old and new secret name patterns, then copies all `<cluster>-<namespace>-*` vault secrets to `<namespace>-*`. Commit and push gitops changes, wait for ArgoCD + ESO to sync.
+2. Stage 2 (`--cleanup`): creates the new OCI user `<namespace>`, rotates the `infra-<namespace>-oci-credentials` vault secret and updates `userOcid` in the cluster project file, then deletes the old user, policy, and schedules old secrets for deletion. Commit and push after.
+
 See also: `scripts/setup-oci-vault-clustersecretstore.sh <cluster>` — one-time per-cluster setup for the `oci-vault` ClusterSecretStore.
 
 ### Backup Infrastructure
