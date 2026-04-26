@@ -55,7 +55,7 @@ spec:
                 className: cloudflare-tunnel
           db:
             source:
-              targetRevision: 0.2.0-rc5
+              targetRevision: 0.2.0-rc6
             values:
               cnpg:
                 backup:
@@ -70,6 +70,7 @@ spec:
                   sourceBarman:
                     destinationPath: "s3://zenith-prod-private/backend-pg-wal"
                     endpointURL: "https://s3.eu-central-003.backblazeb2.com"
+                    serverName: "backend-pg"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
