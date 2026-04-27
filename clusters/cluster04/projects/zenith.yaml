@@ -53,6 +53,14 @@ spec:
               ingress:
                 hostname: my.peakstream.app
                 className: cloudflare-tunnel
+          www:
+            enabled: true
+            source:
+              targetRevision: 0.2.0
+            values:
+              ingress:
+                hostname: www.peakstream.app
+                className: cloudflare-tunnel
           db:
             source:
               targetRevision: 0.2.0-rc7

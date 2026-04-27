@@ -43,3 +43,10 @@ services:
     source:
       repoURL: registry.gitlab.com/zemlab/zenith/charts
       chart: db
+
+  www:
+    enabled: false
+    nameOverride: zenith-www
+    source:
+      repoURL: registry.gitlab.com/zemlab/zenith/charts
+      chart: www
