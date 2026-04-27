@@ -56,7 +56,7 @@ spec:
           www:
             enabled: true
             source:
-              targetRevision: 0.2.0
+              targetRevision: 0.3.0-rc1
             values:
               ingress:
                 hostname: www.peakstream.app
