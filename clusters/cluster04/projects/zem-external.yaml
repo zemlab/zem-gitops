@@ -39,6 +39,14 @@ spec:
                 className: cloudflare-tunnel
                 tls:
                   enabled: false
+          calibre-web:
+            values:
+              hostname: calibre.zem.org.uk
+              ingress:
+                annotations: {}
+                className: cloudflare-tunnel
+                tls:
+                  enabled: false
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops

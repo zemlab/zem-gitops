@@ -1,0 +1,31 @@
+hostname: calibre.zem.org.uk
+
+image:
+  repository: crocodilestick/calibre-web-automated
+  tag: latest
+  pullPolicy: IfNotPresent
+
+env:
+  TZ: "Europe/London"
+  PUID: "1000"
+  PGID: "1000"
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"
+
+storage:
+  config:
+    size: 5Gi
+  library:
+    size: 50Gi
+
+ingress:
+  annotations: {}
+  className: ""
+  tls:
+    enabled: true
