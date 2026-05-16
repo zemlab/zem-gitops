@@ -188,7 +188,7 @@ features:
           - /metadata/annotations
           - /metadata/labels
   project-generator:
-    enabled: false
+    enabled: true
     namespace: gitops
     source:
       repoURL: https://github.com/danfoster/zem-gitops

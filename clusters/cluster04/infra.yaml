@@ -57,8 +57,6 @@ spec:
                 - zenith-prod
                 - gitlab-prod
                 - zem-internal-prod
-          project-generator:
-            enabled: true
           cnpg:
             enabled: true
           longhorn:
