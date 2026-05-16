@@ -47,7 +47,6 @@ spec:
             valueFiles:
               - $gitops/projects/{{ .Values.name }}/values.yaml
               - $gitops/projects/{{ .Values.name }}/{{`{{path[2]}}`}}/values.yaml
-              - $gitops/projects/{{ .Values.name }}/envs/{{ .Values.cluster }}/{{ .Values.env }}.yaml
               - $gitops/projects/{{ .Values.name }}/{{`{{path[2]}}`}}/envs/{{ .Values.env }}.yaml
         # Gitops repo ref for valueFiles above.
         # Uses static Helm values (not app source values) so OCI chart apps also get the correct ref.
