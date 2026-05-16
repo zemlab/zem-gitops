@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ include "project-instance.fullName" . }}-project-common
+  name: {{ .Values.name }}-common-{{ .Values.env }}
   namespace: gitops
   annotations:
     argocd.argoproj.io/sync-wave: "0"
