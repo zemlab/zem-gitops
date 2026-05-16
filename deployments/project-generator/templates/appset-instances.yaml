@@ -13,7 +13,7 @@ spec:
           - path: "projects/*/envs/{{ .Values.cluster }}/*.yaml"
   template:
     metadata:
-      name: "project-instance-{{`{{path[1]}}`}}-{{`{{path.filenameNormalized}}`}}"
+      name: "project-instance-{{`{{path[1]}}`}}-{{`{{env}}`}}"
       namespace: gitops
       annotations:
         argocd.argoproj.io/sync-wave: "-1"
@@ -26,10 +26,10 @@ spec:
         targetRevision: {{ .Values.targetRevision }}
         path: deployments/project-instance
         helm:
-          releaseName: "project-instance-{{`{{path[1]}}`}}-{{`{{path.filenameNormalized}}`}}"
+          releaseName: "project-instance-{{`{{path[1]}}`}}-{{`{{env}}`}}"
           valuesObject:
             name: "{{`{{path[1]}}`}}"
-            env: "{{`{{path.filenameNormalized}}`}}"
+            env: "{{`{{env}}`}}"
             repoURL: {{ .Values.repoURL | quote }}
             targetRevision: {{ .Values.targetRevision | quote }}
       destination:
