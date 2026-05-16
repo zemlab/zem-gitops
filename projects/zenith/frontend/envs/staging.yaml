@@ -1,0 +1,3 @@
+ingress:
+  hostname: staging.peakstream.app
+  className: cloudflare-tunnel

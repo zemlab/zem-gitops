@@ -1,0 +1,11 @@
+database:
+  secretName: db-cluster-app
+smtp:
+  secretName: backend-smtp
+  externalSecret:
+    enabled: true
+    secretStoreName: oci-vault
+    vaultSecretName: zenith-staging-email
+ingress:
+  hostname: staging.peakstream.app
+  className: cloudflare-tunnel
