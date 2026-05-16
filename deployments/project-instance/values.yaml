@@ -1,5 +1,6 @@
 name: ""
 env: ""
+cluster: ""
 repoURL: https://github.com/danfoster/zem-gitops
 targetRevision: main
 extraSourceRepos: []

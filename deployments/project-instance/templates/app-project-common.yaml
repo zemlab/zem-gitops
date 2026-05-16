@@ -10,15 +10,18 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ include "project-instance.fullName" . }}
-  source:
-    repoURL: {{ .Values.repoURL }}
-    targetRevision: {{ .Values.targetRevision }}
-    path: apps/infra/zem-project-common
-    helm:
-      releaseName: project-common-{{ include "project-instance.fullName" . }}
-      valuesObject:
-        ociVault: {{ .Values.ociVault | toYaml | nindent 10 }}
-        b2: {{ .Values.b2 | toYaml | nindent 10 }}
+  sources:
+    - repoURL: {{ .Values.repoURL }}
+      targetRevision: {{ .Values.targetRevision }}
+      path: apps/infra/zem-project-common
+      helm:
+        releaseName: project-common-{{ include "project-instance.fullName" . }}
+        ignoreMissingValueFiles: true
+        valueFiles:
+          - $gitops/projects/{{ .Values.name }}/envs/{{ .Values.cluster }}/{{ .Values.env }}.yaml
+    - repoURL: {{ .Values.repoURL }}
+      targetRevision: {{ .Values.targetRevision }}
+      ref: gitops
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ include "project-instance.fullName" . }}
