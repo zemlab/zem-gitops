@@ -187,6 +187,13 @@ features:
         jsonPointers:
           - /metadata/annotations
           - /metadata/labels
+  project-generator:
+    enabled: false
+    namespace: gitops
+    source:
+      repoURL: https://github.com/danfoster/zem-gitops
+      targetRevision: main
+      path: deployments/project-generator
   registry-auth:
     enabled: true
     namespace: registry-auth

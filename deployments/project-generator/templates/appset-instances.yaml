@@ -1,0 +1,39 @@
+{{- include "project-generator.validate" . -}}
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: project-instances
+  namespace: gitops
+spec:
+  generators:
+    - git:
+        repoURL: {{ .Values.repoURL }}
+        revision: {{ .Values.targetRevision }}
+        files:
+          - path: "projects/*/envs/{{ .Values.cluster }}/*.yaml"
+  template:
+    metadata:
+      name: "project-instance-{{`{{path[1]}}`}}-{{`{{path.filenameNormalized}}`}}"
+      namespace: gitops
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: gitops
+      source:
+        repoURL: {{ .Values.repoURL }}
+        targetRevision: {{ .Values.targetRevision }}
+        path: deployments/project-instance
+        helm:
+          releaseName: "project-instance-{{`{{path[1]}}`}}-{{`{{path.filenameNormalized}}`}}"
+          valuesObject:
+            name: "{{`{{path[1]}}`}}"
+            env: "{{`{{path.filenameNormalized}}`}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: gitops
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
