@@ -5,6 +5,7 @@ argo-cd:
     params:
       server.insecure: true
       application.namespaces: "gitops"
+      applicationsetcontroller.namespaces: "gitops"
       controller.status.processors: 10
       controller.operation.processors: 5
     rbac:
