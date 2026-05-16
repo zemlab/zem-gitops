@@ -30,6 +30,8 @@ spec:
           valuesObject:
             name: "{{`{{path[1]}}`}}"
             env: "{{`{{path.filenameNormalized}}`}}"
+            repoURL: {{ .Values.repoURL | quote }}
+            targetRevision: {{ .Values.targetRevision | quote }}
       destination:
         server: https://kubernetes.default.svc
         namespace: gitops
