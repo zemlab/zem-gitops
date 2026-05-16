@@ -8,3 +8,4 @@ ociVault:
   credentialSecretName: "zem-internal-prod-oci-creds"
 b2:
   prefix: "cluster04/zem-internal-prod"
+  vaultSecretName: "zem-internal-prod-backups"

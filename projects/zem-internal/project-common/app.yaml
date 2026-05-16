@@ -1,5 +1,0 @@
-source:
-  repoURL: https://github.com/danfoster/zem-gitops
-  targetRevision: projects-ng
-  path: apps/infra/zem-project-common
-releaseName: project-common-zem-internal

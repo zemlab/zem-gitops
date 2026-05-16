@@ -1,0 +1,28 @@
+{{- include "project-instance.validate" . -}}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ include "project-instance.fullName" . }}-project-common
+  namespace: gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ include "project-instance.fullName" . }}
+  source:
+    repoURL: {{ .Values.repoURL }}
+    targetRevision: {{ .Values.targetRevision }}
+    path: apps/infra/zem-project-common
+    helm:
+      releaseName: project-common-{{ include "project-instance.fullName" . }}
+      valuesObject:
+        ociVault: {{ .Values.ociVault | toYaml | nindent 10 }}
+        b2: {{ .Values.b2 | toYaml | nindent 10 }}
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: {{ include "project-instance.fullName" . }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
