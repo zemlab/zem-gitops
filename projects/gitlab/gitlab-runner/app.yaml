@@ -3,3 +3,8 @@ source:
   targetRevision: main
   path: apps/zem-gitlab/zem-gitlab-runner
 releaseName: gitlab-runner
+ignoreDifferences:
+  - group: ""
+    kind: Service
+    jsonPointers:
+      - /spec/externalName

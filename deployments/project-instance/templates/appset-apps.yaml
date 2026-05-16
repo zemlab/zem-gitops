@@ -59,3 +59,10 @@ spec:
         automated:
           prune: true
           selfHeal: true
+      # Tailscale operator rewrites spec.externalName on egress Services after creation.
+      # Ignore this field to prevent perpetual OutOfSync on apps using tailscale egress.
+      ignoreDifferences:
+        - group: ""
+          kind: Service
+          jsonPointers:
+            - /spec/externalName
