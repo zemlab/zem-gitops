@@ -33,6 +33,7 @@ spec:
             cluster: {{ .Values.cluster.name | quote }}
             repoURL: {{ .Values.repoURL | quote }}
             targetRevision: {{ .Values.targetRevision | quote }}
+            iamVaultSecretName: "{{`{{ociVault.iamVaultSecretName}}`}}"
       destination:
         server: https://kubernetes.default.svc
         namespace: gitops
