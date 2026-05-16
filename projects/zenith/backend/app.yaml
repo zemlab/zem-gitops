@@ -1,5 +1,4 @@
 source:
   repoURL: registry.gitlab.com/zemlab/zenith/charts
-  targetRevision: 0.2.0-rc4
   chart: backend
 releaseName: backend
