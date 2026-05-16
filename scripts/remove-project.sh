@@ -9,7 +9,7 @@ set -euo pipefail
 # 2. B2 application key backup-<cluster>-<namespace>
 # 3. OCI IAM policy backup-<cluster>-<namespace>-secrets
 # 4. OCI user backup-<cluster>-<namespace> (and their API keys)
-# 5. clusters/<cluster>/projects/<project>.yaml
+# 5. projects/<project>/envs/<cluster>/<env>.yaml
 # 6. clusters/<cluster>/infra.yaml project-credentials namespace entry
 #
 # Optionally migrates secrets to a new cluster before deleting:
@@ -253,24 +253,10 @@ echo "--- Step 8: Updating git configuration ---"
 GIT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 INFRA_FILE="${GIT_ROOT}/clusters/${CLUSTER}/infra.yaml"
 
-# Locate the project file: prefer <namespace>.yaml (full name), fall back to <project-name>.yaml
-# Verify whichever file we find actually manages this namespace (metadata.name check).
+# Derive project name and env from namespace
 PROJECT_NAME=$(echo "${NAMESPACE}" | sed -E 's/-(prod|dev|staging)$//')
-PROJECT_FILE_BY_NAMESPACE="${GIT_ROOT}/clusters/${CLUSTER}/projects/${NAMESPACE}.yaml"
-PROJECT_FILE_BY_PROJECT="${GIT_ROOT}/clusters/${CLUSTER}/projects/${PROJECT_NAME}.yaml"
-
-PROJECT_FILE=""
-if [ -f "${PROJECT_FILE_BY_NAMESPACE}" ]; then
-    PROJECT_FILE="${PROJECT_FILE_BY_NAMESPACE}"
-elif [ -f "${PROJECT_FILE_BY_PROJECT}" ]; then
-    # Verify it's for this namespace, not a different env of the same project
-    FILE_APP_NAME=$(yq eval '.metadata.name' "${PROJECT_FILE_BY_PROJECT}" 2>/dev/null || true)
-    if [ "${FILE_APP_NAME}" = "${NAMESPACE}" ]; then
-        PROJECT_FILE="${PROJECT_FILE_BY_PROJECT}"
-    else
-        echo "  WARNING: ${PROJECT_FILE_BY_PROJECT} exists but manages app '${FILE_APP_NAME}', not '${NAMESPACE}'. Skipping to avoid deleting wrong file."
-    fi
-fi
+ENV=$(echo "${NAMESPACE}" | sed -E 's/^.*-(prod|dev|staging)$/\1/')
+ENV_FILE="${GIT_ROOT}/projects/${PROJECT_NAME}/envs/${CLUSTER}/${ENV}.yaml"
 
 # Remove from project-credentials namespaces
 if [ -f "${INFRA_FILE}" ]; then
@@ -284,12 +270,15 @@ else
     echo "  WARNING: ${INFRA_FILE} not found"
 fi
 
-# Remove project file
-if [ -n "${PROJECT_FILE}" ]; then
-    echo "  Removing ${PROJECT_FILE}"
-    run rm "${PROJECT_FILE}"
+# Remove env file
+if [ -f "${ENV_FILE}" ]; then
+    echo "  Removing ${ENV_FILE}"
+    run rm "${ENV_FILE}"
+    # Remove empty parent dirs
+    rmdir --ignore-fail-on-non-empty "${GIT_ROOT}/projects/${PROJECT_NAME}/envs/${CLUSTER}" 2>/dev/null || true
+    rmdir --ignore-fail-on-non-empty "${GIT_ROOT}/projects/${PROJECT_NAME}/envs" 2>/dev/null || true
 else
-    echo "  No project file found for namespace ${NAMESPACE} (already removed or never created)"
+    echo "  No env file found at ${ENV_FILE} (already removed or never created)"
 fi
 echo ""
 
