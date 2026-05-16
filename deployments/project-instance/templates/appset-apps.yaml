@@ -1,0 +1,61 @@
+{{- include "project-instance.validate" . -}}
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: project-apps-{{ include "project-instance.fullName" . }}
+  namespace: gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  generators:
+    - merge:
+        mergeKeys:
+          - path[2]
+        generators:
+          # Base: presence of env file = app enabled for this project-env
+          - git:
+              repoURL: {{ .Values.repoURL }}
+              revision: {{ .Values.targetRevision }}
+              files:
+                - path: "projects/{{ .Values.name }}/*/envs/{{ .Values.env }}.yaml"
+          # Override: source + releaseName from app.yaml
+          - git:
+              repoURL: {{ .Values.repoURL }}
+              revision: {{ .Values.targetRevision }}
+              files:
+                - path: "projects/{{ .Values.name }}/*/app.yaml"
+  template:
+    metadata:
+      name: "{{ .Values.name }}-{{`{{path[2]}}`}}-{{ .Values.env }}"
+      namespace: gitops
+      annotations:
+        argocd.argoproj.io/sync-wave: "1"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: {{ include "project-instance.fullName" . }}
+      sources:
+        # The app's Helm chart
+        - repoURL: "{{`{{source.repoURL}}`}}"
+          targetRevision: "{{`{{source.targetRevision}}`}}"
+          path: "{{`{{source.path}}`}}"
+          helm:
+            releaseName: "{{`{{releaseName}}`}}"
+            ignoreMissingValueFiles: true
+            valueFiles:
+              - $gitops/projects/{{ .Values.name }}/values.yaml
+              - $gitops/projects/{{ .Values.name }}/{{`{{path[2]}}`}}/values.yaml
+              - $gitops/projects/{{ .Values.name }}/envs/{{ .Values.cluster }}/{{ .Values.env }}.yaml
+              - $gitops/projects/{{ .Values.name }}/{{`{{path[2]}}`}}/envs/{{ .Values.env }}.yaml
+        # Gitops repo ref for valueFiles above — must match source.targetRevision
+        # (ArgoCD requires same-repo sources to use the same revision)
+        - repoURL: "{{`{{source.repoURL}}`}}"
+          targetRevision: "{{`{{source.targetRevision}}`}}"
+          ref: gitops
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: {{ include "project-instance.fullName" . }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

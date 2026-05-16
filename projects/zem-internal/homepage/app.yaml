@@ -1,0 +1,5 @@
+source:
+  repoURL: https://github.com/danfoster/zem-gitops
+  targetRevision: projects-ng
+  path: apps/zem-internal/zem-homepage
+releaseName: homepage
