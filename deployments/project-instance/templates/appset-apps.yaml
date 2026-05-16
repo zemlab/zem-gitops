@@ -43,9 +43,9 @@ spec:
             releaseName: "{{`{{releaseName}}`}}"
             ignoreMissingValueFiles: true
             valueFiles:
-              # Shared app values (optional — skipped if missing)
+              - $gitops/projects/{{ .Values.name }}/values.yaml
               - $gitops/projects/{{ .Values.name }}/{{`{{path[2]}}`}}/values.yaml
-              # Env-specific overrides
+              - $gitops/projects/{{ .Values.name }}/envs/{{ .Values.cluster }}/{{ .Values.env }}.yaml
               - $gitops/projects/{{ .Values.name }}/{{`{{path[2]}}`}}/envs/{{ .Values.env }}.yaml
         # Gitops repo ref for valueFiles above — must match source.targetRevision
         # (ArgoCD requires same-repo sources to use the same revision)
