@@ -26,7 +26,7 @@ spec:
                 - path: "projects/{{ .Values.name }}/*/app.yaml"
   template:
     metadata:
-      name: "{{`{{path[2]}}`}}-{{ .Values.env }}"
+      name: "{{ .Values.name }}-{{`{{path[2]}}`}}-{{ .Values.env }}"
       namespace: gitops
       annotations:
         argocd.argoproj.io/sync-wave: "1"
