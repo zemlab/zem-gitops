@@ -21,27 +21,18 @@ spec:
         - resources-finalizer.argocd.argoproj.io
     spec:
       project: gitops
-      sources:
-        # The project-instance Helm chart
-        - repoURL: {{ .Values.repoURL }}
-          targetRevision: {{ .Values.targetRevision }}
-          path: deployments/project-instance
-          helm:
-            releaseName: "project-instance-{{`{{path[1]}}`}}-{{`{{env}}`}}"
-            valuesObject:
-              name: "{{`{{path[1]}}`}}"
-              env: "{{`{{env}}`}}"
-              cluster: {{ .Values.cluster | quote }}
-              repoURL: {{ .Values.repoURL | quote }}
-              targetRevision: {{ .Values.targetRevision | quote }}
-            ignoreMissingValueFiles: true
-            valueFiles:
-              # Env file provides ociVault, b2, and any other project-level config
-              - $gitops/projects/{{`{{path[1]}}`}}/envs/{{ .Values.cluster }}/{{`{{env}}`}}.yaml
-        # Gitops repo ref for valueFiles above
-        - repoURL: {{ .Values.repoURL }}
-          targetRevision: {{ .Values.targetRevision }}
-          ref: gitops
+      source:
+        repoURL: {{ .Values.repoURL }}
+        targetRevision: {{ .Values.targetRevision }}
+        path: deployments/project-instance
+        helm:
+          releaseName: "project-instance-{{`{{path[1]}}`}}-{{`{{env}}`}}"
+          valuesObject:
+            name: "{{`{{path[1]}}`}}"
+            env: "{{`{{env}}`}}"
+            cluster: {{ .Values.cluster | quote }}
+            repoURL: {{ .Values.repoURL | quote }}
+            targetRevision: {{ .Values.targetRevision | quote }}
       destination:
         server: https://kubernetes.default.svc
         namespace: gitops
