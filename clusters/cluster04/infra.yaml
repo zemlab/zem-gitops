@@ -59,8 +59,6 @@ spec:
                 - zem-internal-prod
           project-generator:
             enabled: true
-            values:
-              cluster: cluster04
           cnpg:
             enabled: true
           longhorn:
