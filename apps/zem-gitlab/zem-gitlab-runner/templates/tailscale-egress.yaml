@@ -10,6 +10,7 @@ metadata:
     tailscale.com/tailnet-fqdn: {{ .fqdn }}
 spec:
   type: ExternalName
+  externalName: {{ .fqdn }}
   ports:
     {{- range .ports }}
     - port: {{ .port }}
