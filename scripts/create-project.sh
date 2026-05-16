@@ -9,12 +9,15 @@ set -euo pipefail
 # 3. B2 application key scoped to <namespace>/ prefix
 # 4. Random restic password
 # 5. Stores B2 creds + restic password in OCI Vault as <namespace>-backups
-# 6. Stores OCI API key in OCI Vault (for the infra ClusterSecretStore to distribute)
-# 7. Updates clusters/<cluster>/infra.yaml with project-credentials namespace entry
-# 8. Creates projects/<project>/envs/<cluster>/<env>.yaml with ociVault + b2 config
+# 6. Stores OCI API key in OCI Vault as infra-<namespace>-oci-credentials
+# 7. Creates projects/<project>/envs/<cluster>/<env>.yaml with ociVault + b2 config
+#
+# The project-instance Helm chart (via the appset-instances ApplicationSet) reads
+# iamVaultSecretName from the env file and creates an ExternalSecret in the
+# project-credentials namespace, which kubernetes-replicator copies into the project namespace.
+# This replaces the old pattern of manually editing clusters/<cluster>/infra.yaml.
 #
 # The script automatically:
-#   - Adds the namespace to project-credentials in clusters/<cluster>/infra.yaml
 #   - Derives the project name by stripping -prod/-dev/-staging suffixes from namespace
 #   - Creates projects/<project>/envs/<cluster>/<env>.yaml (new project-generator layout)
 #
@@ -299,8 +302,8 @@ BACKUP_SECRET_JSON=$(jq -n \
     '{ACCESS_KEY_ID: $ak, SECRET_ACCESS_KEY: $sk, RESTIC_PASSWORD: $rp}')
 store_vault_secret "${BACKUP_SECRET_NAME}" "$(echo -n "$BACKUP_SECRET_JSON" | base64)"
 
-# --- Step 7: Store OCI API key in OCI Vault (for infra ClusterSecretStore distribution) ---
-echo "--- Step 7: Storing OCI API key in OCI Vault ---"
+# --- Step 6: Store OCI API key in OCI Vault (for infra ClusterSecretStore distribution) ---
+echo "--- Step 6: Storing OCI API key in OCI Vault ---"
 INFRA_SECRET_NAME="infra-${NAMESPACE}-oci-credentials"
 OCI_PRIVATE_KEY=$(cat "${TMPDIR}/api_key.pem")
 INFRA_SECRET_JSON=$(jq -n \
@@ -323,42 +326,11 @@ echo "    ${BACKUP_SECRET_NAME} (B2 creds + restic password)"
 echo "    ${INFRA_SECRET_NAME} (OCI API key for K8s distribution)"
 echo ""
 
-# --- Step 8: Update git configuration files ---
-echo "--- Step 8: Updating git configuration ---"
+# --- Step 7: Update git configuration files ---
+echo "--- Step 7: Updating git configuration ---"
 
 # Get the git root directory
 GIT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
-INFRA_FILE="${GIT_ROOT}/clusters/${CLUSTER}/infra.yaml"
-
-# Check for yq
-if ! command -v yq &>/dev/null; then
-    echo "WARNING: yq is not installed. Manual configuration required."
-    echo ""
-    echo "Add to project-credentials values in ${INFRA_FILE}:"
-    echo ""
-    echo "          project-credentials:"
-    echo "            enabled: true"
-    echo "            values:"
-    echo "              namespaces:"
-    echo "                - name: ${NAMESPACE}"
-    echo "                  vaultSecretName: ${INFRA_SECRET_NAME}"
-    echo "                  targetNamespace: ${NAMESPACE}"
-    exit 0
-fi
-
-# Update infra.yaml with backup-credentials namespace
-if [ -f "${INFRA_FILE}" ]; then
-    # Check if namespace already exists
-    if yq eval ".spec.source.helm.valuesObject.features.\"project-credentials\".values.namespaces[] | select(.name == \"${NAMESPACE}\")" "${INFRA_FILE}" | grep -q "name:"; then
-        echo "  Namespace ${NAMESPACE} already exists in project-credentials config, skipping"
-    else
-        # Add namespace to project-credentials
-        yq eval -i ".spec.source.helm.valuesObject.features.\"project-credentials\".values.namespaces += [{\"name\": \"${NAMESPACE}\", \"vaultSecretName\": \"${INFRA_SECRET_NAME}\", \"targetNamespace\": \"${NAMESPACE}\"}]" "${INFRA_FILE}"
-        echo "  Updated ${INFRA_FILE}"
-    fi
-else
-    echo "  WARNING: ${INFRA_FILE} not found, skipping"
-fi
 
 # Derive project name and env from namespace (strip -prod, -dev, -staging suffixes)
 PROJECT_NAME=$(echo "${NAMESPACE}" | sed -E 's/-(prod|dev|staging)$//')
@@ -375,7 +347,7 @@ if [ -f "${ENV_FILE}" ]; then
     yq eval -i ".ociVault.region = \"uk-london-1\"" "${ENV_FILE}"
     yq eval -i ".ociVault.tenancyOcid = \"${OCI_TENANCY_OCID}\"" "${ENV_FILE}"
     yq eval -i ".ociVault.userOcid = \"${OCI_USER_OCID}\"" "${ENV_FILE}"
-    yq eval -i ".ociVault.credentialSecretName = \"${NAMESPACE}-oci-creds\"" "${ENV_FILE}"
+    yq eval -i ".ociVault.iamVaultSecretName = \"${INFRA_SECRET_NAME}\"" "${ENV_FILE}"
     yq eval -i ".b2.prefix = \"${CLUSTER}/${NAMESPACE}\"" "${ENV_FILE}"
     yq eval -i ".b2.vaultSecretName = \"${NAMESPACE}-backups\"" "${ENV_FILE}"
     echo "  Updated ${ENV_FILE}"
@@ -388,7 +360,7 @@ ociVault:
   region: "uk-london-1"
   tenancyOcid: "${OCI_TENANCY_OCID}"
   userOcid: "${OCI_USER_OCID}"
-  credentialSecretName: "${NAMESPACE}-oci-creds"
+  iamVaultSecretName: "${INFRA_SECRET_NAME}"
 b2:
   prefix: "${CLUSTER}/${NAMESPACE}"
   vaultSecretName: "${NAMESPACE}-backups"
@@ -401,11 +373,10 @@ echo ""
 echo "=== Configuration Summary ==="
 echo ""
 echo "Git files modified/created:"
-echo "  1. ${INFRA_FILE} (added project-credentials namespace entry)"
 if [ "${ENV_FILE_CREATED}" = true ]; then
-    echo "  2. ${ENV_FILE} (created new project env file)"
+    echo "  ${ENV_FILE} (created new project env file)"
 else
-    echo "  2. ${ENV_FILE} (updated existing)"
+    echo "  ${ENV_FILE} (updated existing)"
 fi
 echo ""
 echo "Next steps:"
