@@ -6,6 +6,7 @@ ociVault:
   tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
   userOcid: "ocid1.user.oc1..aaaaaaaaleope6mb4zrkm7hkvdn5drudblateae6d4izpkkquh44xrfqnhsa"
   iamVaultSecretName: "infra-gitlab-prod-oci-credentials"
+  credentialSecretName: "gitlab-prod-oci-creds"
 b2:
   prefix: "cluster04/gitlab-prod"
   vaultSecretName: "gitlab-prod-backups"

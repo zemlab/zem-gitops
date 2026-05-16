@@ -348,6 +348,7 @@ if [ -f "${ENV_FILE}" ]; then
     yq eval -i ".ociVault.tenancyOcid = \"${OCI_TENANCY_OCID}\"" "${ENV_FILE}"
     yq eval -i ".ociVault.userOcid = \"${OCI_USER_OCID}\"" "${ENV_FILE}"
     yq eval -i ".ociVault.iamVaultSecretName = \"${INFRA_SECRET_NAME}\"" "${ENV_FILE}"
+    yq eval -i ".ociVault.credentialSecretName = \"${NAMESPACE}-oci-creds\"" "${ENV_FILE}"
     yq eval -i ".b2.prefix = \"${CLUSTER}/${NAMESPACE}\"" "${ENV_FILE}"
     yq eval -i ".b2.vaultSecretName = \"${NAMESPACE}-backups\"" "${ENV_FILE}"
     echo "  Updated ${ENV_FILE}"
@@ -361,6 +362,7 @@ ociVault:
   tenancyOcid: "${OCI_TENANCY_OCID}"
   userOcid: "${OCI_USER_OCID}"
   iamVaultSecretName: "${INFRA_SECRET_NAME}"
+  credentialSecretName: "${NAMESPACE}-oci-creds"
 b2:
   prefix: "${CLUSTER}/${NAMESPACE}"
   vaultSecretName: "${NAMESPACE}-backups"
