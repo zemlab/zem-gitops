@@ -29,9 +29,6 @@ spec:
             enabled: true
             values:
               namespaces:
-                - name: zenith-prod
-                  vaultSecretName: infra-zenith-prod-oci-credentials
-                  targetNamespace: zenith-prod
                 - name: zem-external-prod
                   vaultSecretName: infra-zem-external-prod-oci-credentials
                   targetNamespace: zem-external-prod
