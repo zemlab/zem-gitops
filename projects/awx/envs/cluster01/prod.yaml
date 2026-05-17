@@ -6,6 +6,7 @@ ociVault:
   tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
   userOcid: "ocid1.user.oc1..aaaaaaaarspokg3a3pud4qa3ooeqpjfy2lvxmvccpjqefmko26ikc5qyhzga"
   iamVaultSecretName: "infra-awx-prod-oci-credentials"
+  credentialSecretName: "awx-prod-oci-creds"
 b2:
   prefix: "cluster01/awx-prod"
   vaultSecretName: "awx-prod-backups"
