@@ -30,6 +30,7 @@ spec:
       namespace: gitops
       labels:
         project: {{ .Values.name }}
+        env: {{ .Values.env }}
       annotations:
         argocd.argoproj.io/sync-wave: "1"
       finalizers:
