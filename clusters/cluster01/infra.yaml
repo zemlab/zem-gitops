@@ -55,9 +55,6 @@ spec:
                 - name: media-prod
                   vaultSecretName: infra-media-prod-oci-credentials
                   targetNamespace: media-prod
-                - name: awx-prod
-                  vaultSecretName: infra-awx-prod-oci-credentials
-                  targetNamespace: awx-prod
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
