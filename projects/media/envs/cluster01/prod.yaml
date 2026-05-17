@@ -12,5 +12,4 @@ b2:
   vaultSecretName: "media-prod-backups"
 backup:
   podSecurityContext:
-    runAsUser: 1000
-    runAsGroup: 1000
+    runAsUser: 0
