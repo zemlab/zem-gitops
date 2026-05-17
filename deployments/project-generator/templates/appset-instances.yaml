@@ -15,6 +15,10 @@ spec:
     metadata:
       name: "project-instance-{{`{{path[1]}}`}}-{{`{{env}}`}}"
       namespace: gitops
+      labels:
+        project: "{{`{{path[1]}}`}}"
+        env: "{{`{{env}}`}}"
+        role: project-instance
       annotations:
         argocd.argoproj.io/sync-wave: "-1"
       finalizers:
