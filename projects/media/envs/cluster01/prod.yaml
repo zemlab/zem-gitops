@@ -10,6 +10,3 @@ ociVault:
 b2:
   prefix: "cluster01/media-prod"
   vaultSecretName: "media-prod-backups"
-backup:
-  podSecurityContext:
-    runAsUser: 0

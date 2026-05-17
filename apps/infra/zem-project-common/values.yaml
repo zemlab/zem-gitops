@@ -17,7 +17,8 @@ b2:
 
 backup:
   schedule: "@every 8h"
-  podSecurityContext: {}
+  podSecurityContext:
+    runAsUser: 0
 check:
   schedule: "@weekly-random"
 prune:
