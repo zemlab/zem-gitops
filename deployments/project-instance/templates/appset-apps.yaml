@@ -28,6 +28,8 @@ spec:
     metadata:
       name: "{{ .Values.name }}-{{`{{path[2]}}`}}-{{ .Values.env }}"
       namespace: gitops
+      labels:
+        project: {{ .Values.name }}
       annotations:
         argocd.argoproj.io/sync-wave: "1"
       finalizers:
