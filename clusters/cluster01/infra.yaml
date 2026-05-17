@@ -52,9 +52,6 @@ spec:
             enabled: true
             values:
               namespaces:
-                - name: media-prod
-                  vaultSecretName: infra-media-prod-oci-credentials
-                  targetNamespace: media-prod
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
