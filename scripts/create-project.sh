@@ -24,8 +24,8 @@ set -euo pipefail
 # Dependencies: oci, b2, jq, openssl, yq
 #
 # Usage: ./scripts/create-project.sh [--replace] <cluster-name> <namespace>
-# Example: ./scripts/create-project.sh cluster02 zenith-prod
-#   Creates: projects/zenith/envs/cluster02/prod.yaml
+# Example: ./scripts/create-project.sh cluster04 zenith-prod
+#   Creates: projects/zenith/envs/cluster04/prod.yaml
 #
 #   --replace  Rotate OCI API keys (default: reuse existing keys if present)
 

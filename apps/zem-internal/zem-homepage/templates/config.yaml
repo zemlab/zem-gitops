@@ -71,13 +71,6 @@ data:
             type: argocd
             url: http://argocd-server.argocd
             key: {{ `{{HOMEPAGE_VAR_ARGOCD_CLUSTER01_API_KEY}}` }}
-      - Cluster 02 ArgoCD:
-          href: https://argocd-cluster02.shark-puffin.ts.net
-          description: Hacklab
-          widget:
-            type: argocd
-            url: http://argocd-server.argocd
-            key: {{ `{{HOMEPAGE_VAR_ARGOCD_CLUSTER02_API_KEY}}` }}
       - Cluster 03 ArgoCD:
           href: https://argocd-cluster03.shark-puffin.ts.net
           description: OCI

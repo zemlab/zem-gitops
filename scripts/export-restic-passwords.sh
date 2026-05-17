@@ -19,7 +19,7 @@ set -euo pipefail
 #     echo ""
 #     echo "| Cluster | Namespace | Restic Password |"
 #     echo "|---------|-----------|-----------------|"
-#     for ctx in cluster01 cluster02 cluster03; do
+#     for ctx in cluster01 cluster03 cluster04; do
 #       kubectl config use-context "$ctx" >/dev/null
 #       ./scripts/export-restic-passwords.sh
 #     done

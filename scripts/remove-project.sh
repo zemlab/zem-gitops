@@ -16,7 +16,7 @@ set -euo pipefail
 #   --migrate-secrets-to <cluster>  Copy <old>-<ns>-* secrets to <new>-<ns>-* (skip if target exists)
 #
 # Usage: ./scripts/remove-project.sh [--migrate-secrets-to <cluster>] [--dry-run] <cluster> <namespace>
-# Example: ./scripts/remove-project.sh --migrate-secrets-to cluster04 cluster02 zenith-staging
+# Example: ./scripts/remove-project.sh cluster04 zenith-staging
 #
 # Dependencies: oci, b2, jq, yq
 

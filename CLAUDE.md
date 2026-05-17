@@ -14,7 +14,6 @@ This is a GitOps repository managed by ArgoCD for deploying infrastructure acros
 ### Clusters
 
 - **cluster01** - On-prem, uses OpenEBS, MetalLB, Longhorn
-- **cluster02** - On-prem, hosts zem-external and zem-internal projects
 - **cluster03** - OCI (Oracle Cloud), uses OCI Block Storage, OCI NLB
 - **cluster04** - OCI (Oracle Cloud), hosts gitlab and zem-internal projects
 
