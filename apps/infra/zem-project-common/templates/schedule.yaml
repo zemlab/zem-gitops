@@ -21,6 +21,10 @@ spec:
     schedule: "{{.Values.backup.schedule}}"
     failedJobsHistoryLimit: 5
     successfulJobsHistoryLimit: 2
+    {{- if .Values.backup.podSecurityContext }}
+    podSecurityContext:
+      {{- toYaml .Values.backup.podSecurityContext | nindent 6 }}
+    {{- end }}
   check:
     schedule: "{{.Values.check.schedule}}"
   prune:
