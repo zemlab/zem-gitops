@@ -28,10 +28,7 @@ spec:
           project-credentials:
             enabled: true
             values:
-              namespaces:
-                - name: zem-external-prod
-                  vaultSecretName: infra-zem-external-prod-oci-credentials
-                  targetNamespace: zem-external-prod
+              namespaces: []
           registry-auth:
             enabled: true
             extraDestinationNamespaces:
