@@ -1,11 +1,17 @@
-ingress: {}
+ingress:
+  hostname: ""
+  className: ""
+  annotations: {}
+  tls:
+    enabled: false
+db:
+  host: mariadb
+  name: ""
+  userSecretRef:
+    name: ""
 wordpress:
   image:
     image: mirror.gcr.io/library/wordpress
     tag: php8.5
   storage:
     size: 50Gi
-  db:
-    host: mariadb
-    userSecretRef:
-      name: ""
