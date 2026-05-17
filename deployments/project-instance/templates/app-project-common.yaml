@@ -4,6 +4,10 @@ kind: Application
 metadata:
   name: {{ .Values.name }}-common-{{ .Values.env }}
   namespace: gitops
+  labels:
+    project: {{ .Values.name }}
+    env: {{ .Values.env }}
+    role: common
   annotations:
     argocd.argoproj.io/sync-wave: "0"
   finalizers:
