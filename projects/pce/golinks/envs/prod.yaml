@@ -1,6 +1,6 @@
 releaseName: pce-golinks
 source:
-  targetRevision: 1.0.0-864c710
+  targetRevision: 1.0.0-b00feec
 redirects:
   - from: /map/fort-kinnard
     to: https://portycommunityenergy.wordpress.com/easy-cycle-routes-from-portobello-porty-prom-to-fort-kinnaird
@@ -12,3 +12,4 @@ redirects:
     to: https://portycommunityenergy.wordpress.com/easy-cycle-rides-to-portobello-porty-prom-to-leith-links
 ingress:
   hostname: go.portycommunityenergy.org
+  className: cloudflare-tunnel
