@@ -9,9 +9,4 @@ cnpg:
       enabled: true
       vaultSecretName: "zenith-prod-cnpg"
   recovery:
-    enabled: true
-    source: cluster02-zenith-prod
-    sourceBarman:
-      destinationPath: "s3://zenith-prod-private/backend-pg-wal"
-      endpointURL: "https://s3.eu-central-003.backblazeb2.com"
-      serverName: "backend-pg"
+    enabled: false
