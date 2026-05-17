@@ -5,6 +5,7 @@ ociVault:
   region: "uk-london-1"
   tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
   userOcid: "ocid1.user.oc1..aaaaaaaas3j3zlaznzev5k6q6zr65asqw25j4ajddm3wmmijvhwhogjyfoma"
+  iamVaultSecretName: "infra-zem-internal-prod-oci-credentials"
   credentialSecretName: "zem-internal-prod-oci-creds"
 b2:
   prefix: "cluster04/zem-internal-prod"

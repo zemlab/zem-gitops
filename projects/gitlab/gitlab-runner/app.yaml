@@ -2,6 +2,7 @@ source:
   repoURL: https://github.com/danfoster/zem-gitops
   targetRevision: main
   path: apps/zem-gitlab/zem-gitlab-runner
+  chart: ""
 releaseName: gitlab-runner
 ignoreDifferences:
   - group: ""
