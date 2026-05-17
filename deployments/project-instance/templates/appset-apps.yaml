@@ -12,7 +12,7 @@ spec:
   generators:
     - merge:
         mergeKeys:
-          - path[2]
+          - releaseName
         generators:
           # Base: presence of env file = app enabled for this project-env
           - git:

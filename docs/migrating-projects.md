@@ -123,13 +123,21 @@ ignoreDifferences:
 
 ### 3. Create `projects/<project>/<app>/envs/<env>.yaml`
 
-One file per app-env. Presence enables the app for that env. For OCI chart apps, include `source.targetRevision` here (not in `app.yaml`) so it can differ between envs. Content also includes Helm value overrides. Can be empty for git apps with no overrides:
+One file per app-env. Presence enables the app for that env. **Must include `releaseName`** — used as the merge key to join this file with `app.yaml`. For OCI chart apps, also include `source.targetRevision` here (not in `app.yaml`) so it can differ between envs.
 
+**Git-based app with no env-specific overrides:**
 ```yaml
-{}
+releaseName: <existing-helm-release-name>
 ```
 
-Add any env-specific values (hostnames, feature flags, etc.) that were previously in `services.<app>.values` in the old project values file.
+**OCI chart app with env-specific targetRevision:**
+```yaml
+releaseName: <existing-helm-release-name>
+source:
+  targetRevision: 1.2.3
+```
+
+Add any env-specific Helm values (hostnames, feature flags, etc.) after `releaseName`.
 
 ### 4. Delete old files
 

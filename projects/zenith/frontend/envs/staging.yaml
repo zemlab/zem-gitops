@@ -1,3 +1,4 @@
+releaseName: frontend
 source:
   targetRevision: 0.2.0-rc4
 ingress:
