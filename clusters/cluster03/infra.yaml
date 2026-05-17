@@ -69,10 +69,7 @@ spec:
           project-credentials:
             enabled: true
             values:
-              namespaces:
-                - name: pce-prod
-                  vaultSecretName: infra-pce-prod-oci-credentials
-                  targetNamespace: pce-prod
+              namespaces: []
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops

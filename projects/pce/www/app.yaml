@@ -1,0 +1,5 @@
+source:
+  repoURL: https://github.com/danfoster/zem-gitops
+  targetRevision: main
+  path: apps/pce/pce-www
+releaseName: pce-www
