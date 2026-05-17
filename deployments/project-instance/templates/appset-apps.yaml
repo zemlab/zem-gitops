@@ -7,6 +7,8 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=zero"]
   generators:
     - merge:
         mergeKeys:
@@ -26,7 +28,7 @@ spec:
                 - path: "projects/{{ .Values.name }}/*/app.yaml"
   template:
     metadata:
-      name: "{{ .Values.name }}-{{`{{path[2]}}`}}-{{ .Values.env }}"
+      name: "{{ .Values.name }}-{{`{{ index .path.segments 2 }}`}}-{{ .Values.env }}"
       namespace: gitops
       labels:
         project: {{ .Values.name }}
@@ -39,19 +41,19 @@ spec:
     spec:
       project: {{ include "project-instance.fullName" . }}
       sources:
-        # The app's Helm chart — supports both git path sources and OCI/Helm chart sources.
-        # For git sources: path is set, chart is empty. For OCI sources: chart is set, path is empty.
-        - repoURL: "{{`{{source.repoURL}}`}}"
-          targetRevision: "{{`{{source.targetRevision}}`}}"
-          path: "{{`{{source.path}}`}}"
-          chart: "{{`{{source.chart}}`}}"
+        # Supports both git path sources and OCI/Helm chart sources.
+        # chart: defaults to "" (git source) when not set in app.yaml — no explicit chart: "" needed.
+        - repoURL: "{{`{{ .source.repoURL }}`}}"
+          targetRevision: "{{`{{ .source.targetRevision }}`}}"
+          path: "{{`{{ .source.path }}`}}"
+          chart: "{{`{{ .source.chart }}`}}"
           helm:
-            releaseName: "{{`{{releaseName}}`}}"
+            releaseName: "{{`{{ .releaseName }}`}}"
             ignoreMissingValueFiles: true
             valueFiles:
               - $gitops/projects/{{ .Values.name }}/values.yaml
-              - $gitops/projects/{{ .Values.name }}/{{`{{path[2]}}`}}/values.yaml
-              - $gitops/projects/{{ .Values.name }}/{{`{{path[2]}}`}}/envs/{{ .Values.env }}.yaml
+              - $gitops/projects/{{ .Values.name }}/{{`{{ index .path.segments 2 }}`}}/values.yaml
+              - $gitops/projects/{{ .Values.name }}/{{`{{ index .path.segments 2 }}`}}/envs/{{ .Values.env }}.yaml
         # Gitops repo ref for valueFiles above.
         # Uses static Helm values (not app source values) so OCI chart apps also get the correct ref.
         - repoURL: {{ .Values.repoURL }}

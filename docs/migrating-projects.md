@@ -93,7 +93,6 @@ source:
   repoURL: https://github.com/danfoster/zem-gitops
   targetRevision: main
   path: apps/<project-dir>/<app-dir>
-  chart: ""   # required: must be explicit empty string for git apps
 releaseName: <existing-helm-release-name>
 ```
 
@@ -104,8 +103,6 @@ source:
   chart: <chart-name>
 releaseName: <existing-helm-release-name>
 ```
-
-**`chart: ""`** must be set explicitly on git-based app.yaml files. If omitted, the ApplicationSet parameter `{{source.chart}}` is left as a literal string, ArgoCD treats the source as a Helm registry chart, and targetRevision fails semver validation.
 
 **`releaseName` must exactly match the existing Helm release name** in the cluster. ArgoCD renders charts without a server-side Helm release (no `helm list` entry), so the release name affects `.Release.Name` in templates. Changing it changes rendered ConfigMap/Secret names, causing unnecessary pod restarts.
 
