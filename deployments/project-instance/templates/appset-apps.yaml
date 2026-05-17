@@ -45,8 +45,8 @@ spec:
         # chart: defaults to "" (git source) when not set in app.yaml — no explicit chart: "" needed.
         - repoURL: "{{`{{ .source.repoURL }}`}}"
           targetRevision: "{{`{{ .source.targetRevision }}`}}"
-          path: "{{`{{ default "" .source.path }}`}}"
-          chart: "{{`{{ default "" .source.chart }}`}}"
+          path: '{{`{{ with .source.path }}{{ . }}{{ end }}`}}'
+          chart: '{{`{{ with .source.chart }}{{ . }}{{ end }}`}}'
           helm:
             releaseName: "{{`{{ .releaseName }}`}}"
             ignoreMissingValueFiles: true
