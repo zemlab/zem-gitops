@@ -50,6 +50,8 @@ argo-cd:
   dex:
     livenessProbe:
       enabled: true
+    readinessProbe:
+      enabled: true
     resources:
       requests:
         memory: 64Mi
