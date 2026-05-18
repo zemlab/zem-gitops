@@ -8,3 +8,6 @@ cloudflare-tunnel-ingress-controller:
       accountIDKey: account-id
       tunnelNameKey: tunnel-name
       apiTokenKey: api-token
+  cloudflared:
+    image:
+      repository: docker.io/cloudflare/cloudflared
