@@ -35,11 +35,11 @@ spec:
             values:
               ingress:
                 hostname: longhorn-cluster03
-          cloudflared:
+          cloudflare-ingress:
             enabled: true
             values:
               externalSecret:
-                remoteRefKey: cloudflared-token-cluster03
+                remoteRefKey: infra-cloudflare-ingress-cluster03
           mariadb-operator:
             enabled: true
           oci-mysql:
