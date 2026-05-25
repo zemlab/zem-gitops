@@ -169,7 +169,7 @@ helm template test deployments/infra -f clusters/<cluster>/infra.yaml
 
 ### Git Remote
 
-- Repo URL used in sources: `https://github.com/danfoster/zem-gitops`
+- Repo URL used in sources: `https://gitlab.com/zemlab/zem-gitops`
 - Default branch: `main`
 - ArgoCD namespace (system components): `argocd`
 - ArgoCD Application namespace: `gitops`

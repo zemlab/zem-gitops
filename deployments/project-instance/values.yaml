@@ -1,7 +1,7 @@
 name: ""
 env: ""
 cluster: ""
-repoURL: https://github.com/danfoster/zem-gitops
+repoURL: https://gitlab.com/zemlab/zem-gitops
 targetRevision: main
 extraSourceRepos: []
 iamVaultSecretName: ""

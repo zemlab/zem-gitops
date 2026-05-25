@@ -1,5 +1,5 @@
 source:
-  repoURL: https://github.com/danfoster/zem-gitops
+  repoURL: https://gitlab.com/zemlab/zem-gitops
   targetRevision: main
   path: apps/zem-internal/zem-homepage
 releaseName: homepage
