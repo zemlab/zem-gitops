@@ -1,5 +1,5 @@
 source:
-  repoURL: https://gitlab.com/zemlab/zem-gitops
+  repoURL: https://gitlab.com/zemlab/zem-gitops.git
   targetRevision: main
   path: apps/zem-external/wordpress
 releaseName: pce-wordpress

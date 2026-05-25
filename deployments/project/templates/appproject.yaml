@@ -16,7 +16,7 @@ spec:
     - group: "*"
       kind: "*"
   sourceRepos:
-    - "https://gitlab.com/zemlab/zem-gitops"
+    - "https://gitlab.com/zemlab/zem-gitops.git"
     {{- range .Values.extraSourceRepos }}
     - {{ . | quote }}
     {{- end }}

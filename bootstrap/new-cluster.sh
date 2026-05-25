@@ -173,7 +173,7 @@ spec:
     - group: "*"
       kind: "*"
   sourceRepos:
-    - "https://gitlab.com/zemlab/zem-gitops"
+    - "https://gitlab.com/zemlab/zem-gitops.git"
 EOF
 echo "Created: ${GITOPS_PROJECT}"
 
@@ -189,7 +189,7 @@ metadata:
 spec:
   project: gitops
   source:
-    repoURL: https://gitlab.com/zemlab/zem-gitops
+    repoURL: https://gitlab.com/zemlab/zem-gitops.git
     targetRevision: main
     path: deployments/infra
     helm:

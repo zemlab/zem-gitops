@@ -5,6 +5,6 @@ services:
     enabled: true
     releaseName: "omada"
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops
+      repoURL: https://gitlab.com/zemlab/zem-gitops.git
       targetRevision: main
       path: apps/networking/omada
