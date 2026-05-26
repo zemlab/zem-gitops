@@ -18,6 +18,6 @@ services:
     enabled: true
     releaseName: "example-service"
     source:
-      repoURL: git@gitlab.com:zemlab/zem-gitops.git
+      repoURL: https://github.com/danfoster/zem-gitops
       targetRevision: main
       path: apps/example/example-service

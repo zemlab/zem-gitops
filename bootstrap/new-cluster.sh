@@ -142,7 +142,7 @@ spec:
   project: gitops
   source:
     path: clusters/${CLUSTER}
-    repoURL: git@gitlab.com:zemlab/zem-gitops.git
+    repoURL: https://github.com/danfoster/zem-gitops
     targetRevision: main
   syncPolicy:
     automated:
@@ -173,7 +173,7 @@ spec:
     - group: "*"
       kind: "*"
   sourceRepos:
-    - "git@gitlab.com:zemlab/zem-gitops.git"
+    - "https://github.com/danfoster/zem-gitops"
 EOF
 echo "Created: ${GITOPS_PROJECT}"
 
@@ -189,7 +189,7 @@ metadata:
 spec:
   project: gitops
   source:
-    repoURL: git@gitlab.com:zemlab/zem-gitops.git
+    repoURL: https://github.com/danfoster/zem-gitops
     targetRevision: main
     path: deployments/infra
     helm:

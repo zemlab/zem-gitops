@@ -1,5 +1,5 @@
 source:
-  repoURL: git@gitlab.com:zemlab/zem-gitops.git
+  repoURL: https://github.com/danfoster/zem-gitops
   targetRevision: main
   path: apps/zem-gitlab/zem-gitlab-runner
 releaseName: gitlab-runner

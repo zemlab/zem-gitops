@@ -1,4 +1,4 @@
 cluster:
   name: ""
-repoURL: git@gitlab.com:zemlab/zem-gitops.git
+repoURL: https://github.com/danfoster/zem-gitops
 targetRevision: main

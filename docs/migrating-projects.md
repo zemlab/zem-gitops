@@ -90,7 +90,7 @@ One file per app (service). Source the values from `deployments/project/projects
 **Git-based app** (chart in this repo):
 ```yaml
 source:
-  repoURL: git@gitlab.com:zemlab/zem-gitops.git
+  repoURL: https://github.com/danfoster/zem-gitops
   targetRevision: main
   path: apps/<project-dir>/<app-dir>
 releaseName: <existing-helm-release-name>
