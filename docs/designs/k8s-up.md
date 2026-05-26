@@ -210,7 +210,7 @@ backup-credentials:
   enabled: false
   namespace: backup-credentials
   source:
-    repoURL: https://gitlab.com/zemlab/zem-gitops.git
+    repoURL: git@gitlab.com:zemlab/zem-gitops.git
     targetRevision: main
     path: apps/infra/zem-backup-credentials
 ```

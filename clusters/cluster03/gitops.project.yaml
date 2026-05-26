@@ -20,4 +20,4 @@ spec:
     - group: "*"
       kind: "*"
   sourceRepos:
-    - "https://gitlab.com/zemlab/zem-gitops.git"
+    - "git@gitlab.com:zemlab/zem-gitops.git"

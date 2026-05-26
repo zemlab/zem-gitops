@@ -8,35 +8,35 @@ features:
     enabled: true
     namespace: argocd
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-argocd-extras
   cert-manager-configs:
     enabled: true
     namespace: cert-manager
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-cert-manager-configs
   cloudflare-ingress:
     enabled: false
     namespace: cloudflare-ingress
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-cloudflare-ingress
   cloudflared:
     enabled: false
     namespace: cloudflared
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-cloudflared
   externaldns:
     enabled: false
     namespace: externaldns
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-externaldns
   ingress-nginx:
@@ -54,35 +54,35 @@ features:
     enabled: true
     namespace: monitoring
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-kube-state-metrics
   longhorn:
     enabled: false
     namespace: longhorn-system
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-longhorn
   mariadb-operator:
     enabled: false
     namespace: mariadb-operator
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-mariadb-operator
   cnpg:
     enabled: false
     namespace: cnpg-system
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-cnpg
   metallb-configs:
     enabled: false
     namespace: metallb
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-metallb-configs
   metallb:
@@ -96,14 +96,14 @@ features:
     enabled: true
     namespace: monitoring
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-node-exporter
   openebs:
     enabled: false
     namespace: openenbs
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-openebs
     values:
@@ -122,63 +122,63 @@ features:
     enabled: false
     namespace: monitoring
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-smartctl-exporter
   vmagent:
     enabled: true
     namespace: monitoring
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-vmagent
   vmoperator:
     enabled: true
     namespace: monitoring
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-vmoperator
   kubernetes-replicator:
     enabled: true
     namespace: kubernetes-replicator
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-kubernetes-replicator
   csi-snapshotter:
     enabled: false
     namespace: kube-system
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-csi-snapshotter
   velero:
     enabled: false
     namespace: velero
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-velero
   k8up:
     enabled: true
     namespace: k8up
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-k8up
   project-credentials:
     enabled: false
     namespace: project-credentials
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-project-credentials
   kyverno:
     enabled: true
     namespace: kyverno
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-kyverno
     ignoreDifferences:
@@ -191,7 +191,7 @@ features:
     enabled: true
     namespace: gitops
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: deployments/project-generator
   registry-auth:
@@ -199,7 +199,7 @@ features:
     namespace: registry-auth
     extraDestinationNamespaces: []
     source:
-      repoURL: https://gitlab.com/zemlab/zem-gitops.git
+      repoURL: git@gitlab.com:zemlab/zem-gitops.git
       targetRevision: main
       path: apps/infra/zem-registry-auth
     ignoreDifferences:

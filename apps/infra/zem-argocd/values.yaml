@@ -33,16 +33,6 @@ argo-cd:
     env:
       - name: ARGOCD_EXEC_TIMEOUT
         value: "60s"
-      - name: PATH
-        value: "/custom-git:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    volumes:
-      - name: git-wrapper
-        configMap:
-          name: argocd-git-wrapper
-          defaultMode: 0755
-    volumeMounts:
-      - name: git-wrapper
-        mountPath: /custom-git
     extraArgs:
       - --parallelismlimit
       - "2"
