@@ -1,10 +1,20 @@
 global:
   imageRegistry: "docker.io"
+backup:
+  b2AccessKeyIdSecret: ""
+  b2SecretAccessKeySecret: ""
+
 longhorn:
   preUpgradeChecker:
     jobEnabled: false
+  defaultBackupStore:
+    backupTarget: ~
+    backupTargetCredentialSecret: "longhorn-backup-secret"
   persistence:
     defaultClassReplicaCount: 1
+    recurringJobSelector:
+      enable: true
+      jobList: '[{"name":"snapshot-2h","isGroup":false}]'
   csi:
     attacherReplicaCount: 1
     provisionerReplicaCount: 1

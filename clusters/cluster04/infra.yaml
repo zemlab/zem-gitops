@@ -49,6 +49,15 @@ spec:
             values:
               ingress:
                 hostname: longhorn-cluster04
+              backup:
+                b2AccessKeyIdSecret: "longhorn-backup-cluster04-access-key-id"
+                b2SecretAccessKeySecret: "longhorn-backup-cluster04-secret-access-key"
+              longhorn:
+                defaultBackupStore:
+                  backupTarget: "s3://zem-backups-eu@eu-central-003/longhorn-cluster04"
+                persistence:
+                  recurringJobSelector:
+                    jobList: '[{"name":"snapshot-2h","isGroup":false},{"name":"backup-daily","isGroup":false}]'
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
