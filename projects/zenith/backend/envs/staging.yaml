@@ -1,6 +1,6 @@
 releaseName: backend
 source:
-  targetRevision: 0.3.0-rc4
+  targetRevision: 0.4.6
 database:
   secretName: db-cluster-app
 smtp:
