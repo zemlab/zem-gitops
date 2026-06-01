@@ -1,6 +1,6 @@
 releaseName: db
 source:
-  targetRevision: 0.3.0
+  targetRevision: 0.4.8
 cnpg:
   backup:
     destinationPath: "s3://zenith-prod-private/backend-pg-wal"
