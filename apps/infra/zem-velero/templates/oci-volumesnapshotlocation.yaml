@@ -1,0 +1,16 @@
+{{- if .Values.oci.enabled }}
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: oci-vsl
+  labels:
+    app.kubernetes.io/name: velero
+spec:
+  provider: oracle
+  config:
+    region: {{ .Values.oci.blockVolume.region | quote }}
+    compartmentID: {{ .Values.oci.blockVolume.compartmentOCID | quote }}
+  credential:
+    name: velero-oci-config
+    key: config
+{{- end }}
