@@ -20,3 +20,4 @@ volumeSnapshotClass:
     driver: blockvolume.csi.oraclecloud.com
     deletionPolicy: Delete
     isDefault: true
+    veleroLabel: true

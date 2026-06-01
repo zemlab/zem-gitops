@@ -66,6 +66,8 @@ spec:
               applications:
                 - name: "pce-prod"
                   namespace: "pce-prod"
+          csi-snapshotter:
+            enabled: true
           velero:
             enabled: true
             values:
@@ -77,34 +79,12 @@ spec:
                   prefix: ""
                   accessKeyIdBWSecret: "velero-cluster03-os-access-key-id"
                   secretAccessKeyBWSecret: "velero-cluster03-os-secret-access-key"
-                blockVolume:
-                  compartmentOCID: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
               velero:
                 credentials:
                   existingSecret: velero-oci-os-credentials
                 deployNodeAgent: false
                 configuration:
                   defaultVolumesToFsBackup: false
-                initContainers:
-                  - name: velero-plugin-for-aws
-                    image: docker.io/velero/velero-plugin-for-aws:v1.11.0
-                    imagePullPolicy: IfNotPresent
-                    volumeMounts:
-                      - mountPath: /target
-                        name: plugins
-                  - name: velero-plugin-for-oci
-                    image: ghcr.io/oracle/velero-plugin-for-oci:v1.0.0
-                    imagePullPolicy: IfNotPresent
-                    volumeMounts:
-                      - mountPath: /target
-                        name: plugins
-                extraVolumes:
-                  - name: oci-config
-                    secret:
-                      secretName: velero-oci-config
-                extraVolumeMounts:
-                  - name: oci-config
-                    mountPath: /root/.oci
           project-credentials:
             enabled: true
             values:
