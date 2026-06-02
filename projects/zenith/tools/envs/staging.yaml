@@ -1,0 +1,10 @@
+releaseName: tools
+source:
+  targetRevision: 0.1.0
+
+load:
+  enabled: true
+  dumpKind: full
+  allowHost: db-cluster-rw.zenith-staging.svc
+  dbSecret: db-cluster-app
+  b2ReadCredsSecret: backup-credentials

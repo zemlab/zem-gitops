@@ -1,0 +1,24 @@
+{{- if .Values.oci.enabled }}
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: oci-default
+  labels:
+    app.kubernetes.io/name: velero
+spec:
+  provider: aws
+  objectStorage:
+    bucket: {{ .Values.oci.objectStorage.bucket | quote }}
+    {{- if .Values.oci.objectStorage.prefix }}
+    prefix: {{ .Values.oci.objectStorage.prefix | quote }}
+    {{- end }}
+  config:
+    region: {{ .Values.oci.objectStorage.region | quote }}
+    s3Url: "https://{{ .Values.oci.objectStorage.namespace }}.compat.objectstorage.{{ .Values.oci.objectStorage.region }}.oraclecloud.com"
+    s3ForcePathStyle: "true"
+    checksumAlgorithm: ""
+  credential:
+    name: {{ .Values.oci.objectStorage.secretName | quote }}
+    key: cloud
+  default: true
+{{- end }}

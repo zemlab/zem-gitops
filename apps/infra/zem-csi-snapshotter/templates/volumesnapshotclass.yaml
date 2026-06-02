@@ -9,6 +9,9 @@ metadata:
   {{- end }}
   labels:
     app.kubernetes.io/name: csi-snapshotter
+    {{- if .Values.volumeSnapshotClass.oci.veleroLabel }}
+    velero.io/csi-volumesnapshot-class: "true"
+    {{- end }}
 driver: {{ .Values.volumeSnapshotClass.oci.driver }}
 deletionPolicy: {{ .Values.volumeSnapshotClass.oci.deletionPolicy }}
 {{- end }}

@@ -17,6 +17,13 @@ spec:
     excludedNamespaces:
       {{- toYaml .Values.schedules.daily.excludedNamespaces | nindent 6 }}
     {{- end }}
+    {{- if .Values.oci.enabled }}
+    storageLocation: oci-default
+    volumeSnapshotLocations:
+      - oci-vsl
+    defaultVolumesToFsBackup: false
+    {{- else }}
     storageLocation: b2-default
     defaultVolumesToFsBackup: {{ .Values.schedules.daily.defaultVolumesToFsBackup }}
+    {{- end }}
 {{- end }}

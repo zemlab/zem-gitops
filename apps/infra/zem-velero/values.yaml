@@ -1,3 +1,16 @@
+# OCI native backup (for OKE clusters)
+# BSL: OCI Object Storage via S3-compat (aws plugin)
+# VSL: OCI Block Volume Backup via velero-plugin-for-oci (instance principal)
+oci:
+  enabled: false
+  objectStorage:
+    namespace: ""              # OCI tenancy namespace (e.g. axoxdievda5j)
+    bucket: ""                 # OCI Object Storage bucket name
+    prefix: ""                 # per-cluster prefix
+    region: "uk-london-1"
+    secretName: "velero-oci-os-credentials"
+    accessKeyIdBWSecret: ""    # Bitwarden SM key for Customer Secret Key ID
+    secretAccessKeyBWSecret: "" # Bitwarden SM key for Customer Secret Key
 # B2 storage configuration
 b2:
   secretName: velero-b2-credentials

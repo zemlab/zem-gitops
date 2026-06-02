@@ -66,6 +66,25 @@ spec:
               applications:
                 - name: "pce-prod"
                   namespace: "pce-prod"
+          csi-snapshotter:
+            enabled: true
+          velero:
+            enabled: true
+            values:
+              oci:
+                enabled: true
+                objectStorage:
+                  namespace: "axoxdievda5j"
+                  bucket: "velero-cluster03"
+                  prefix: ""
+                  accessKeyIdBWSecret: "velero-cluster03-os-access-key-id"
+                  secretAccessKeyBWSecret: "velero-cluster03-os-secret-access-key"
+              velero:
+                credentials:
+                  existingSecret: velero-oci-os-credentials
+                deployNodeAgent: false
+                configuration:
+                  defaultVolumesToFsBackup: false
           project-credentials:
             enabled: true
             values:

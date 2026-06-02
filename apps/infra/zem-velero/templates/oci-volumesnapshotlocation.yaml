@@ -1,0 +1,10 @@
+{{- if .Values.oci.enabled }}
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: oci-vsl
+  labels:
+    app.kubernetes.io/name: velero
+spec:
+  provider: csi
+{{- end }}

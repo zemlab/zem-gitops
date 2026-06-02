@@ -182,7 +182,10 @@ else
     done
 
     openssl genrsa -out "${TMPDIR}/api_key_pkcs8.pem" 2048 2>/dev/null
-    openssl rsa -traditional -in "${TMPDIR}/api_key_pkcs8.pem" -out "${TMPDIR}/api_key.pem" 2>/dev/null
+    # OpenSSL 3.x genrsa outputs PKCS#8; -traditional converts to RSA PKCS#1.
+    # LibreSSL (macOS) genrsa already outputs PKCS#1 and doesn't support -traditional.
+    openssl rsa -traditional -in "${TMPDIR}/api_key_pkcs8.pem" -out "${TMPDIR}/api_key.pem" 2>/dev/null \
+        || cp "${TMPDIR}/api_key_pkcs8.pem" "${TMPDIR}/api_key.pem"
     openssl rsa -pubout -in "${TMPDIR}/api_key.pem" -out "${TMPDIR}/api_key_public.pem" 2>/dev/null
 
     API_KEY_RESULT=$(oci iam user api-key upload \
