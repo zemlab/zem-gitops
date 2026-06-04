@@ -12,6 +12,6 @@ namespace:
 
 dump:
   enabled: true
-  barmanCredsVaultSecret: zenith-prod-cnpg
-  b2WriteCredsVaultSecret: zenith-tools-b2-write
-  saltVaultSecret: zenith-anonymize-salt
+  barmanCredsVaultSecret: zenith-internal-barman-creds
+  b2WriteCredsVaultSecret: zenith-internal-b2-write
+  saltVaultSecret: zenith-internal-anonymize-salt
