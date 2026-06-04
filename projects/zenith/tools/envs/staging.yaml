@@ -1,6 +1,9 @@
 releaseName: tools
 source:
-  targetRevision: 0.1.0
+  targetRevision: 0.0.0-5e78a8ca
+
+image:
+  tag: fix-frontend-version-static-env
 
 load:
   enabled: true
