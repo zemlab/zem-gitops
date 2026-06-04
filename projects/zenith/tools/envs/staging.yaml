@@ -4,6 +4,7 @@ source:
 
 image:
   tag: fix-frontend-version-static-env
+  pullPolicy: Always
 
 load:
   enabled: true
