@@ -1,6 +1,6 @@
 releaseName: tools
 source:
-  targetRevision: 0.0.0-60f6797
+  targetRevision: 0.0.0-e3266d6
 
 image:
   tag: fix-frontend-version-static-env

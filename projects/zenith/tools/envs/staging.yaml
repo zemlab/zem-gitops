@@ -1,6 +1,6 @@
 releaseName: tools
 source:
-  targetRevision: 0.0.0-60f6797
+  targetRevision: 0.0.0-e3266d6
 
 image:
   tag: fix-frontend-version-static-env
@@ -11,4 +11,5 @@ load:
   dumpKind: full
   allowHost: db-cluster-rw.zenith-staging
   dbSecret: db-cluster-app
-  b2ReadCredsSecret: backup-credentials
+  b2ReadCredsSecret: tools-b2-dump-read
+  b2ReadCredsVaultSecret: zenith-staging-b2-dump-read
