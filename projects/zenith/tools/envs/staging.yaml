@@ -9,6 +9,6 @@ image:
 load:
   enabled: true
   dumpKind: full
-  allowHost: db-cluster-rw.zenith-staging.svc
+  allowHost: db-cluster-rw.zenith-staging
   dbSecret: db-cluster-app
   b2ReadCredsSecret: backup-credentials
