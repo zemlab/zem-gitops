@@ -1,6 +1,9 @@
 releaseName: tools
 source:
-  targetRevision: 0.1.0
+  targetRevision: 0.0.0-BRANCH_SHORT_SHA  # update with output of publish:tools-chart CI job
+
+image:
+  tag: fix-frontend-version-static-env
 
 # namespace.create is false — project-instance manages zenith-internal namespace
 namespace:
@@ -11,9 +14,5 @@ dump:
   enabled: true
   # Reads WAL archive read credentials from OCI Vault (same secret prod CNPG uses for backup)
   barmanCredsVaultSecret: zenith-prod-cnpg
-  # B2 write key for zem-backups-eu/zenith-seed/ — create with:
-  #   b2 application-key create --bucket zem-backups-eu --namePrefix zenith-seed/ zenith-seed-write
-  #   then store as zenith-tools-b2-write in OCI Vault
   b2WriteCredsVaultSecret: zenith-tools-b2-write
-  # Random salt — store as zenith-anonymize-salt in OCI Vault
   saltVaultSecret: zenith-anonymize-salt

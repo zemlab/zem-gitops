@@ -1,6 +1,9 @@
 releaseName: tools
 source:
-  targetRevision: 0.1.0
+  targetRevision: 0.0.0-BRANCH_SHORT_SHA  # update with output of publish:tools-chart CI job
+
+image:
+  tag: fix-frontend-version-static-env
 
 load:
   enabled: true
