@@ -12,6 +12,7 @@ namespace:
 
 dump:
   enabled: true
+  barmanServerName: backend-pg
   barmanCredsVaultSecret: zenith-internal-barman-creds
   b2WriteCredsVaultSecret: zenith-internal-b2-write
   saltVaultSecret: zenith-internal-anonymize-salt
