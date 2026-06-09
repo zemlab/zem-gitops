@@ -13,3 +13,4 @@ load:
   dbSecret: db-cluster-app
   b2ReadCredsSecret: tools-b2-dump-read
   b2ReadCredsVaultSecret: zenith-staging-b2-dump-read
+  pipelineCallerNamespace: zenith-internal
