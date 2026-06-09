@@ -1,11 +1,9 @@
 releaseName: tools
 source:
-  targetRevision: 0.0.0-594b1ce4
-
+  targetRevision: 0.5.0
 image:
-  tag: fix-frontend-version-static-env
-  pullPolicy: Always
-
+  tag: 0.5.0
+  pullPolicy: IfNotPresent
 load:
   enabled: true
   dumpKind: full
