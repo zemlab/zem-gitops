@@ -1,6 +1,6 @@
 releaseName: frontend
 source:
-  targetRevision: 0.4.8
+  targetRevision: 0.5.0
 ingress:
   hostname: staging.peakstream.app
   className: cloudflare-tunnel
