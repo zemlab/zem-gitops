@@ -1,8 +1,8 @@
 releaseName: tools
 source:
-  targetRevision: 0.5.0
+  targetRevision: 0.5.2
 image:
-  tag: 0.5.0
+  tag: 0.5.2
   pullPolicy: IfNotPresent
 load:
   enabled: true
