@@ -1,0 +1,5 @@
+source:
+  repoURL: registry.gitlab.com/dan_foster/apps/charts
+  chart: shell
+  targetRevision: "0.1.0"
+releaseName: shell
