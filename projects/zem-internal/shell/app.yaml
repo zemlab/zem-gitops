@@ -1,5 +1,5 @@
 source:
-  repoURL: registry.gitlab.com/dan_foster/apps/charts
+  repoURL: ghcr.io/zemlab/apps/charts
   chart: shell
   targetRevision: "0.1.0"
 releaseName: shell
