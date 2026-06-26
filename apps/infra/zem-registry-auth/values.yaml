@@ -1,2 +1,7 @@
 namespaces: []
 #  - zenith-prod
+
+# Namespaces that pull images from ghcr.io/zemlab.
+# Requires Bitwarden items: ghcr-zemlab-username, ghcr-zemlab-token (PAT with read:packages).
+ghcrNamespaces: []
+#  - zem-internal-prod

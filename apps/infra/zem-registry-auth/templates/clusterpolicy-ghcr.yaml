@@ -1,0 +1,23 @@
+{{- if .Values.ghcrNamespaces }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: inject-ghcr-pull-secret
+spec:
+  rules:
+    - name: inject-imagepullsecret
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                {{- range .Values.ghcrNamespaces }}
+                - {{ . }}
+                {{- end }}
+      mutate:
+        patchStrategicMerge:
+          spec:
+            imagePullSecrets:
+              - name: ghcr-credentials
+{{- end }}

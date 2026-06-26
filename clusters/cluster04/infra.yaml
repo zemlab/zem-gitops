@@ -42,6 +42,8 @@ spec:
                 - zenith-prod
                 - gitlab-prod
                 - zem-internal-prod
+              ghcrNamespaces:
+                - zem-internal-prod
           cnpg:
             enabled: true
           longhorn:
