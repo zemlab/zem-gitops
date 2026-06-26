@@ -1,3 +1,7 @@
+{{- if .Values.globals.ghcrAppInstallID }}
+# ArgoCD repository secret for OCI Helm charts on GHCR.
+# Uses username/password — githubApp* fields are only supported for type: git, not type: helm.
+# Password is a GitHub App installation token (1h TTL), rotated every 30m by ESO.
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
@@ -6,11 +10,9 @@ metadata:
   labels:
     app.kubernetes.io/part-of: argocd
 spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: zem-infra
-    kind: ClusterSecretStore
+  refreshInterval: 30m
   target:
+    name: zem-ghcr-helm-creds
     template:
       engineVersion: v2
       metadata:
@@ -21,13 +23,12 @@ spec:
         name: ghcr-zemlab-apps
         url: ghcr.io/zemlab/apps/charts
         enableOCI: "true"
-        githubAppID: "868367"
-        githubAppInstallationID: "49174761"
-        githubAppPrivateKey: "{{ `{{.githubAppPrivateKey}}` }}"
-  data:
-    - secretKey: githubAppPrivateKey
-      remoteRef:
-        key: "argo-github-app-private-key"
-        conversionStrategy: Default
-        decodingStrategy: None
-        metadataPolicy: None
+        username: zem-gitops
+        password: "{{ `{{.token}}` }}"
+  dataFrom:
+    - sourceRef:
+        generatorRef:
+          apiVersion: generators.external-secrets.io/v1alpha1
+          kind: ClusterGenerator
+          name: ghcr-zemlab-token
+{{- end }}

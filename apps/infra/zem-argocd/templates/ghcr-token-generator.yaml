@@ -1,0 +1,28 @@
+{{- if .Values.globals.ghcrAppInstallID }}
+# ClusterGenerator — mints a fresh GitHub App installation token every refreshInterval.
+# Consumed by:
+#   - helm-oci-ghcr-creds.yaml (ArgoCD OCI Helm repo auth)
+#   - apps/infra/zem-registry-auth externalsecret-ghcr.yaml (imagePullSecret)
+# The generated token is used as the GHCR registry password; username can be any non-empty string.
+apiVersion: generators.external-secrets.io/v1alpha1
+kind: ClusterGenerator
+metadata:
+  name: ghcr-zemlab-token
+spec:
+  kind: GithubAccessToken
+  generator:
+    githubAccessTokenSpec:
+      appID: "868367"
+      installID: {{ .Values.globals.ghcrAppInstallID | quote }}
+      permissions:
+        packages: "read"
+        metadata: "read"
+      repositories:
+        - apps
+      auth:
+        privateKey:
+          secretRef:
+            name: zem-github-creds
+            namespace: argocd
+            key: githubAppPrivateKey
+{{- end }}
