@@ -17,8 +17,6 @@ spec:
       permissions:
         packages: "read"
         metadata: "read"
-      repositories:
-        - apps
       auth:
         privateKey:
           secretRef:
