@@ -8,7 +8,7 @@ metadata:
 spec:
   project: gitops
   source:
-    repoURL: https://github.com/danfoster/zem-gitops
+    repoURL: https://github.com/zemlab/zem-gitops
     targetRevision: main
     path: deployments/infra
     helm:
@@ -46,7 +46,7 @@ spec:
             enabled: true
             namespace: oci-mysql
             source:
-              repoURL: https://github.com/danfoster/zem-gitops
+              repoURL: https://github.com/zemlab/zem-gitops
               targetRevision: main
               path: apps/infra/zem-external-dbs
             values:

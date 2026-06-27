@@ -46,4 +46,4 @@ spec:
     - group: "*"
       kind: "*"
   sourceRepos:
-    - "https://github.com/danfoster/zem-gitops"
+    - "https://github.com/zemlab/zem-gitops"
