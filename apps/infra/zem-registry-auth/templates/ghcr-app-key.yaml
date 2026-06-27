@@ -1,0 +1,23 @@
+{{- if .Values.ghcrNamespaces }}
+# Replicates the GHCR App private key into registry-auth so the ClusterGenerator
+# ghcr-zemlab-token can find it when accessed from this namespace.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: zem-ghcr-app-key
+  namespace: registry-auth
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: zem-infra
+    kind: ClusterSecretStore
+  target:
+    name: zem-ghcr-app-key
+  data:
+    - secretKey: privateKey
+      remoteRef:
+        key: "zemlab-ghcr-app-private-key"
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+{{- end }}
