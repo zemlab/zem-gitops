@@ -61,3 +61,5 @@ argo-cd:
     enabled: false
 globals:
   domain: argocd-cluster01.shark-puffin.ts.net
+  # GitHub App 4159736 (Zem GHCR Reader) installation ID on the zemlab org.
+  ghcrAppInstallID: "142932602"

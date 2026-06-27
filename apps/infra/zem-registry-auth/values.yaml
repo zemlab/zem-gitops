@@ -1,2 +1,8 @@
 namespaces: []
 #  - zenith-prod
+
+# Namespaces that pull images from ghcr.io/zemlab.
+# Auth uses GitHub App 868367 via the ClusterGenerator ghcr-zemlab-token (apps/infra/zem-argocd).
+# Prerequisite: set globals.ghcrAppInstallID in zem-argocd values with the zemlab org installation ID.
+ghcrNamespaces: []
+#  - zem-internal-prod

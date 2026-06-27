@@ -1,0 +1,5 @@
+source:
+  repoURL: ghcr.io/zemlab/apps/charts
+  chart: shell
+  targetRevision: "0.1.0"
+releaseName: shell
