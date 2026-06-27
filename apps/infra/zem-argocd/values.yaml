@@ -61,7 +61,5 @@ argo-cd:
     enabled: false
 globals:
   domain: argocd-cluster01.shark-puffin.ts.net
-  # GitHub App 868367 installation ID on the zemlab org.
-  # Install the App on the zemlab org, then set this value.
-  # Until set, the ClusterGenerator and GHCR OCI helm repo secret are not deployed.
-  ghcrAppInstallID: ""
+  # GitHub App 4159736 (Zem GHCR Reader) installation ID on the zemlab org.
+  ghcrAppInstallID: "142932602"

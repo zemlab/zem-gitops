@@ -12,7 +12,7 @@ spec:
   kind: GithubAccessToken
   generator:
     githubAccessTokenSpec:
-      appID: "868367"
+      appID: "4159736"
       installID: {{ .Values.globals.ghcrAppInstallID | quote }}
       permissions:
         packages: "read"
@@ -22,7 +22,7 @@ spec:
       auth:
         privateKey:
           secretRef:
-            name: zem-github-creds
+            name: zem-ghcr-app-key
             namespace: argocd
-            key: githubAppPrivateKey
+            key: privateKey
 {{- end }}
