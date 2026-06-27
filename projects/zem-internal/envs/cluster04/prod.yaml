@@ -1,5 +1,4 @@
 env: prod
-extraSourceRepoURL: "ghcr.io/zemlab/apps/charts"
 ociVault:
   vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
   compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
