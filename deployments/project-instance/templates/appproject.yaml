@@ -20,6 +20,7 @@ spec:
       kind: "*"
   sourceRepos:
     - "https://github.com/zemlab/zem-gitops"
+    - "ghcr.io/zemlab/apps/charts"
     {{- range .Values.extraSourceRepos }}
     - {{ . | quote }}
     {{- end }}
