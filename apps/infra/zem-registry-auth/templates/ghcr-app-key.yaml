@@ -1,4 +1,7 @@
-{{- if .Values.ghcrNamespaces }}
+{{- if false }}
+{{- /* Kept for reference. The ghcr-credentials ExternalSecret no longer uses the
+     ClusterGenerator approach (GitHub App tokens cannot access private org GHCR
+     packages). Use the PAT approach in externalsecret-ghcr.yaml instead. */}}
 # Replicates the GHCR App private key into registry-auth so the ClusterGenerator
 # ghcr-zemlab-token can find it when accessed from this namespace.
 apiVersion: external-secrets.io/v1
