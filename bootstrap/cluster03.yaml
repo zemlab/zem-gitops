@@ -12,7 +12,7 @@ spec:
   project: gitops
   source:
     path: clusters/cluster03
-    repoURL: https://github.com/danfoster/zem-gitops
+    repoURL: https://github.com/zemlab/zem-gitops
     targetRevision: main
   syncPolicy:
     automated:

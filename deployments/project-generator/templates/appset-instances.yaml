@@ -6,11 +6,20 @@ metadata:
   namespace: gitops
 spec:
   generators:
-    - git:
-        repoURL: {{ .Values.repoURL }}
-        revision: {{ .Values.targetRevision }}
-        files:
-          - path: "projects/*/envs/{{ .Values.cluster.name }}/*.yaml"
+    - merge:
+        mergeKeys:
+          - "path[1]"
+        generators:
+          - git:
+              repoURL: {{ .Values.repoURL }}
+              revision: {{ .Values.targetRevision }}
+              files:
+                - path: "projects/*/envs/{{ .Values.cluster.name }}/*.yaml"
+          - git:
+              repoURL: {{ .Values.repoURL }}
+              revision: {{ .Values.targetRevision }}
+              files:
+                - path: "projects/*/project.yaml"
   template:
     metadata:
       name: "project-instance-{{`{{path[1]}}`}}-{{`{{env}}`}}"
