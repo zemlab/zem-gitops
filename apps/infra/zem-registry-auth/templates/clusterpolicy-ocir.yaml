@@ -1,0 +1,23 @@
+{{- if .Values.ocirNamespaces }}
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: inject-ocir-pull-secret
+spec:
+  rules:
+    - name: inject-imagepullsecret
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                {{- range .Values.ocirNamespaces }}
+                - {{ . }}
+                {{- end }}
+      mutate:
+        patchStrategicMerge:
+          spec:
+            imagePullSecrets:
+              - name: ocir-credentials
+{{- end }}
