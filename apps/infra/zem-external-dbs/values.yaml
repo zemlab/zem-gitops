@@ -1,8 +1,5 @@
 oci:
-  vaultOcid: ""
-  compartmentOcid: ""
-  rootSecretOcid: ""
-  region: "uk-london-1"
+  rootSecretName: ""
 
 mysql:
   host: ""

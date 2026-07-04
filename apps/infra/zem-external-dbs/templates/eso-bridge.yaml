@@ -1,31 +1,18 @@
 apiVersion: external-secrets.io/v1
-kind: SecretStore
-metadata:
-  name: oci-vault-store
-spec:
-  provider:
-    oracle:
-      vault: "{{ .Values.oci.vaultOcid }}"
-      compartment: "{{ .Values.oci.compartmentOcid }}"
-      region: "{{ .Values.oci.region }}"
-      principalType: InstancePrincipal # The "Free Tier" identity method
-
----
-apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: mysql-root-secret
 spec:
   refreshInterval: "1h"
   secretStoreRef:
-    name: oci-vault-store
-    kind: SecretStore
+    name: oci-vault
+    kind: ClusterSecretStore
   target:
     name: mysql-root-creds # Used by the MariaDB Operator
   data:
     - secretKey: password
       remoteRef:
-        key: "{{ .Values.oci.rootSecretOcid }}"
+        key: "{{ .Values.oci.rootSecretName }}"
         conversionStrategy: Default
         decodingStrategy: None
         metadataPolicy: None
@@ -50,4 +37,3 @@ spec:
         metadataPolicy: None
         key: {{ .Values.backup.vaultSecretName }}
 {{- end }}
-

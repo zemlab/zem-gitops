@@ -6,3 +6,9 @@ namespaces: []
 # Prerequisite: set globals.ghcrAppInstallID in zem-argocd values with the zemlab org installation ID.
 ghcrNamespaces: []
 #  - zem-internal-prod
+
+# Namespaces that pull images from lhr.ocir.io (OCI Container Registry).
+# Uses per-cluster oci-vault ClusterSecretStore (infra-* reader).
+# Not needed for OKE clusters — they use instance-principal image pull.
+ocirNamespaces: []
+#  - zenith-prod
