@@ -11,3 +11,5 @@ b2:
   prefix: "cluster04/zenith-staging"
   vaultSecretName: "zenith-staging-backups"
 extraSourceRepoURL: "registry.gitlab.com/zemlab/zenith/charts"
+extraSourceRepos:
+  - "https://jouve.github.io/charts/"
