@@ -22,6 +22,7 @@ spec:
     - "https://github.com/zemlab/zem-gitops"
     - "https://github.com/zemlab/apps"
     - "ghcr.io/zemlab/apps/charts"
+    - "https://jouve.github.io/charts/"
     {{- range .Values.extraSourceRepos }}
     - {{ . | quote }}
     {{- end }}
