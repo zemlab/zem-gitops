@@ -3,6 +3,7 @@ kind: Service
 metadata:
   annotations:
     tailscale.com/tailnet-fqdn: homeassistant.shark-puffin.ts.net
+    tailscale.com/tags: tag:vmagent
   name: prometheus
 spec:
   externalName: unused
