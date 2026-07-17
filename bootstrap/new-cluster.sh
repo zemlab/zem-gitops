@@ -174,6 +174,7 @@ spec:
       kind: "*"
   sourceRepos:
     - "https://github.com/zemlab/zem-gitops"
+    - "https://github.com/zemlab/gitops"
 EOF
 echo "Created: ${GITOPS_PROJECT}"
 
