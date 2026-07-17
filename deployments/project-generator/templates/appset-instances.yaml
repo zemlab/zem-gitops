@@ -1,0 +1,48 @@
+{{- include "project-generator.validate" . -}}
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: project-instances
+  namespace: gitops
+spec:
+  generators:
+    - git:
+        repoURL: {{ .Values.repoURL }}
+        revision: {{ .Values.targetRevision }}
+        files:
+          - path: "projects/*/envs/{{ .Values.cluster.name }}/*.yaml"
+  template:
+    metadata:
+      name: "project-instance-{{`{{path[1]}}`}}-{{`{{env}}`}}"
+      namespace: gitops
+      labels:
+        project: "{{`{{path[1]}}`}}"
+        env: "{{`{{env}}`}}"
+        role: project-instance
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: gitops
+      source:
+        repoURL: {{ .Values.repoURL }}
+        targetRevision: {{ .Values.targetRevision }}
+        path: deployments/project-instance
+        helm:
+          releaseName: "project-instance-{{`{{path[1]}}`}}-{{`{{env}}`}}"
+          valuesObject:
+            name: "{{`{{path[1]}}`}}"
+            env: "{{`{{env}}`}}"
+            cluster: {{ .Values.cluster.name | quote }}
+            repoURL: {{ .Values.repoURL | quote }}
+            targetRevision: {{ .Values.targetRevision | quote }}
+            iamVaultSecretName: "{{`{{ociVault.iamVaultSecretName}}`}}"
+            extraSourceRepoURL: "{{`{{extraSourceRepoURL}}`}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: gitops
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true

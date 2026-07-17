@@ -1,0 +1,13 @@
+env: internal
+ociVault:
+  vaultOcid: "ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwgiljridwbzbxrs2vvay6b6n6x7xhi3ymapbgov36lrqmm7bkxgh3hmnka"
+  compartmentOcid: "ocid1.compartment.oc1..aaaaaaaagyawjldswlrq2f2dnsqz2kqlzsvj6mirpcue7oqwzlyuwx7pqjha"
+  region: "uk-london-1"
+  tenancyOcid: "ocid1.tenancy.oc1..aaaaaaaach2wyrgzdlf65xepx7rsyod6qdm65tx6timbqiecdi2hlsqqnxca"
+  userOcid: "ocid1.user.oc1..aaaaaaaamap7elpqz5ezr6q2eslicmtulvl4uzqkrmed4qwmvw7e66pgmu7q"
+  iamVaultSecretName: "infra-zenith-internal-oci-credentials"
+  credentialSecretName: "zenith-internal-oci-creds"
+b2:
+  prefix: "cluster04/zenith-internal"
+  vaultSecretName: "zenith-internal-backups"
+extraSourceRepoURL: "registry.gitlab.com/zemlab/zenith/charts"

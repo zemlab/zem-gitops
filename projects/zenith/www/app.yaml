@@ -1,0 +1,4 @@
+source:
+  repoURL: registry.gitlab.com/zemlab/zenith/charts
+  chart: www
+releaseName: www
