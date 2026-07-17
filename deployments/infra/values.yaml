@@ -191,9 +191,9 @@ features:
     enabled: true
     namespace: gitops
     source:
-      repoURL: https://github.com/zemlab/zem-gitops
+      repoURL: https://github.com/zemlab/gitops
       targetRevision: main
-      path: deployments/project-generator
+      path: charts/project-generator
   registry-auth:
     enabled: true
     namespace: registry-auth

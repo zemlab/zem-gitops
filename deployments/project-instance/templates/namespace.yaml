@@ -1,8 +1,0 @@
-{{- include "project-instance.validate" . -}}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ include "project-instance.fullName" . }}
-  annotations:
-    argocd.argoproj.io/sync-wave: "-2"
-    argocd.argoproj.io/sync-options: Delete=false
