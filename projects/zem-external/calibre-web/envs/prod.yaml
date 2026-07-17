@@ -1,7 +1,0 @@
-releaseName: calibre-web-prod
-hostname: calibre.zem.org.uk
-ingress:
-  annotations: {}
-  className: cloudflare-tunnel
-  tls:
-    enabled: false

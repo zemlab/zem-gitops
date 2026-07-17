@@ -1,4 +1,0 @@
-source:
-  repoURL: registry.gitlab.com/zemlab/zenith/charts
-  chart: tools
-releaseName: tools

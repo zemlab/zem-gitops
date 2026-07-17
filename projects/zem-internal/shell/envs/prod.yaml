@@ -1,5 +1,0 @@
-releaseName: shell
-source:
-  targetRevision: "v1.1.1"
-image:
-  tag: "1.1.1"
