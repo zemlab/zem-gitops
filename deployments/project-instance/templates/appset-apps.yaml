@@ -7,6 +7,9 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
+  # See project-generator/templates/appset-instances.yaml for why this is here.
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   goTemplate: true
   goTemplateOptions: ["missingkey=zero"]
   generators:

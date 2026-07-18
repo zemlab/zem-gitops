@@ -5,6 +5,13 @@ metadata:
   name: project-instances
   namespace: gitops
 spec:
+  # Prevents cascading deletion of live resources if this ApplicationSet ever
+  # removes a generated Application (e.g. generator hiccup during a repo/path
+  # change) — only the Application bookkeeping is removed, not the underlying
+  # workload. See incident 2026-07-17/18: without this, a transient generator
+  # error during a bridge-repo cutover pruned live PVCs across all 3 clusters.
+  syncPolicy:
+    preserveResourcesOnDeletion: true
   generators:
     - git:
         repoURL: {{ .Values.repoURL }}
