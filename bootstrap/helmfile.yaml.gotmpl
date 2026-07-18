@@ -43,8 +43,19 @@ releases:
     needs:
       - cert-manager/cert-manager
     values:
-      - bitwarden-sdk-server:
+      # reloader.stakater.com/auto restarts these pods whenever a mounted
+      # Secret/ConfigMap changes — without it, cert-manager's TLS cert
+      # rotation for bitwarden-tls-certs goes unnoticed by both the
+      # bitwarden-sdk-server and the client that validates against it,
+      # leaving them serving/trusting an expired cert until manually
+      # restarted (see 2026-07-18 incident: 8 days of silent SecretSyncedError
+      # across every ExternalSecret using the zem-infra ClusterSecretStore).
+      - podAnnotations:
+          reloader.stakater.com/auto: "true"
+        bitwarden-sdk-server:
           enabled: true
+          podAnnotations:
+            reloader.stakater.com/auto: "true"
     hooks:
       - events: ["postsync"]
         showlogs: true
