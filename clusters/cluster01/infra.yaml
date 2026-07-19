@@ -9,12 +9,13 @@ spec:
   project: gitops
   source:
     repoURL: https://github.com/zemlab/zem-gitops
-    # REVERTED 2026-07-19: Phase 2 Step 4 cutover caused cross-cluster damage
-    # despite this pin, because project-generator's own targetRevision is
-    # hardcoded to "main" (independent of infra's pin) throughout the whole
-    # downstream chain. Pinning infra alone does NOT isolate a cluster. Back
-    # to the known-safe SHA until the isolation mechanism is redesigned.
-    targetRevision: 12e32e723bc7fc4edf0310f688a3b5b3f43a29ae
+    # Pinned during the repo-split Phase 2 cutover so this cluster is isolated
+    # from changes to main until deliberately bumped. See incident 2026-07-17/18
+    # (targetRevision pinning alone does NOT isolate project-generator, which
+    # tracks main independently — see the redesigned Phase 2 plan's manualSync
+    # gate). Revert to `main` once all 3 clusters are confirmed stable on the
+    # new bridge.
+    targetRevision: d7c92c1f20301819bf49f0707daeaa529a34fe99
     path: deployments/infra
     helm:
       valuesObject:
