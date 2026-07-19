@@ -1,0 +1,5 @@
+source:
+  repoURL: https://github.com/zemlab/zem-gitops
+  targetRevision: main
+  path: apps/zem-internal/zem-homepage
+releaseName: homepage
