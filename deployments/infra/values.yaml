@@ -190,6 +190,15 @@ features:
   project-generator:
     enabled: true
     namespace: gitops
+    # manualSync gates the entire project-generator -> project-instances ->
+    # project-instance-* -> project-apps-* -> leaf-app chain into manual-sync
+    # mode: no Application in that chain carries syncPolicy.automated, so
+    # nothing auto-applies while clusters cut over to this repo. Flip both of
+    # these back to false once all 3 clusters are verified stable (Phase 2
+    # Step G). See incident 2026-07-17/18 and the redesigned Phase 2 plan.
+    manualSync: true
+    values:
+      manualSync: true
     source:
       repoURL: https://github.com/zemlab/gitops
       targetRevision: main
