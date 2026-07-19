@@ -4,7 +4,7 @@
 
 ## What this repo is
 
-GitOps repo managing three Kubernetes clusters via ArgoCD. Holds infrastructure features, project workload *charts*, and bootstrap configuration. The application-deployment engine and `projects/` config now live in the separate `gitops` repo (`https://github.com/zemlab/gitops`, checked out at `~/git/zem/gitops`); this repo links to it via one bridge — the `project-generator` feature in `deployments/infra/values.yaml`.
+GitOps repo managing three Kubernetes clusters via ArgoCD. All cluster state lives here — infrastructure features, project workloads, and bootstrap configuration.
 
 ---
 
@@ -45,23 +45,17 @@ clusters/
 
 deployments/
   infra/                App-of-apps: renders an ArgoCD Application per enabled feature
-    values.yaml         Master feature registry (all features defined here); the
-                        "project-generator" feature is the bridge to the gitops repo
-
-scripts/                Operational scripts (see below)
-docs/                   Design docs and this file
-```
-
-The `gitops` repo (`~/git/zem/gitops`) holds the app-deployment engine:
-```
-charts/
-  project-generator/    ApplicationSet that discovers project-envs per cluster
-  project-instance/     Per-project-env Namespace/AppProject + app ApplicationSet
+    values.yaml         Master feature registry (all features defined here)
+    templates/          application.yaml iterates features
+  project/              Per-project app-of-apps template
+  project-generator/    ApplicationSet that generates project app-of-apps per cluster
 
 projects/
   <project>/
-    envs/<cluster>/     Per-cluster/env values passed to the project-instance chart
-    <app>/app.yaml      Per-app source (often points back at this repo's apps/<...>)
+    envs/<cluster>/     Per-cluster/env values passed to the project app-of-apps
+
+scripts/                Operational scripts (see below)
+docs/                   Design docs and this file
 ```
 
 ---
@@ -81,13 +75,11 @@ To add a new infra tool: create the wrapper chart, add the feature to `values.ya
 
 ## How projects work
 
-Projects are application workloads (media, pce, zenith, gitlab, etc). Their driver config lives in the
-`gitops` repo, not here. Each project:
+Projects are application workloads (media, pce, zenith, gitlab, etc). Each project:
 
-- Has a **values file** at `projects/<project>/envs/<cluster>/<env>.yaml` (in the `gitops` repo)
-- Gets a **project-instance** Application rendered from `charts/project-instance` (in the `gitops` repo)
-- That Application creates a Namespace, AppProject, and one ApplicationSet-generated Application per app
-- Most apps' charts (`apps/<...>` referenced by each `projects/*/app.yaml`) still live in **this** repo
+- Has a **values file** at `projects/<project>/envs/<cluster>/<env>.yaml`
+- Gets an **app-of-apps** rendered from `deployments/project/` with those values
+- The app-of-apps creates a Namespace, AppProject, and one Application per enabled service
 
 To onboard a new project namespace: **always use `scripts/create-project.sh <cluster> <namespace>`** — it provisions OCI users, IAM policies, B2 keys, restic passwords, and OCI Vault secrets, then generates the git files.
 

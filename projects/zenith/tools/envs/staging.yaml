@@ -1,0 +1,14 @@
+releaseName: tools
+source:
+  targetRevision: 0.13.0
+image:
+  tag: 0.13.0
+  pullPolicy: IfNotPresent
+load:
+  enabled: true
+  dumpKind: full
+  allowHost: db-cluster-rw.zenith-staging
+  dbSecret: db-cluster-app
+  b2ReadCredsSecret: tools-b2-dump-read
+  b2ReadCredsVaultSecret: zenith-staging-b2-dump-read
+  pipelineCallerNamespace: zenith-internal
