@@ -1,0 +1,9 @@
+name: ""
+env: ""
+cluster: ""
+repoURL: https://github.com/zemlab/zem-gitops
+targetRevision: main
+extraSourceRepos: []
+iamVaultSecretName: ""
+extraSourceRepoURL: ""
+manualSync: false

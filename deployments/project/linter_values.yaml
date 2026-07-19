@@ -1,0 +1,23 @@
+# Test values for helm lint / helm template
+# Simulates what a cluster override provides
+name: test-project
+env: test
+
+common:
+  values:
+    ociVault:
+      vaultOcid: "ocid1.vault.test"
+      compartmentOcid: "ocid1.compartment.test"
+      region: "uk-london-1"
+      tenancyOcid: "ocid1.tenancy.test"
+      userOcid: "ocid1.user.test"
+      credentialSecretName: "test-project-test-oci-creds"
+
+services:
+  example-service:
+    enabled: true
+    releaseName: "example-service"
+    source:
+      repoURL: https://github.com/zemlab/zem-gitops
+      targetRevision: main
+      path: apps/example/example-service

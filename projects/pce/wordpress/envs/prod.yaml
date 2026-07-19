@@ -1,0 +1,12 @@
+releaseName: pce-wordpress
+db:
+  host: "10.44.0.209"
+  name: "pce-prod-db"
+  userSecretRef:
+    name: mysql-pce-prod-creds
+ingress:
+  hostname: www.portycommunityenergy.org
+  className: cloudflare-tunnel
+  annotations: {}
+  tls:
+    enabled: false

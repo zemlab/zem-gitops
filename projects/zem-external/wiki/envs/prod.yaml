@@ -1,0 +1,7 @@
+releaseName: wiki-prod
+hostname: wiki.zem.org.uk
+ingress:
+  annotations: {}
+  className: cloudflare-tunnel
+  tls:
+    enabled: false
