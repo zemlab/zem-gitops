@@ -50,11 +50,10 @@ spec:
       destination:
         server: https://kubernetes.default.svc
         namespace: gitops
-      {{- if not .Values.manualSync }}
       syncPolicy:
+        {{- if not .Values.manualSync }}
         automated:
           prune: true
           selfHeal: true
-      {{- else }}
-      syncPolicy: {}
-      {{- end }}
+        {{- end }}
+        syncOptions: []
