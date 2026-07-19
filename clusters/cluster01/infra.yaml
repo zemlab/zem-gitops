@@ -15,7 +15,7 @@ spec:
     # tracks main independently — see the redesigned Phase 2 plan's manualSync
     # gate). Revert to `main` once all 3 clusters are confirmed stable on the
     # new bridge.
-    targetRevision: d7c92c1f20301819bf49f0707daeaa529a34fe99
+    targetRevision: 63b691ce9f54e42a1107dc56e1e96f24967a309d
     path: deployments/infra
     helm:
       valuesObject:
