@@ -1,5 +1,0 @@
-source:
-  repoURL: https://github.com/zemlab/zem-gitops
-  targetRevision: main
-  path: apps/zem-external/calibre-web
-releaseName: calibre-web-prod

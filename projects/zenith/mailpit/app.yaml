@@ -1,5 +1,0 @@
-source:
-  repoURL: https://jouve.github.io/charts/
-  chart: mailpit
-  targetRevision: "0.34.1"
-releaseName: mailpit
