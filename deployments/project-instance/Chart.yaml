@@ -1,6 +1,0 @@
-apiVersion: v2
-name: project-instance
-description: Creates Namespace and AppProject for a single project-env instance
-type: application
-version: 0.1.0
-appVersion: "1.0.0"

@@ -1,4 +1,0 @@
-releaseName: awx
-awx:
-  hostname: awx
-  storageClass: openebs-hostpath

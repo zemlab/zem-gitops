@@ -1,4 +1,0 @@
-source:
-  repoURL: ghcr.io/zemlab/golinks-helm
-  chart: golinks
-releaseName: pce-golinks
