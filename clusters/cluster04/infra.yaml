@@ -9,11 +9,7 @@ spec:
   project: gitops
   source:
     repoURL: https://github.com/zemlab/zem-gitops
-    # Pinned during the repo-split Phase 2 cutover so this cluster is isolated
-    # from changes to main until deliberately bumped. See incident 2026-07-17/18
-    # and the redesigned Phase 2 plan. Revert to `main` once all 3 clusters
-    # are confirmed stable on the new bridge.
-    targetRevision: 422202010a262463c079aef8ecd7fbaf8845ef17
+    targetRevision: main
     path: deployments/infra
     helm:
       valuesObject:
