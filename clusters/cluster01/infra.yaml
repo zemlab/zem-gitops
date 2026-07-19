@@ -9,11 +9,9 @@ spec:
   project: gitops
   source:
     repoURL: https://github.com/zemlab/zem-gitops
-    # Pinned during the repo-split Phase 2 cutover so this cluster is isolated
-    # from changes to main until deliberately bumped. See incident 2026-07-17/18
-    # and the redesigned Phase 2 plan. Revert to `main` once all 3 clusters
-    # are confirmed stable on the new bridge.
-    targetRevision: 12e32e723bc7fc4edf0310f688a3b5b3f43a29ae
+    # Phase 2 cutover: bumped to the bridge-flip commit. cluster03/04 remain
+    # pinned to the pre-cutover SHA until this is verified stable here.
+    targetRevision: 10761500f0f23e0a91b41cf9a695301b63c83995
     path: deployments/infra
     helm:
       valuesObject:
