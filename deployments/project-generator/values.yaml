@@ -2,3 +2,4 @@ cluster:
   name: ""
 repoURL: https://github.com/zemlab/zem-gitops
 targetRevision: main
+manualSync: false

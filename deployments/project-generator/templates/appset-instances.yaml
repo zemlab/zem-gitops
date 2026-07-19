@@ -46,10 +46,13 @@ spec:
             targetRevision: {{ .Values.targetRevision | quote }}
             iamVaultSecretName: "{{`{{ociVault.iamVaultSecretName}}`}}"
             extraSourceRepoURL: "{{`{{extraSourceRepoURL}}`}}"
+            manualSync: {{ .Values.manualSync }}
       destination:
         server: https://kubernetes.default.svc
         namespace: gitops
       syncPolicy:
+        {{- if not .Values.manualSync }}
         automated:
           prune: true
           selfHeal: true
+        {{- end }}

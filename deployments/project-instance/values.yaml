@@ -6,3 +6,4 @@ targetRevision: main
 extraSourceRepos: []
 iamVaultSecretName: ""
 extraSourceRepoURL: ""
+manualSync: false

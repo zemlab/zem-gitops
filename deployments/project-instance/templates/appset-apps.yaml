@@ -66,9 +66,11 @@ spec:
         server: https://kubernetes.default.svc
         namespace: {{ include "project-instance.fullName" . }}
       syncPolicy:
+        {{- if not .Values.manualSync }}
         automated:
           prune: true
           selfHeal: true
+        {{- end }}
       # Tailscale operator rewrites spec.externalName on egress Services after creation.
       # Ignore this field to prevent perpetual OutOfSync on apps using tailscale egress.
       ignoreDifferences:

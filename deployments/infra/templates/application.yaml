@@ -15,9 +15,11 @@ metadata:
 spec:
   project: infra
   syncPolicy:
+    {{- if not $config.manualSync }}
     automated:
       prune: true
       selfHeal: true
+    {{- end }}
     syncOptions:
       - ServerSideApply=true
   source:
