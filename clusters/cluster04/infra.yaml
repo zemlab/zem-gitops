@@ -13,7 +13,7 @@ spec:
     # from changes to main until deliberately bumped. See incident 2026-07-17/18
     # and the redesigned Phase 2 plan. Revert to `main` once all 3 clusters
     # are confirmed stable on the new bridge.
-    targetRevision: d7c92c1f20301819bf49f0707daeaa529a34fe99
+    targetRevision: 422202010a262463c079aef8ecd7fbaf8845ef17
     path: deployments/infra
     helm:
       valuesObject:
