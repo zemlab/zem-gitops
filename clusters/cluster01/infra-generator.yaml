@@ -13,17 +13,19 @@ spec:
     # migration Step 3) so this cluster's cutover is isolated from further
     # changes to gitops:main until deliberately bumped. Revert to `main` once
     # cluster01 is confirmed stable on the new ApplicationSet (Step 7).
-    targetRevision: 62a2177692af7f788e621f0211d6f21c810e9d19
+    targetRevision: bf231a05265dc61e5fcb13dcc8b848b9ba12dbf7
     path: charts/infra-generator
     helm:
       valuesObject:
         cluster:
           name: cluster01
         repoURL: https://github.com/zemlab/gitops
-        # Threaded into both the ApplicationSet's own generator.revision and
-        # every generated feature Application's source.targetRevision -- same
-        # pin as above, kept in lockstep manually while cutting over.
-        targetRevision: 62a2177692af7f788e621f0211d6f21c810e9d19
+        # Threaded into the ApplicationSet's own generator.revision and the
+        # $values ref source (git-sourced features track their own repo's
+        # "main" explicitly in app.yaml -- see bf231a0 -- not this pin, since
+        # that would be a different repo's commit history entirely). Kept in
+        # lockstep with the outer targetRevision above while cutting over.
+        targetRevision: bf231a05265dc61e5fcb13dcc8b848b9ba12dbf7
         # Nothing auto-applies while this is true: no feature Application in
         # the whole infra-features chain carries syncPolicy.automated. Flip to
         # false only after every feature is verified adopted + diffed clean
