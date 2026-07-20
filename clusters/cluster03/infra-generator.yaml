@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-generator
+  namespace: gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: gitops
+  source:
+    repoURL: https://github.com/zemlab/gitops
+    # Pinned to the infra-generator/infra/ landing commit (infra ApplicationSet
+    # migration Step 3) so this cluster's cutover is isolated from further
+    # changes to gitops:main until deliberately bumped. Revert to `main` once
+    # cluster03 is confirmed stable on the new ApplicationSet (Step 7).
+    targetRevision: bf231a05265dc61e5fcb13dcc8b848b9ba12dbf7
+    path: charts/infra-generator
+    helm:
+      valuesObject:
+        cluster:
+          name: cluster03
+        repoURL: https://github.com/zemlab/gitops
+        targetRevision: bf231a05265dc61e5fcb13dcc8b848b9ba12dbf7
+        manualSync: true
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: gitops
+  syncPolicy:
+    automated:
+      prune: true
