@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infra-generator
+  namespace: gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: gitops
+  source:
+    repoURL: https://github.com/zemlab/gitops
+    # Pinned to the infra-generator/infra/ landing commit (infra ApplicationSet
+    # migration Step 3) so this cluster's cutover is isolated from further
+    # changes to gitops:main until deliberately bumped. Revert to `main` once
+    # cluster01 is confirmed stable on the new ApplicationSet (Step 7).
+    targetRevision: 62a2177692af7f788e621f0211d6f21c810e9d19
+    path: charts/infra-generator
+    helm:
+      valuesObject:
+        cluster:
+          name: cluster01
+        repoURL: https://github.com/zemlab/gitops
+        # Threaded into both the ApplicationSet's own generator.revision and
+        # every generated feature Application's source.targetRevision -- same
+        # pin as above, kept in lockstep manually while cutting over.
+        targetRevision: 62a2177692af7f788e621f0211d6f21c810e9d19
+        # Nothing auto-applies while this is true: no feature Application in
+        # the whole infra-features chain carries syncPolicy.automated. Flip to
+        # false only after every feature is verified adopted + diffed clean
+        # (Step 4), per feature or all at once.
+        manualSync: true
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: gitops
+  syncPolicy:
+    automated:
+      prune: true
