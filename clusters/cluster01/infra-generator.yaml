@@ -9,29 +9,14 @@ spec:
   project: gitops
   source:
     repoURL: https://github.com/zemlab/gitops
-    # Pinned to the infra-generator/infra/ landing commit (infra ApplicationSet
-    # migration Step 3) so this cluster's cutover is isolated from further
-    # changes to gitops:main until deliberately bumped. Revert to `main` once
-    # cluster01 is confirmed stable on the new ApplicationSet (Step 7).
-    targetRevision: bf231a05265dc61e5fcb13dcc8b848b9ba12dbf7
+    targetRevision: main
     path: charts/infra-generator
     helm:
       valuesObject:
         cluster:
           name: cluster01
         repoURL: https://github.com/zemlab/gitops
-        # Threaded into the ApplicationSet's own generator.revision and the
-        # $values ref source (git-sourced features track their own repo's
-        # "main" explicitly in app.yaml -- see bf231a0 -- not this pin, since
-        # that would be a different repo's commit history entirely). Kept in
-        # lockstep with the outer targetRevision above while cutting over.
-        targetRevision: bf231a05265dc61e5fcb13dcc8b848b9ba12dbf7
-        # Step 4: all 18 feature Applications verified adopted (ownerReferences
-        # -> infra-features), gated (no automated, no stale tracking-id), and
-        # Synced/Healthy with zero workload disruption (every pod predates this
-        # cutover). Un-gating cluster-wide -- manualSync only supports a global
-        # flag, not per-feature (see gitops repo's infra-generator commit
-        # history for why).
+        targetRevision: main
         manualSync: false
   destination:
     server: "https://kubernetes.default.svc"
