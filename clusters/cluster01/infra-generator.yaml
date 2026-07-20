@@ -26,11 +26,13 @@ spec:
         # that would be a different repo's commit history entirely). Kept in
         # lockstep with the outer targetRevision above while cutting over.
         targetRevision: bf231a05265dc61e5fcb13dcc8b848b9ba12dbf7
-        # Nothing auto-applies while this is true: no feature Application in
-        # the whole infra-features chain carries syncPolicy.automated. Flip to
-        # false only after every feature is verified adopted + diffed clean
-        # (Step 4), per feature or all at once.
-        manualSync: true
+        # Step 4: all 18 feature Applications verified adopted (ownerReferences
+        # -> infra-features), gated (no automated, no stale tracking-id), and
+        # Synced/Healthy with zero workload disruption (every pod predates this
+        # cutover). Un-gating cluster-wide -- manualSync only supports a global
+        # flag, not per-feature (see gitops repo's infra-generator commit
+        # history for why).
+        manualSync: false
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
