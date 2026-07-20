@@ -63,8 +63,15 @@ OCI_VAULT_OCID="${OCI_VAULT_OCID:-ocid1.vault.oc1.uk-london-1.eruxsrmlaafja.abwg
 OCI_VAULT_KEY_OCID="${OCI_VAULT_KEY_OCID:-ocid1.key.oc1.uk-london-1.eruxsrmlaafja.abwgiljtncunmpibvwvjygia2d3umhb6vf24axjuxuivbg52moq76tgdhdua}"
 
 # B2 configuration
+# Key name and prefix include the cluster: the chart's Schedule/Backup
+# resources write to zem-backups-eu/<cluster>/<namespace>, and every
+# existing key follows this convention (backup-<cluster>-<namespace>,
+# scoped to <cluster>/<namespace>/) -- a bare <namespace>/ prefix here
+# would create a key that can't actually write to the bucket path the
+# chart uses.
 B2_BUCKET="zem-backups-eu"
-B2_KEY_NAME="backup-${NAMESPACE}"
+B2_KEY_NAME="backup-${CLUSTER}-${NAMESPACE}"
+B2_KEY_PREFIX="${CLUSTER}/${NAMESPACE}/"
 
 echo "=== Provisioning backup credentials for ${NAMESPACE} ==="
 echo ""
@@ -253,7 +260,7 @@ if [ -n "${EXISTING_BACKUP_OCID}" ]; then
     if [ -n "${EXISTING_B2_KEY_ID}" ] && [ -n "${EXISTING_B2_KEY_SECRET}" ]; then
         echo "  Testing existing B2 credentials (key: ${EXISTING_B2_KEY_ID})..."
         if B2_APPLICATION_KEY_ID="${EXISTING_B2_KEY_ID}" B2_APPLICATION_KEY="${EXISTING_B2_KEY_SECRET}" \
-            b2 ls --recursive --limit 1 "${B2_BUCKET}" "${NAMESPACE}/" >/dev/null 2>&1; then
+            b2 ls --recursive --limit 1 "${B2_BUCKET}" "${B2_KEY_PREFIX}" >/dev/null 2>&1; then
             echo "  B2 credentials are valid, reusing"
             B2_KEY_ID="${EXISTING_B2_KEY_ID}"
             B2_KEY_SECRET="${EXISTING_B2_KEY_SECRET}"
@@ -288,7 +295,7 @@ if [ "${B2_CREDS_VALID}" = false ]; then
 
     B2_KEY_RESULT=$(b2 key create \
         --bucket "${B2_BUCKET}" \
-        --name-prefix "${NAMESPACE}/" \
+        --name-prefix "${B2_KEY_PREFIX}" \
         "${B2_KEY_NAME}" \
         "listBuckets,listFiles,readFiles,writeFiles,deleteFiles" 2>&1)
     B2_KEY_ID=$(echo "$B2_KEY_RESULT" | awk '{print $1}')
@@ -323,7 +330,7 @@ echo ""
 echo "Resources created:"
 echo "  OCI User:       ${OCI_USER_NAME} (${OCI_USER_OCID})"
 echo "  OCI Policy:     ${POLICY_NAME}"
-echo "  B2 Key:         ${B2_KEY_NAME} (prefix: ${NAMESPACE}/, reused: ${B2_CREDS_VALID})"
+echo "  B2 Key:         ${B2_KEY_NAME} (prefix: ${B2_KEY_PREFIX}, reused: ${B2_CREDS_VALID})"
 echo "  Vault Secrets:"
 echo "    ${BACKUP_SECRET_NAME} (B2 creds + restic password)"
 echo "    ${INFRA_SECRET_NAME} (OCI API key for K8s distribution)"
