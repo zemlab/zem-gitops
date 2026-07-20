@@ -96,9 +96,11 @@ spec:
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
-  syncPolicy:
-    automated:
-      prune: true
+  # No automated sync policy (Step 2 of the infra ApplicationSet migration):
+  # the old app-of-apps must not fight the new infra-features ApplicationSet
+  # while it adopts these same feature Applications. Re-add once this whole
+  # Application is removed at the end of the migration -- it never should be,
+  # since removal (Step 6) happens before that would matter.
   ignoreDifferences:
     - group: argoproj.io
       kind: Application

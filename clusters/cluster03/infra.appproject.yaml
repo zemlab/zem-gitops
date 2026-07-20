@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infra
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  description: Infra
+  # namespace: '*' rather than an enumerated list: clusterResourceWhitelist is
+  # already */* (any ClusterRole/CRD/etc, already far more powerful than
+  # namespace scoping contains), and an enumerated list would need editing here
+  # every time a feature's own infra/<feature>/app.yaml adds a namespace or
+  # registry-auth widens its reach -- against the migration's "one place to
+  # edit" goal. sourceRepos below stays the real, enumerated restriction.
+  destinations:
+    - namespace: "*"
+      server: "https://kubernetes.default.svc"
+  sourceNamespaces:
+    - gitops
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  sourceRepos:
+    - https://github.com/zemlab/zem-gitops
+    - https://github.com/zemlab/gitops
+    - https://kubernetes.github.io/ingress-nginx
+    - https://stakater.github.io/stakater-charts
+    - https://metallb.github.io/metallb
