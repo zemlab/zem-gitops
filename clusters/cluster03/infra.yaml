@@ -9,7 +9,11 @@ spec:
   project: gitops
   source:
     repoURL: https://github.com/zemlab/zem-gitops
-    targetRevision: main
+    # Pinned during the infra ApplicationSet migration (Step 1) so this cluster
+    # is isolated from changes to main until deliberately bumped. See the
+    # redesigned migration plan. Revert to `main` once cluster03 is confirmed
+    # stable on the new infra-features ApplicationSet (Step 7).
+    targetRevision: ce2899c3bc6907a6a7b2b687f0d2dab7cd53869e
     path: deployments/infra
     helm:
       valuesObject:
