@@ -74,11 +74,12 @@ BOOTSTRAP_VALUES="${SCRIPT_DIR}/values/${CLUSTER}.yaml"
 ARGOCD_APP="${SCRIPT_DIR}/${CLUSTER}.yaml"
 CLUSTER_DIR="${REPO_ROOT}/clusters/${CLUSTER}"
 GITOPS_PROJECT="${CLUSTER_DIR}/gitops.project.yaml"
-INFRA_YAML="${CLUSTER_DIR}/infra.yaml"
+INFRA_APPPROJECT="${CLUSTER_DIR}/infra.appproject.yaml"
+INFRA_GENERATOR="${CLUSTER_DIR}/infra-generator.yaml"
 HELMFILE="${SCRIPT_DIR}/helmfile.yaml.gotmpl"
 
 # Fail fast if any target already exists
-for f in "$BOOTSTRAP_VALUES" "$ARGOCD_APP" "$GITOPS_PROJECT" "$INFRA_YAML"; do
+for f in "$BOOTSTRAP_VALUES" "$ARGOCD_APP" "$GITOPS_PROJECT" "$INFRA_APPPROJECT" "$INFRA_GENERATOR"; do
     if [ -f "$f" ]; then
         echo "ERROR: $f already exists. Remove it first or use bootstrap.sh to re-run an existing cluster."
         exit 1
@@ -178,74 +179,77 @@ spec:
 EOF
 echo "Created: ${GITOPS_PROJECT}"
 
-# 5. clusters/<cluster>/infra.yaml skeleton
-cat > "$INFRA_YAML" << EOF
+# 5. clusters/<cluster>/infra.appproject.yaml -- static, bounded AppProject
+#    for every infra feature Application (created once here, not per-feature --
+#    see the infra ApplicationSet migration for why).
+cat > "$INFRA_APPPROJECT" << EOF
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infra
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  description: Infra
+  # namespace: '*' rather than an enumerated list: clusterResourceWhitelist is
+  # already */* (any ClusterRole/CRD/etc, already far more powerful than
+  # namespace scoping contains), and an enumerated list would need editing here
+  # every time a feature's own infra/<feature>/app.yaml (in the gitops repo)
+  # adds a namespace. sourceRepos below stays the real, enumerated restriction.
+  destinations:
+    - namespace: "*"
+      server: "https://kubernetes.default.svc"
+  sourceNamespaces:
+    - gitops
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  sourceRepos:
+    - https://github.com/zemlab/zem-gitops
+    - https://github.com/zemlab/gitops
+    - https://kubernetes.github.io/ingress-nginx
+    - https://stakater.github.io/stakater-charts
+    - https://metallb.github.io/metallb
+EOF
+echo "Created: ${INFRA_APPPROJECT}"
+
+# 6. clusters/<cluster>/infra-generator.yaml -- wires the infra-generator
+#    chart (in the gitops repo), which fans out one Application per infra
+#    feature enabled for this cluster via infra/<feature>/envs/${CLUSTER}.yaml
+#    in that repo. No features are enabled by default: create an
+#    infra/<feature>/envs/${CLUSTER}.yaml file there (presence = enabled) for
+#    whatever this cluster needs -- see any existing infra/<feature>/ for the
+#    pattern, and CLAUDE.md for the full workflow.
+cat > "$INFRA_GENERATOR" << EOF
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: infra
+  name: infra-generator
   namespace: gitops
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: gitops
   source:
-    repoURL: https://github.com/zemlab/zem-gitops
+    repoURL: https://github.com/zemlab/gitops
     targetRevision: main
-    path: deployments/infra
+    path: charts/infra-generator
     helm:
       valuesObject:
-        common:
-          values:
-            cluster:
-              name: ${CLUSTER}
-        features: {}
-        # TODO: enable features for ${CLUSTER}
-        # Common examples:
-        #   externaldns:
-        #     enabled: true
-        #     values:
-        #       external-dns:
-        #         txtOwnerId: "zem-c4"
-        #   metallb:
-        #     enabled: true
-        #   metallb-configs:
-        #     enabled: true
-        #     values:
-        #       addresses:
-        #         - "x.x.x.x-x.x.x.x"
-        #   longhorn:
-        #     enabled: true
-        #     values:
-        #       ingress:
-        #         hostname: longhorn-${CLUSTER}
-        #   k8up:
-        #     enabled: true
-        #   kubernetes-replicator:
-        #     enabled: true
-        #   cloudflared:
-        #     enabled: true
-        #     values:
-        #       externalSecret:
-        #         remoteRefKey: cloudflared-token-${CLUSTER}
-        #   project-credentials:
-        #     enabled: true
-        #     values:
-        #       namespaces: []
-
+        cluster:
+          name: ${CLUSTER}
+        repoURL: https://github.com/zemlab/gitops
+        targetRevision: main
+        manualSync: false
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops
   syncPolicy:
     automated:
       prune: true
-  ignoreDifferences:
-    - group: argoproj.io
-      kind: Application
-      jsonPointers:
-      - /spec/syncPolicy
 EOF
-echo "Created: ${INFRA_YAML}"
+echo "Created: ${INFRA_GENERATOR}"
 echo ""
 
 # ============================================================
@@ -258,7 +262,8 @@ echo "  ${BOOTSTRAP_VALUES}"
 echo "  ${HELMFILE} (updated)"
 echo "  ${ARGOCD_APP}"
 echo "  ${GITOPS_PROJECT}"
-echo "  ${INFRA_YAML}"
+echo "  ${INFRA_APPPROJECT}"
+echo "  ${INFRA_GENERATOR}"
 echo ""
 echo "  ┌─────────────────────────────────────────────────────────┐"
 echo "  │  ACTION REQUIRED: commit and push these files to main.  │"
@@ -337,10 +342,12 @@ echo "     git add bootstrap/values/${CLUSTER}.yaml"
 echo "     git commit -m 'feat(${CLUSTER}): add oci vault bootstrap config'"
 echo "     git push"
 echo ""
-echo "2. Customize ${INFRA_YAML} with required features."
-echo "   Validate before pushing:"
-echo "     helm template test ${REPO_ROOT}/deployments/infra -f ${INFRA_YAML}"
-echo "     helm lint ${REPO_ROOT}/deployments/infra -f ${INFRA_YAML}"
+echo "2. Enable infra features for ${CLUSTER} in the gitops repo (~/git/zem/gitops):"
+echo "   for each feature, add infra/<feature>/envs/${CLUSTER}.yaml -- presence of"
+echo "   the file is what enables it (see any existing infra/<feature>/ dir for"
+echo "   the app.yaml + envs/<cluster>.yaml pattern). Validate before pushing:"
+echo "     helm template test ~/git/zem/gitops/charts/infra-generator --set cluster.name=${CLUSTER}"
+echo "     helm lint ~/git/zem/gitops/charts/infra-generator"
 echo ""
 echo "3. For each project namespace, run:"
 echo "     ${REPO_ROOT}/scripts/create-project.sh ${CLUSTER} <namespace>"

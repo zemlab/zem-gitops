@@ -4,17 +4,18 @@
 
 This is a GitOps repository managed by ArgoCD for deploying infrastructure across multiple Kubernetes clusters.
 
-**This repo holds infra only.** The application-deployment engine (project-generator/project-instance
-ApplicationSet drivers and the `projects/` config tree) lives in the separate `gitops` repo
-(`https://github.com/zemlab/gitops`, checked out at `~/git/zem/gitops`). This repo's only link into
-it is the `project-generator` feature entry in `deployments/infra/values.yaml`.
+**This repo holds infra chart code + cluster wiring only.** Both generator engines — project-generator/
+project-instance (app deployment) and infra-generator (infra features) — plus their config trees
+(`projects/`, `infra/`) live in the separate `gitops` repo (`https://github.com/zemlab/gitops`, checked
+out at `~/git/zem/gitops`). This repo's link into it is per-cluster:
+`clusters/<cluster>/infra-generator.yaml` wires the `infra-generator` chart, and `project-generator` is
+a static Application at the root tier.
 
 ### Key Directories
 
-- `apps/infra/zem-<name>/` - Helm chart wrappers for infrastructure tools (each has Chart.yaml, values.yaml, templates/)
+- `apps/infra/zem-<name>/` - Helm chart wrappers for infrastructure tools (each has Chart.yaml, values.yaml, templates/) — feature CODE only; per-cluster enablement lives in the `gitops` repo's `infra/<name>/` tree
 - `apps/zem-<project>/`, `apps/<project>/` - Project workload chart wrappers, referenced by `projects/*/app.yaml` in the `gitops` repo (stayed here deliberately so infra and app charts share one Helm/lint pipeline)
-- `deployments/infra/` - App-of-apps pattern: values.yaml defines all features, templates/application.yaml generates ArgoCD Applications
-- `clusters/<cluster-name>/` - Per-cluster configuration (`infra.yaml`, `gitops.project.yaml`)
+- `clusters/<cluster-name>/` - Per-cluster configuration (`infra-generator.yaml`, `infra.appproject.yaml`, `gitops.project.yaml`)
 
 ### Clusters
 
@@ -26,18 +27,27 @@ kubectl contexts follow the pattern `<cluster>.shark-puffin.ts.net` (e.g. `clust
 
 ### How Infra Features Work
 
-1. **Define feature** in `deployments/infra/values.yaml` under `features:` with `enabled: false` (default disabled)
-2. **Each feature** has: `enabled`, `namespace`, `source` (repoURL + path or chart), optional `values`
-3. **Template** at `deployments/infra/templates/application.yaml` iterates features and creates ArgoCD Applications
-4. **Per-cluster overrides** in `clusters/<name>/infra.yaml` enable features and provide cluster-specific values
-5. **Common values** (like cluster name) are set in `common.values` and merged with feature values
+Infra is driven by an `infra-features` ApplicationSet (chart `charts/infra-generator` in the `gitops`
+repo), a merge generator reading a config tree at `infra/<feature>/` (also in the `gitops` repo) — the
+infra analog of `projects/`. Per cluster:
+
+1. **Enabled = an `infra/<feature>/envs/<cluster>.yaml` file exists.** Its presence is the generator
+   param source; its contents are per-cluster Helm values for that feature.
+2. **`infra/<feature>/app.yaml`** supplies `releaseName`, `namespace`, `source` (git path into
+   `apps/infra/zem-<name>` in zem-gitops, or an external Helm repo chart+version), optional
+   `ignoreDifferences`/`syncWave`.
+3. **`infra/<feature>/values.yaml`** (optional) holds base values shared across all clusters.
+4. One `clusters/<cluster>/infra-generator.yaml` Application (this repo) wires the `infra-generator`
+   chart per cluster — this is the ONLY per-cluster wiring file; there is no parent app-of-apps to
+   re-sync. Editing an `envs/<cluster>.yaml` in the `gitops` repo takes effect in a single
+   ApplicationSet reconcile.
 
 ### Adding a New Infra Tool
 
-1. Create `apps/infra/zem-<name>/Chart.yaml` (wrapper chart with dependency)
-2. Create `apps/infra/zem-<name>/values.yaml` (pass-through config)
-3. Add feature entry to `deployments/infra/values.yaml` (disabled by default)
-4. Enable in target cluster's `clusters/<cluster>/infra.yaml`
+1. Create `apps/infra/zem-<name>/Chart.yaml` (wrapper chart with dependency) in **this repo**
+2. Create `apps/infra/zem-<name>/values.yaml` (pass-through config) in **this repo**
+3. In the **`gitops`** repo, create `infra/<name>/app.yaml` (+ optional `values.yaml`)
+4. Enable on a cluster by adding `infra/<name>/envs/<cluster>.yaml` in the **`gitops`** repo
 
 ### Source Patterns
 
@@ -76,11 +86,18 @@ All Application CRs carry `resources-finalizer.argocd.argoproj.io` in `metadata.
 ### AppProject Structure
 
 Each cluster has `clusters/<cluster>/gitops.project.yaml` defining the `gitops` AppProject. This project:
-- Must list **both** `gitops` and `argocd` as destinations — `argocd` is required because AppProject resources (created by the infra app-of-apps) live in the `argocd` namespace
+- Must list **both** `gitops` and `argocd` as destinations — `argocd` is required because AppProject resources live in the `argocd` namespace
 - Must have `sourceNamespaces: [gitops]` — required for ArgoCD to accept Applications in the `gitops` namespace using this project
 - Bootstrap Applications use `project: gitops`
 
-The infra app-of-apps creates an `infra` AppProject (managed resource, lives in `argocd` ns). The `project-instance` chart (in the `gitops` repo) creates per-project AppProjects. Both need `sourceNamespaces: [gitops]` — defined in their templates. Each cluster's `gitops` AppProject `sourceRepos` must whitelist both `https://github.com/zemlab/zem-gitops` and `https://github.com/zemlab/gitops`.
+`clusters/<cluster>/infra.appproject.yaml` (this repo, static, not Helm-rendered) defines the `infra`
+AppProject (lives in `argocd` ns) used by every ApplicationSet-generated feature Application.
+`destinations: namespace: '*'` deliberately — `clusterResourceWhitelist` is already `*/*`, so
+enumerating namespaces would add no real restriction while forcing an edit here every time a feature
+widens its reach. `sourceRepos` is the real, enumerated restriction: both `zemlab/zem-gitops` (feature
+chart code) and `zemlab/gitops` (feature config), plus every external Helm repo in use. The
+`project-instance` chart (in the `gitops` repo) creates per-project AppProjects. All three project
+types need `sourceNamespaces: [gitops]` — defined in their own templates/manifests.
 
 ### ArgoCD ConfigMap (`argocd-cm`)
 
@@ -107,8 +124,8 @@ kubectl annotate application <app> -n gitops argocd.argoproj.io/refresh=hard --o
 
 - `apps/infra/zem-<name>/` — infra tool wrappers (Helm charts)
 - `apps/zem-<project>/` — project-level app wrappers (e.g. `apps/zem-gitlab/`)
-- `deployments/infra/` — infra app-of-apps
-- `charts/project-generator/`, `charts/project-instance/` — project app-of-apps drivers (in the `gitops` repo, not here)
+- `charts/infra-generator/` — infra ApplicationSet driver, reads `infra/` config tree (in the `gitops` repo, not here)
+- `charts/project-generator/`, `charts/project-instance/` — project ApplicationSet drivers (in the `gitops` repo, not here)
 
 ### Bootstrap (Pre-ArgoCD)
 
@@ -142,35 +159,27 @@ remoteRef:
 
 ### Testing Helm Charts Before Committing
 
-Always run `helm lint` and `helm template` before committing any changes to Helm charts or values files. Broken charts cause ArgoCD app-of-apps to fail to render, taking down all child applications.
+Always run `helm lint` and `helm template` before committing any changes to Helm charts or values files. Broken charts cause ArgoCD app-of-apps/ApplicationSets to fail to render, taking down all child applications.
 
-**For `charts/project-generator/` or `charts/project-instance/` (project app-of-apps, in the `gitops` repo):**
+**For `charts/project-generator/`, `charts/project-instance/`, or `charts/infra-generator/` (ApplicationSet drivers, in the `gitops` repo):**
 ```bash
-helm lint charts/project-generator charts/project-instance
+helm lint charts/project-generator charts/project-instance charts/infra-generator
 helm template test charts/project-generator --set cluster.name=<cluster>
 helm template test charts/project-instance --set name=<project> --set env=<env> --set cluster=<cluster>
+helm template test charts/infra-generator --set cluster.name=<cluster>
 ```
 
-**For `apps/infra/zem-<name>/` or `apps/zem-<name>/` (wrapper charts):**
+**For `apps/infra/zem-<name>/` or `apps/zem-<name>/` (wrapper charts, in this repo):**
 ```bash
 helm dependency update apps/infra/zem-<name>/
 helm lint apps/infra/zem-<name>/
 helm template test apps/infra/zem-<name>/
 ```
 
-**For `deployments/infra/` (infra app-of-apps):**
-```bash
-helm template test deployments/infra -f clusters/<cluster>/infra.yaml
-```
-
-### infra.yaml Is Not a Pure Values File
-
-`clusters/<cluster>/infra.yaml` is an ArgoCD Application manifest, not a Helm values file. The `helm template test deployments/infra -f clusters/<cluster>/infra.yaml` command does NOT accurately reflect what ArgoCD renders — it parses the whole Application YAML as values (nesting under `apiVersion`, `spec`, etc.). Only use it to catch syntax errors; don't rely on the output to match live ArgoCD rendering.
-
 ### Git Remote
 
-- Repo URL used in sources (this repo, infra): `https://github.com/zemlab/zem-gitops`
-- App-deployment repo (project-generator/project-instance charts + `projects/`): `https://github.com/zemlab/gitops`, checked out at `~/git/zem/gitops`
+- Repo URL used in sources (this repo, infra chart code + cluster wiring): `https://github.com/zemlab/zem-gitops`
+- Generator repo (project-generator/project-instance/infra-generator charts + `projects/` + `infra/`): `https://github.com/zemlab/gitops`, checked out at `~/git/zem/gitops`
 - Default branch: `main`
 - ArgoCD namespace (system components): `argocd`
 - ArgoCD Application namespace: `gitops`

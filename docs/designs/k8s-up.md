@@ -204,16 +204,15 @@ spec:
 {{- end }}
 ```
 
-**Add to `deployments/infra/values.yaml`:**
+**Add `infra/backup-credentials/app.yaml` (in the `gitops` repo):**
 ```yaml
-backup-credentials:
-  enabled: false
-  namespace: backup-credentials
-  source:
-    repoURL: https://github.com/danfoster/zem-gitops
-    targetRevision: main
-    path: apps/infra/zem-backup-credentials
+releaseName: backup-credentials
+namespace: backup-credentials
+source:
+  repoURL: https://github.com/zemlab/zem-gitops
+  path: apps/infra/zem-backup-credentials
 ```
+Enable per cluster by adding `infra/backup-credentials/envs/<cluster>.yaml` (presence = enabled; contents = per-cluster values).
 
 ### Step 2: Enhance zem-backups Chart
 
@@ -469,7 +468,7 @@ Similarly for cluster01/cluster02 with `principalType: "UserPrincipal"`.
 | Modify                                      | `deployments/media/templates/backups.application.yaml`             | Fix path + add values                                            |
 | Modify                                      | `deployments/zem-external/templates/backups.application.yaml`      | Add OCI Vault + B2 values                                        |
 | **Infra deployment**                        |                                                                    |                                                                  |
-| Modify                                      | `deployments/infra/values.yaml`                                    | Add `backup-credentials` feature (disabled)                      |
+| Create                                      | `infra/backup-credentials/app.yaml` (gitops repo)                  | New feature definition                                           |
 | **Cluster configs**                         |                                                                    |                                                                  |
 | Modify                                      | `clusters/cluster01/infra.yaml`                                    | Enable backup-credentials + namespace list                       |
 | Modify                                      | `clusters/cluster01/projects/media.yaml`                           | Add `cluster` + `ociVault` + `backups` values                    |
