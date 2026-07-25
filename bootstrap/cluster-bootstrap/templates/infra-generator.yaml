@@ -1,3 +1,4 @@
+{{- include "cluster-bootstrap.validate" . -}}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,16 +9,16 @@ metadata:
 spec:
   project: gitops
   source:
-    repoURL: https://github.com/zemlab/gitops
-    targetRevision: main
+    repoURL: {{ .Values.repoURL }}
+    targetRevision: {{ .Values.targetRevision }}
     path: charts/infra-generator
     helm:
       valuesObject:
         cluster:
-          name: cluster01
-        repoURL: https://github.com/zemlab/gitops
-        targetRevision: main
-        manualSync: false
+          name: {{ .Values.cluster.name | quote }}
+        repoURL: {{ .Values.repoURL }}
+        targetRevision: {{ .Values.targetRevision }}
+        manualSync: {{ .Values.manualSync }}
   destination:
     server: "https://kubernetes.default.svc"
     namespace: gitops

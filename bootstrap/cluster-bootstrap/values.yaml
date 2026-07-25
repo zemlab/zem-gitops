@@ -1,0 +1,7 @@
+cluster:
+  name: ""
+
+# gitops repo: source of the infra-generator chart wired below
+repoURL: https://github.com/zemlab/gitops
+targetRevision: main
+manualSync: false
