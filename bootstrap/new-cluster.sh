@@ -72,14 +72,10 @@ echo "=== Phase 1: Creating git artifacts ==="
 
 BOOTSTRAP_VALUES="${SCRIPT_DIR}/values/${CLUSTER}.yaml"
 ARGOCD_APP="${SCRIPT_DIR}/${CLUSTER}.yaml"
-CLUSTER_DIR="${REPO_ROOT}/clusters/${CLUSTER}"
-GITOPS_PROJECT="${CLUSTER_DIR}/gitops.project.yaml"
-INFRA_APPPROJECT="${CLUSTER_DIR}/infra.appproject.yaml"
-INFRA_GENERATOR="${CLUSTER_DIR}/infra-generator.yaml"
 HELMFILE="${SCRIPT_DIR}/helmfile.yaml.gotmpl"
 
 # Fail fast if any target already exists
-for f in "$BOOTSTRAP_VALUES" "$ARGOCD_APP" "$GITOPS_PROJECT" "$INFRA_APPPROJECT" "$INFRA_GENERATOR"; do
+for f in "$BOOTSTRAP_VALUES" "$ARGOCD_APP"; do
     if [ -f "$f" ]; then
         echo "ERROR: $f already exists. Remove it first or use bootstrap.sh to re-run an existing cluster."
         exit 1
@@ -127,7 +123,15 @@ with open(helmfile_path, 'w') as f:
 PYEOF
 echo "Updated: ${HELMFILE} (added ${CLUSTER} environment)"
 
-# 3. bootstrap/<cluster>.yaml (ArgoCD Application)
+# 3. bootstrap/<cluster>.yaml (ArgoCD Application) -- wires the shared
+#    bootstrap/cluster-bootstrap chart, parameterized by cluster.name. That
+#    chart renders the gitops + infra AppProjects and the infra-generator
+#    Application, which in turn fans out one Application per infra feature
+#    enabled for this cluster via infra/<feature>/envs/${CLUSTER}.yaml in the
+#    gitops repo. No features are enabled by default: create an
+#    infra/<feature>/envs/${CLUSTER}.yaml file there (presence = enabled) for
+#    whatever this cluster needs -- see any existing infra/<feature>/ for the
+#    pattern, and CLAUDE.md for the full workflow.
 cat > "$ARGOCD_APP" << EOF
 kind: Application
 apiVersion: argoproj.io/v1alpha1
@@ -142,114 +146,18 @@ spec:
     server: https://kubernetes.default.svc
   project: gitops
   source:
-    path: clusters/${CLUSTER}
+    path: bootstrap/cluster-bootstrap
     repoURL: https://github.com/zemlab/zem-gitops
     targetRevision: main
+    helm:
+      valuesObject:
+        cluster:
+          name: ${CLUSTER}
   syncPolicy:
     automated:
       prune: true
 EOF
 echo "Created: ${ARGOCD_APP}"
-
-# 4. clusters/<cluster>/gitops.project.yaml
-mkdir -p "$CLUSTER_DIR"
-cat > "$GITOPS_PROJECT" << EOF
-apiVersion: argoproj.io/v1alpha1
-kind: AppProject
-metadata:
-  name: gitops
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
-spec:
-  description: GitOps Project
-  destinations:
-    - namespace: "gitops"
-      server: "https://kubernetes.default.svc"
-    - namespace: "argocd"
-      server: "https://kubernetes.default.svc"
-  sourceNamespaces:
-    - gitops
-  clusterResourceWhitelist:
-    - group: "*"
-      kind: "*"
-  sourceRepos:
-    - "https://github.com/zemlab/zem-gitops"
-    - "https://github.com/zemlab/gitops"
-EOF
-echo "Created: ${GITOPS_PROJECT}"
-
-# 5. clusters/<cluster>/infra.appproject.yaml -- static, bounded AppProject
-#    for every infra feature Application (created once here, not per-feature --
-#    see the infra ApplicationSet migration for why).
-cat > "$INFRA_APPPROJECT" << EOF
-apiVersion: argoproj.io/v1alpha1
-kind: AppProject
-metadata:
-  name: infra
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
-spec:
-  description: Infra
-  # namespace: '*' rather than an enumerated list: clusterResourceWhitelist is
-  # already */* (any ClusterRole/CRD/etc, already far more powerful than
-  # namespace scoping contains), and an enumerated list would need editing here
-  # every time a feature's own infra/<feature>/app.yaml (in the gitops repo)
-  # adds a namespace. sourceRepos below stays the real, enumerated restriction.
-  destinations:
-    - namespace: "*"
-      server: "https://kubernetes.default.svc"
-  sourceNamespaces:
-    - gitops
-  clusterResourceWhitelist:
-    - group: "*"
-      kind: "*"
-  sourceRepos:
-    - https://github.com/zemlab/zem-gitops
-    - https://github.com/zemlab/gitops
-    - https://kubernetes.github.io/ingress-nginx
-    - https://stakater.github.io/stakater-charts
-    - https://metallb.github.io/metallb
-EOF
-echo "Created: ${INFRA_APPPROJECT}"
-
-# 6. clusters/<cluster>/infra-generator.yaml -- wires the infra-generator
-#    chart (in the gitops repo), which fans out one Application per infra
-#    feature enabled for this cluster via infra/<feature>/envs/${CLUSTER}.yaml
-#    in that repo. No features are enabled by default: create an
-#    infra/<feature>/envs/${CLUSTER}.yaml file there (presence = enabled) for
-#    whatever this cluster needs -- see any existing infra/<feature>/ for the
-#    pattern, and CLAUDE.md for the full workflow.
-cat > "$INFRA_GENERATOR" << EOF
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: infra-generator
-  namespace: gitops
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: gitops
-  source:
-    repoURL: https://github.com/zemlab/gitops
-    targetRevision: main
-    path: charts/infra-generator
-    helm:
-      valuesObject:
-        cluster:
-          name: ${CLUSTER}
-        repoURL: https://github.com/zemlab/gitops
-        targetRevision: main
-        manualSync: false
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: gitops
-  syncPolicy:
-    automated:
-      prune: true
-EOF
-echo "Created: ${INFRA_GENERATOR}"
 echo ""
 
 # ============================================================
@@ -261,20 +169,17 @@ echo "Files created:"
 echo "  ${BOOTSTRAP_VALUES}"
 echo "  ${HELMFILE} (updated)"
 echo "  ${ARGOCD_APP}"
-echo "  ${GITOPS_PROJECT}"
-echo "  ${INFRA_APPPROJECT}"
-echo "  ${INFRA_GENERATOR}"
 echo ""
 echo "  ┌─────────────────────────────────────────────────────────┐"
 echo "  │  ACTION REQUIRED: commit and push these files to main.  │"
-echo "  │  ArgoCD will sync clusters/${CLUSTER}/ on first start.  │"
+echo "  │  ArgoCD will sync ${CLUSTER} on first start.             │"
 echo "  └─────────────────────────────────────────────────────────┘"
 echo ""
 echo "  Suggested commands:"
 echo "    cd ${REPO_ROOT}"
 echo "    git add bootstrap/helmfile.yaml.gotmpl bootstrap/values/${CLUSTER}.yaml \\"
-echo "           bootstrap/${CLUSTER}.yaml clusters/${CLUSTER}/"
-echo "    git commit -m 'feat(${CLUSTER}): add bootstrap config and cluster skeleton'"
+echo "           bootstrap/${CLUSTER}.yaml"
+echo "    git commit -m 'feat(${CLUSTER}): add bootstrap config'"
 echo "    git push"
 echo ""
 read -rp "Press Enter when pushed to main..."

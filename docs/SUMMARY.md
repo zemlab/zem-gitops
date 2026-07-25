@@ -4,7 +4,7 @@
 
 ## What this repo is
 
-GitOps repo managing three Kubernetes clusters via ArgoCD. Holds infrastructure *chart code*, project workload *charts*, and bootstrap configuration. Both ApplicationSet drivers (project-generator/project-instance for app deployment, infra-generator for infra features) and their config trees (`projects/`, `infra/`) live in the separate `gitops` repo (`https://github.com/zemlab/gitops`, checked out at `~/git/zem/gitops`); this repo links to it per-cluster via `clusters/<cluster>/infra-generator.yaml` and the static `project-generator` Application.
+GitOps repo managing three Kubernetes clusters via ArgoCD. Holds infrastructure *chart code*, project workload *charts*, and bootstrap configuration. Both ApplicationSet drivers (project-generator/project-instance for app deployment, infra-generator for infra features) and their config trees (`projects/`, `infra/`) live in the separate `gitops` repo (`https://github.com/zemlab/gitops`, checked out at `~/git/zem/gitops`); this repo links to it per-cluster via the `bootstrap/cluster-bootstrap` chart (which wires `infra-generator`) and the static `project-generator` Application.
 
 ---
 
@@ -35,14 +35,11 @@ apps/
 bootstrap/
   helmfile.yaml.gotmpl  6 pre-ArgoCD releases (cert-manager → ESO → tailscale → ArgoCD)
   values/<cluster>.yaml Per-cluster bootstrap values
+  <cluster>.yaml        Root ArgoCD Application per cluster, wires cluster-bootstrap with cluster.name
+  cluster-bootstrap/    Chart: renders gitops/infra AppProjects + infra-generator Application
+                        (identical across clusters bar the one cluster.name value)
   new-cluster.sh        Full new-cluster setup script
   bootstrap.sh          Re-run bootstrap on existing cluster
-
-clusters/
-  <cluster>/
-    infra-generator.yaml   ArgoCD Application — wires the infra-generator chart for this cluster
-    infra.appproject.yaml  Static AppProject used by every generated feature Application
-    gitops.project.yaml    ArgoCD AppProject definition
 
 scripts/                Operational scripts (see below)
 docs/                   Design docs and this file
@@ -74,7 +71,7 @@ infra/
 1. **Enabled = an `infra/<feature>/envs/<cluster>.yaml` file exists** (in the `gitops` repo)
 2. Each feature has a **wrapper chart** at `apps/infra/zem-<name>/` (in this repo) or points at an external Helm repo
 3. `infra/<feature>/app.yaml` (in the `gitops` repo) supplies the source/namespace
-4. The `infra-features` ApplicationSet (from `charts/infra-generator`, wired per cluster by `clusters/<cluster>/infra-generator.yaml`) merges the two and creates/updates one Application per enabled feature — one reconcile, no parent app-of-apps to re-sync
+4. The `infra-features` ApplicationSet (from `charts/infra-generator`, wired per cluster by the `infra-generator` Application rendered from `bootstrap/cluster-bootstrap`) merges the two and creates/updates one Application per enabled feature — one reconcile, no parent app-of-apps to re-sync
 
 To add a new infra tool: create the wrapper chart in this repo, add `infra/<name>/app.yaml` in the `gitops` repo, enable per cluster with `infra/<name>/envs/<cluster>.yaml`.
 
@@ -141,7 +138,7 @@ For an existing cluster, re-run with `bootstrap/bootstrap.sh <cluster> <bw-token
 - All Application CRs live in the **`gitops`** namespace (not `argocd`)
 - All Applications carry `resources-finalizer.argocd.argoproj.io` — deleting cascades
 - `argocd-cm` is **not** Helm-managed; patch it directly with `kubectl patch`
-- The `cluster03` / `cluster04` Applications (bootstrap-applied) each track `clusters/<cluster>/` and manage `infra-generator` as a child Application
+- The `cluster01` / `cluster03` / `cluster04` Applications (bootstrap-applied) each track `bootstrap/cluster-bootstrap` and manage `infra-generator` as a child Application
 
 ---
 
