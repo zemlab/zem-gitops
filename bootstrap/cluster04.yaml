@@ -11,9 +11,13 @@ spec:
     server: https://kubernetes.default.svc
   project: gitops
   source:
-    path: clusters/cluster04
+    path: bootstrap/cluster-bootstrap
     repoURL: https://github.com/zemlab/zem-gitops
     targetRevision: main
+    helm:
+      valuesObject:
+        cluster:
+          name: cluster04
   syncPolicy:
     automated:
       prune: true
