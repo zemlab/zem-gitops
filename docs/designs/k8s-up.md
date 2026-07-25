@@ -160,9 +160,9 @@ Each deployment's app-of-apps (media, pce, zem-external) remains responsible for
 - Annotates each secret for kubernetes-replicator to mirror to the target namespace
 
 **New files:**
-- `apps/infra/zem-backup-credentials/Chart.yaml`
-- `apps/infra/zem-backup-credentials/values.yaml`
-- `apps/infra/zem-backup-credentials/templates/externalsecrets.yaml`
+- `infra/zem-backup-credentials/Chart.yaml`
+- `infra/zem-backup-credentials/values.yaml`
+- `infra/zem-backup-credentials/templates/externalsecrets.yaml`
 
 **values.yaml structure:**
 ```yaml
@@ -209,14 +209,14 @@ spec:
 releaseName: backup-credentials
 namespace: backup-credentials
 source:
-  repoURL: https://github.com/zemlab/zem-gitops
-  path: apps/infra/zem-backup-credentials
+  repoURL: https://github.com/zemlab/charts
+  path: infra/zem-backup-credentials
 ```
 Enable per cluster by adding `infra/backup-credentials/envs/<cluster>.yaml` (presence = enabled; contents = per-cluster values).
 
 ### Step 2: Enhance zem-backups Chart
 
-**Modify:** `apps/infra/zem-backups/`
+**Modify:** `infra/zem-backups/`
 
 Current chart only has `templates/schedule.yaml`. Enhance to include:
 
@@ -332,17 +332,17 @@ prune:
 
 ### Step 3: Remove Global Credentials from K8up
 
-**Modify:** `apps/infra/zem-k8up/values.yaml`
+**Modify:** `infra/zem-k8up/values.yaml`
 
 Remove all `BACKUP_GLOBAL*` env vars from k8up config. The operator no longer needs global S3/restic credentials since each Schedule specifies its own backend.
 
-**Delete:** `apps/infra/zem-k8up/templates/b2.externalsecret.yaml`
-**Delete:** `apps/infra/zem-k8up/templates/restic.externalsecret.yaml`
-**Delete:** `apps/infra/zem-k8up/templates/rclone-deployment.yaml`
-**Delete:** `apps/infra/zem-k8up/templates/rclone-service.yaml`
-**Delete:** `apps/infra/zem-k8up/templates/rclone-networkpolicy.yaml`
-**Delete:** `apps/infra/zem-k8up/templates/rclone-externalsecret.yaml`
-**Remove:** `rclone` section from `apps/infra/zem-k8up/values.yaml`
+**Delete:** `infra/zem-k8up/templates/b2.externalsecret.yaml`
+**Delete:** `infra/zem-k8up/templates/restic.externalsecret.yaml`
+**Delete:** `infra/zem-k8up/templates/rclone-deployment.yaml`
+**Delete:** `infra/zem-k8up/templates/rclone-service.yaml`
+**Delete:** `infra/zem-k8up/templates/rclone-networkpolicy.yaml`
+**Delete:** `infra/zem-k8up/templates/rclone-externalsecret.yaml`
+**Remove:** `rclone` section from `infra/zem-k8up/values.yaml`
 
 ### Step 4: Update Deployment Backup Applications
 
@@ -352,7 +352,7 @@ Each deployment's `backups.application.yaml` needs to pass OCI Vault config, B2 
 ```yaml
 spec:
   source:
-    path: apps/infra/zem-backups
+    path: infra/zem-backups
     helm:
       valuesObject:
         ociVault:
@@ -386,7 +386,7 @@ helm:
 
 Similarly for `clusters/cluster01/projects/media.yaml`, etc.
 
-**Fix:** The media deployment currently points to `apps/common/zem-backups` which doesn't exist. Fix to `apps/infra/zem-backups`.
+**Fix:** The media deployment currently points to `infra/zem-backups (charts repo)` which doesn't exist. Fix to `infra/zem-backups`.
 
 ### Step 5: Provisioning Script
 
@@ -447,22 +447,22 @@ Similarly for cluster01/cluster02 with `principalType: "UserPrincipal"`.
 | Action                                      | Path                                                               | Notes                                                            |
 | ------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | **New infra chart: zem-backup-credentials** |                                                                    |                                                                  |
-| Create                                      | `apps/infra/zem-backup-credentials/Chart.yaml`                     | Chart metadata                                                   |
-| Create                                      | `apps/infra/zem-backup-credentials/values.yaml`                    | Namespace list for OCI API key distribution                      |
-| Create                                      | `apps/infra/zem-backup-credentials/templates/externalsecrets.yaml` | Pulls OCI API keys from Bitwarden, annotates for replication     |
+| Create                                      | `infra/zem-backup-credentials/Chart.yaml`                     | Chart metadata                                                   |
+| Create                                      | `infra/zem-backup-credentials/values.yaml`                    | Namespace list for OCI API key distribution                      |
+| Create                                      | `infra/zem-backup-credentials/templates/externalsecrets.yaml` | Pulls OCI API keys from Bitwarden, annotates for replication     |
 | **Enhanced zem-backups chart**              |                                                                    |                                                                  |
-| Modify                                      | `apps/infra/zem-backups/values.yaml`                               | Add `ociVault` + `b2` config blocks                              |
-| Create                                      | `apps/infra/zem-backups/templates/secretstore.yaml`                | Per-namespace OCI Vault SecretStore                              |
-| Create                                      | `apps/infra/zem-backups/templates/externalsecret.yaml`             | Per-namespace B2 + restic creds from OCI Vault                   |
-| Modify                                      | `apps/infra/zem-backups/templates/schedule.yaml`                   | Add per-namespace backend config                                 |
+| Modify                                      | `infra/zem-backups/values.yaml`                               | Add `ociVault` + `b2` config blocks                              |
+| Create                                      | `infra/zem-backups/templates/secretstore.yaml`                | Per-namespace OCI Vault SecretStore                              |
+| Create                                      | `infra/zem-backups/templates/externalsecret.yaml`             | Per-namespace B2 + restic creds from OCI Vault                   |
+| Modify                                      | `infra/zem-backups/templates/schedule.yaml`                   | Add per-namespace backend config                                 |
 | **K8up cleanup**                            |                                                                    |                                                                  |
-| Modify                                      | `apps/infra/zem-k8up/values.yaml`                                  | Remove globals + rclone config                                   |
-| Delete                                      | `apps/infra/zem-k8up/templates/b2.externalsecret.yaml`             |                                                                  |
-| Delete                                      | `apps/infra/zem-k8up/templates/restic.externalsecret.yaml`         |                                                                  |
-| Delete                                      | `apps/infra/zem-k8up/templates/rclone-deployment.yaml`             |                                                                  |
-| Delete                                      | `apps/infra/zem-k8up/templates/rclone-service.yaml`                |                                                                  |
-| Delete                                      | `apps/infra/zem-k8up/templates/rclone-networkpolicy.yaml`          |                                                                  |
-| Delete                                      | `apps/infra/zem-k8up/templates/rclone-externalsecret.yaml`         |                                                                  |
+| Modify                                      | `infra/zem-k8up/values.yaml`                                  | Remove globals + rclone config                                   |
+| Delete                                      | `infra/zem-k8up/templates/b2.externalsecret.yaml`             |                                                                  |
+| Delete                                      | `infra/zem-k8up/templates/restic.externalsecret.yaml`         |                                                                  |
+| Delete                                      | `infra/zem-k8up/templates/rclone-deployment.yaml`             |                                                                  |
+| Delete                                      | `infra/zem-k8up/templates/rclone-service.yaml`                |                                                                  |
+| Delete                                      | `infra/zem-k8up/templates/rclone-networkpolicy.yaml`          |                                                                  |
+| Delete                                      | `infra/zem-k8up/templates/rclone-externalsecret.yaml`         |                                                                  |
 | **Deployments**                             |                                                                    |                                                                  |
 | Modify                                      | `deployments/pce/templates/backups.application.yaml`               | Add OCI Vault + B2 values                                        |
 | Modify                                      | `deployments/media/templates/backups.application.yaml`             | Fix path + add values                                            |

@@ -4,7 +4,14 @@
 
 ## What this repo is
 
-GitOps repo managing three Kubernetes clusters via ArgoCD. Holds infrastructure *chart code*, project workload *charts*, and bootstrap configuration. Both ApplicationSet drivers (project-generator/project-instance for app deployment, infra-generator for infra features) and their config trees (`projects/`, `infra/`) live in the separate `gitops` repo (`https://github.com/zemlab/gitops`, checked out at `~/git/zem/gitops`); this repo links to it per-cluster via the `bootstrap/cluster-bootstrap` chart (which wires `infra-generator`) and the static `project-generator` Application.
+GitOps repo managing three Kubernetes clusters via ArgoCD. Holds **cluster wiring and bootstrap
+configuration only** — no chart code. Three repos total: this one (zem-gitops), `zemlab/charts`
+(all Helm chart wrapper code — infra tools + project apps, private), and `zemlab/gitops` (both
+ApplicationSet drivers — project-generator/project-instance for app deployment, infra-generator for
+infra features — plus their config trees `projects/`/`infra/`, private, checked out at
+`~/git/zem/gitops`). This repo links to the generator repo per-cluster via the
+`bootstrap/cluster-bootstrap` chart (which wires `infra-generator`) and the static `project-generator`
+Application.
 
 ---
 
@@ -23,17 +30,10 @@ GitOps repo managing three Kubernetes clusters via ArgoCD. Holds infrastructure 
 ## Directory map
 
 ```
-apps/
-  infra/zem-<name>/     Helm wrapper charts for infra tools (28 total)
-  media/                Plex, Radarr, Sonarr, Transmission, Samba
-  networking/           Omada controller
-  zem-external/         Calibre-web, wiki, WordPress, echo
-  zem-gitlab/           GitLab runner
-  zem-internal/         Homepage dashboard
-  awx/                  AWX (Ansible)
-
 bootstrap/
-  helmfile.yaml.gotmpl  6 pre-ArgoCD releases (cert-manager → ESO → tailscale → ArgoCD)
+  helmfile.yaml.gotmpl  6 pre-ArgoCD releases (cert-manager → ESO → tailscale → ArgoCD); 3 of
+                        them source their chart via Helmfile's git:: remote syntax against the
+                        charts repo, since Helmfile runs before ArgoCD/GitOps exists
   values/<cluster>.yaml Per-cluster bootstrap values
   <cluster>.yaml        Root ArgoCD Application per cluster, wires cluster-bootstrap with cluster.name
   cluster-bootstrap/    Chart: renders gitops/infra AppProjects + infra-generator Application
@@ -45,7 +45,18 @@ scripts/                Operational scripts (see below)
 docs/                   Design docs and this file
 ```
 
-The `gitops` repo (`~/git/zem/gitops`) holds both ApplicationSet drivers:
+The `charts` repo (`https://github.com/zemlab/charts`, private) holds every Helm chart wrapper:
+```
+infra/zem-<name>/     Helm wrapper charts for infra tools (28 total)
+media/                Plex, Radarr, Sonarr, Transmission, Samba
+networking/           Omada controller
+zem-external/         Calibre-web, wiki, WordPress, echo
+zem-gitlab/           GitLab runner
+zem-internal/         Homepage dashboard
+awx/                  AWX (Ansible)
+```
+
+The `gitops` repo (`~/git/zem/gitops`, private) holds both ApplicationSet drivers:
 ```
 charts/
   project-generator/    ApplicationSet that discovers project-envs per cluster
@@ -55,11 +66,11 @@ charts/
 projects/
   <project>/
     envs/<cluster>/     Per-cluster/env values passed to the project-instance chart
-    <app>/app.yaml      Per-app source (often points back at this repo's apps/<...>)
+    <app>/app.yaml      Per-app source (points at the charts repo)
 
 infra/
   <feature>/
-    app.yaml            releaseName, source (chart code path or helm repo), namespace
+    app.yaml            releaseName, source (charts repo path or external helm repo), namespace
     values.yaml         Optional base values shared across clusters
     envs/<cluster>.yaml Presence = feature enabled on that cluster; per-cluster values
 ```
@@ -69,11 +80,11 @@ infra/
 ## How infra features work
 
 1. **Enabled = an `infra/<feature>/envs/<cluster>.yaml` file exists** (in the `gitops` repo)
-2. Each feature has a **wrapper chart** at `apps/infra/zem-<name>/` (in this repo) or points at an external Helm repo
+2. Each feature has a **wrapper chart** at `infra/zem-<name>/` (in the `charts` repo) or points at an external Helm repo
 3. `infra/<feature>/app.yaml` (in the `gitops` repo) supplies the source/namespace
 4. The `infra-features` ApplicationSet (from `charts/infra-generator`, wired per cluster by the `infra-generator` Application rendered from `bootstrap/cluster-bootstrap`) merges the two and creates/updates one Application per enabled feature — one reconcile, no parent app-of-apps to re-sync
 
-To add a new infra tool: create the wrapper chart in this repo, add `infra/<name>/app.yaml` in the `gitops` repo, enable per cluster with `infra/<name>/envs/<cluster>.yaml`.
+To add a new infra tool: create the wrapper chart in the `charts` repo, add `infra/<name>/app.yaml` in the `gitops` repo, enable per cluster with `infra/<name>/envs/<cluster>.yaml`.
 
 ---
 
@@ -85,7 +96,7 @@ Projects are application workloads (media, pce, zenith, gitlab, etc). Their driv
 - Has a **values file** at `projects/<project>/envs/<cluster>/<env>.yaml` (in the `gitops` repo)
 - Gets a **project-instance** Application rendered from `charts/project-instance` (in the `gitops` repo)
 - That Application creates a Namespace, AppProject, and one ApplicationSet-generated Application per app
-- Most apps' charts (`apps/<...>` referenced by each `projects/*/app.yaml`) still live in **this** repo
+- Most apps' charts (referenced by each `projects/*/app.yaml`) live in the **`charts`** repo
 
 To onboard a new project namespace: **always use `scripts/create-project.sh <cluster> <namespace>`** — it provisions OCI users, IAM policies, B2 keys, restic passwords, and OCI Vault secrets, then generates the git files.
 

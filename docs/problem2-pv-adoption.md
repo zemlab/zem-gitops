@@ -18,7 +18,7 @@ When a stateful app is redeployed (new cluster, new namespace, or post-incident)
 
 Longhorn default storage class uses `reclaimPolicy: Delete`. When PVC is deleted, PV is also destroyed. For DR adoption to work, the PV must survive PVC deletion.
 
-**Fix:** Override Longhorn storage class reclaim policy to `Retain` in `apps/infra/zem-longhorn/values.yaml`:
+**Fix:** Override Longhorn storage class reclaim policy to `Retain` in `infra/zem-longhorn/values.yaml` (charts repo):
 
 ```yaml
 longhorn:

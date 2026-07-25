@@ -5,7 +5,7 @@ set -euo pipefail
 #
 # Creates a B2 application key scoped to the longhorn-<cluster>/ prefix and
 # stores the key ID and secret as individual Bitwarden SM secrets consumed by
-# the zem-infra ClusterSecretStore ExternalSecret in apps/infra/zem-longhorn/.
+# the zem-infra ClusterSecretStore ExternalSecret in infra/zem-longhorn/ (charts repo).
 #
 # Idempotent: if secrets exist in Bitwarden and the B2 key is still valid, reuses
 # them. Use --replace to force rotation (deletes old B2 key, creates new one).

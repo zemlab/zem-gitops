@@ -87,12 +87,12 @@ The `iamVaultSecretName` is in OCI Vault. For old projects it follows `infra-<na
 
 One file per app (service). Source the values from `deployments/project/projects/<project>.yaml` services section:
 
-**Git-based app** (chart in this repo):
+**Git-based app** (chart in the `charts` repo):
 ```yaml
 source:
-  repoURL: https://github.com/danfoster/zem-gitops
+  repoURL: https://github.com/zemlab/charts
   targetRevision: main
-  path: apps/<project-dir>/<app-dir>
+  path: <project-dir>/<app-dir>
 releaseName: <existing-helm-release-name>
 ```
 
