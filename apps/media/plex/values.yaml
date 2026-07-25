@@ -1,7 +1,0 @@
-ingress:
-  hostname: "plex.zem.org.uk"
-  annotations:
-    external-dns.alpha.kubernetes.io/target: "217.155.103.67"
-service:
-  annotations:
-    metallb.io/allow-shared-ip: "media"

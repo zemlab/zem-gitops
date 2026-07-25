@@ -23,7 +23,6 @@ spec:
     - group: "*"
       kind: "*"
   sourceRepos:
-    - https://github.com/zemlab/zem-gitops
     - https://github.com/zemlab/gitops
     - https://github.com/zemlab/charts
     - https://kubernetes.github.io/ingress-nginx

@@ -70,7 +70,7 @@ releases:
   # 3. zem-external-secrets (Bitwarden SecretStore config)
   - name: zem-external-secrets
     namespace: external-secrets
-    chart: ../apps/infra/zem-external-secrets
+    chart: git::https://github.com/zemlab/charts.git@infra/zem-external-secrets?ref=main
     needs:
       - external-secrets/external-secrets
     values:
@@ -103,7 +103,7 @@ releases:
   # 5. zem-tailscale (OAuth secrets)
   - name: zem-tailscale
     namespace: tailscale
-    chart: ../apps/infra/zem-tailscale
+    chart: git::https://github.com/zemlab/charts.git@infra/zem-tailscale?ref=main
     needs:
       - tailscale/tailscale-operator
     values:
@@ -168,20 +168,13 @@ releases:
   - name: argocd
     namespace: argocd
     createNamespace: true
-    chart: ../apps/infra/zem-argocd
+    chart: git::https://github.com/zemlab/charts.git@infra/zem-argocd?ref=main
     needs:
       - tailscale/zem-tailscale
     values:
       - globals:
           domain: argocd-{{ .Values.cluster.name }}.shark-puffin.ts.net
     hooks:
-      - events: ["prepare"]
-        showlogs: true
-        command: "helm"
-        args:
-          - "dependency"
-          - "build"
-          - "../apps/infra/zem-argocd"
       - events: ["postsync"]
         showlogs: true
         command: "kubectl"

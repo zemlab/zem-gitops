@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: bw-auth-token
-stringData:
-  token: {{ .Values.bitwarden.auth_token | quote }}

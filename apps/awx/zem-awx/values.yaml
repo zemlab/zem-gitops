@@ -1,6 +1,0 @@
-awx:
-  hostname: awx
-  storageClass: openebs-hostpath
-  adminPasswordSecretName: awx-admin-password
-  eeImage: registry.gitlab.com/zemlab/zem-infra/awx-ee:c20299d3
-  eePullSecret: gitlab-registry

@@ -1,4 +1,0 @@
-namespaces: []
-#  - name: pce-prod
-#    vaultSecretName: infra-pce-prod-oci-credentials  # OCI Vault secret containing JSON: {"privateKey":"...","fingerprint":"...","userOcid":"..."}
-#    targetNamespace: pce-prod

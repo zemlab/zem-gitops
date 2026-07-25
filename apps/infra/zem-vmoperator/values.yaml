@@ -1,6 +1,0 @@
-victoria-metrics-operator:
-  image:
-    repository: docker.io/victoriametrics/operator
-  admissionWebhooks:
-    certManager:
-      enabled: true

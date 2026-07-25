@@ -1,7 +1,0 @@
-oci:
-  rootSecretName: infra-mysql-admin-password
-mysql:
-  host: "10.44.0.209"
-applications:
-  - name: "pce-prod"
-    namespace: "pce-prod"

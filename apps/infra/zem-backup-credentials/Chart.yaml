@@ -1,5 +1,0 @@
-apiVersion: v2
-name: zem-backup-credentials
-description: Distributes OCI API keys from Bitwarden to application namespaces for backup credential access
-type: application
-version: 0.1.0
