@@ -131,12 +131,12 @@ if OCI_USER=$(oci iam user create \
     --name "${OCI_USER_NAME}" \
     --email "${OCI_USER_EMAIL}" \
     --description "Vault credentials access for ${NAMESPACE}" \
-    --output json 2>&1); then
+    --output json 2>/dev/null); then
     OCI_USER_OCID=$(echo "$OCI_USER" | jq -r '.data.id')
     echo "Created user: ${OCI_USER_NAME}"
 else
     echo "User ${OCI_USER_NAME} already exists, looking up..."
-    OCI_USER_OCID=$(oci iam user list --all --output json 2>&1 | jq -r ".data[] | select(.name == \"${OCI_USER_NAME}\") | .id")
+    OCI_USER_OCID=$(oci iam user list --all --output json 2>/dev/null | jq -r ".data[] | select(.name == \"${OCI_USER_NAME}\") | .id")
 fi
 
 if [ -z "${OCI_USER_OCID}" ]; then
@@ -339,8 +339,11 @@ echo ""
 # --- Step 7: Update git configuration files ---
 echo "--- Step 7: Updating git configuration ---"
 
-# Get the git root directory
-GIT_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+# Get the git root directory. The generated project config
+# (projects/<project>/envs/<cluster>/<env>.yaml) lives in the separate
+# `gitops` repo, not this one -- override via GIT_ROOT env var to point
+# there (e.g. GIT_ROOT=~/git/zem/gitops).
+GIT_ROOT="${GIT_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 
 # Derive project name and env from namespace (strip -prod, -dev, -staging suffixes)
 PROJECT_NAME=$(echo "${NAMESPACE}" | sed -E 's/-(prod|dev|staging)$//')

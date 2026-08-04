@@ -73,7 +73,7 @@ ExternalSecrets in `project-credentials` namespace use `ClusterSecretStore/oci-v
 
 **Always use `scripts/create-project.sh <cluster> <namespace>` to create new projects.** Do not manually create project files. The script handles all required steps: OCI users, IAM policies, B2 keys, restic passwords, OCI Vault secrets, and generates the git files. This script must also be used when migrating an existing project to a new cluster.
 
-**Note:** the project config files (`projects/<project>/envs/<cluster>/<env>.yaml`, `projects/<project>/<app>/app.yaml`) this script generates now live in the separate `gitops` repo (`~/git/zem/gitops`), not here — `scripts/create-project.sh` needs updating to target that repo (tracked as a follow-up from the repo split).
+**Note:** the project config files (`projects/<project>/envs/<cluster>/<env>.yaml`, `projects/<project>/<app>/app.yaml`) this script generates now live in the separate `gitops` repo (`~/git/zem/gitops`), not here. `scripts/create-project.sh` defaults to writing into its own repo (back-compat), so pass `GIT_ROOT=~/git/zem/gitops` explicitly when running it, e.g. `GIT_ROOT=~/git/zem/gitops ./scripts/create-project.sh cluster04 <namespace>`.
 
 See also: `scripts/setup-oci-vault-clustersecretstore.sh <cluster>` — one-time per-cluster setup for the `oci-vault` ClusterSecretStore.
 
